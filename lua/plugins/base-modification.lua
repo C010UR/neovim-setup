@@ -6,11 +6,4 @@ return {
       cmdline = { view = "cmdline" },
     },
   },
-  {
-    "neovim/nvim-lspconfig",
-    opts = {
-      autoformat = false,
-    },
-  },
-  {},
 }
