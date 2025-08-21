@@ -11,7 +11,7 @@ return {
           enabled = true,
           settings = {
             intelephense = {
-              maxMemory = 8192,
+              maxMemory = 16384,
               files = {
                 maxSize = 10000000,
               },
