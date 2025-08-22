@@ -5,14 +5,6 @@ return {
     dependencies = {
       { "nvim-telescope/telescope.nvim" },
     },
-    opts = {
-      menu = {
-        width = vim.api.nvim_win_get_width(0) - 4,
-      },
-      settings = {
-        save_on_toggle = true,
-      },
-    },
     keys = function()
       local harpoon = require("harpoon")
 
@@ -20,7 +12,7 @@ return {
         {
           "<leader>ha",
           function()
-            harpoon:list():add()
+            harpoon:list():prepend()
           end,
           desc = "Harpoon File",
         },
@@ -45,6 +37,13 @@ return {
             harpoon:list():select(i)
           end,
           desc = "Harpoon to File " .. i,
+        })
+        table.insert(keys, {
+          "<leader>h" .. i,
+          function()
+            harpoon:list():replace_at(i)
+          end,
+          desc = "Harpoon File At " .. i,
         })
       end
 
