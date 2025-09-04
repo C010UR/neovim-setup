@@ -44,7 +44,7 @@ map("n", "<leader>bn", function()
 
   local parsed = Utils.parsePath(clipboard)
 
-  if vim.fn.filereadable(parsed.path) == 0 then
+  if parsed.exists == 0 then
     vim.notify('File not found: "' .. clipboard .. '"', vim.log.levels.ERROR)
     return
   end

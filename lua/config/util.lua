@@ -15,13 +15,14 @@ M.relativePath = function()
 end
 
 ---Get the current line number of the cursor
----@return number # Current line number (1-indexed)
+---@return integer # Current line number (1-indexed)
 M.currentLineNumber = function()
   return vim.api.nvim_win_get_cursor(0)[1]
 end
+
 ---Parse a file path with optional line and column numbers
 ---@param path string # Input path in format "file.lua", "file.lua:42", or "file.lua:42:10"
----@return {path: string, row: integer|nil, col: integer|nil} # Parsed path components
+---@return {path: string, exists: integer, row: integer|nil, col: integer|nil} # Parsed path components
 M.parsePath = function(path)
   local filePath, row, col
 
@@ -46,6 +47,11 @@ M.parsePath = function(path)
   if filePath:match("^[~/]") then
     -- Absolute or home path
     fullPath = vim.fn.expand(filePath)
+
+    if vim.fn.filereadable(fullPath) == 0 then
+      local root = LazyVim.root.get()
+      fullPath = vim.fs.normalize(root  .. filePath)
+    end
   else
     -- Relative path - prepend project root
     local root = LazyVim.root.get()
@@ -54,6 +60,7 @@ M.parsePath = function(path)
 
   return {
     path = fullPath,
+    exists = vim.fn.filereadable(fullPath) == 0,
     row = row,
     col = col,
   }
