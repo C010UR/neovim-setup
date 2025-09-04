@@ -19,6 +19,45 @@ end
 M.currentLineNumber = function()
   return vim.api.nvim_win_get_cursor(0)[1]
 end
+---Parse a file path with optional line and column numbers
+---@param path string # Input path in format "file.lua", "file.lua:42", or "file.lua:42:10"
+---@return {path: string, row: integer|nil, col: integer|nil} # Parsed path components
+M.parsePath = function(path)
+  local filePath, row, col
+
+  -- Try to match "file:line:col" format
+  filePath, row, col = path:match("^(.+):(%d+):(%d+)$")
+
+  if not filePath then
+    -- Try to match "file:line" format
+    filePath, row = path:match("^(.+):(%d+)$")
+  end
+
+  if not filePath then
+    -- No line/col info, use entire path
+    filePath = path
+  else
+    row = tonumber(row)
+    col = col and tonumber(col) or nil
+  end
+
+  -- Resolve full path
+  local fullPath
+  if filePath:match("^[~/]") then
+    -- Absolute or home path
+    fullPath = vim.fn.expand(filePath)
+  else
+    -- Relative path - prepend project root
+    local root = LazyVim.root.get()
+    fullPath = vim.fs.normalize(root .. "/" .. filePath)
+  end
+
+  return {
+    path = fullPath,
+    row = row,
+    col = col,
+  }
+end
 
 _G.Utils = M
 return M
