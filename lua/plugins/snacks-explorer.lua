@@ -86,6 +86,44 @@ return {
       },
     },
   },
+  init = function()
+    local started = false
+
+    vim.api.nvim_create_autocmd("VimEnter", {
+      callback = function()
+        started = true
+      end,
+    })
+
+    -- Close the picker if no other buf is present
+    vim.api.nvim_create_autocmd("BufEnter", {
+      nested = true,
+      callback = function()
+        if not started then
+          return
+        end
+
+        local wins = vim.api.nvim_list_wins()
+        local real_wins = {}
+
+        for _, win in ipairs(wins) do
+          local config = vim.api.nvim_win_get_config(win)
+          if config.relative == "" then
+            table.insert(real_wins, win)
+          end
+        end
+
+        if #real_wins == 1 then
+          local buf = vim.api.nvim_win_get_buf(real_wins[1])
+          local ft = vim.bo[buf].filetype
+
+          if ft == "snacks_picker_list" or ft:match("^snacks") then
+            vim.cmd("quit")
+          end
+        end
+      end,
+    })
+  end,
   keys = {
     {
       "<leader>fe",
