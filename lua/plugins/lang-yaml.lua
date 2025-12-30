@@ -1,6 +1,22 @@
 return {
   { "b0o/schemastore.nvim", lazy = true },
   {
+    "cuducos/yaml.nvim",
+    ft = { "yaml" },
+    dependencies = {
+      "folke/snacks.nvim",
+    },
+    keys = {
+      {
+        "<leader>fy",
+        function()
+          require("yaml_nvim").snacks()
+        end,
+        desc = "Snacks YAML Find",
+      },
+    },
+  },
+  {
     "nvim-treesitter/nvim-treesitter",
     opts = { ensure_installed = { "yaml" } },
   },
