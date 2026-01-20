@@ -1,25 +1,35 @@
 return {
-  { "b0o/schemastore.nvim", lazy = true },
+  {
+    "b0o/SchemaStore.nvim",
+    lazy = true,
+    version = false, -- last release is way too old
+  },
   {
     "nvim-treesitter/nvim-treesitter",
-    opts = { ensure_installed = { "json", "jsonc" } },
+    opts = { ensure_installed = { "json5" } },
   },
   {
     "neovim/nvim-lspconfig",
     dependencies = {
       "b0o/schemastore.nvim",
     },
-    opts = function(_, opts)
-      opts.servers = opts.servers or {}
-      opts.servers.jsonls = {
+    servers = {
+      jsonls = {
+        -- lazy-load schemastore when needed
+        before_init = function(_, new_config)
+          new_config.settings.json.schemas = new_config.settings.json.schemas or {}
+          vim.list_extend(new_config.settings.json.schemas, require("schemastore").json.schemas())
+        end,
         settings = {
           json = {
-            schemas = require("schemastore").json.schemas(),
+            format = {
+              enable = true,
+            },
             validate = { enable = true },
           },
         },
-      }
-    end,
+      },
+    },
   },
   {
     "mason-org/mason.nvim",
