@@ -1,46 +1,47 @@
 return {
   recommended = function()
     return LazyVim.extras.wants({
-      ft = {
-        "xml",
-        "svg",
-      },
+      ft = "twig",
     })
   end,
-
   {
     "nvim-treesitter/nvim-treesitter",
-    opts = { ensure_installed = { "xml" } },
+    opts = { ensure_installed = { "twig" } },
   },
-
+  {
+    "mason-org/mason.nvim",
+    opts = {
+      ensure_installed = {
+        "twigcs",
+        "twig-cs-fixer",
+      },
+    },
+  },
   {
     "neovim/nvim-lspconfig",
     opts = {
       servers = {
-        lemminx = {
+        twiggy_language_server = {
           enabled = true,
         },
       },
     },
   },
-
   {
-    "mason-org/mason.nvim",
+    "mfussenegger/nvim-lint",
+    optional = true,
     opts = {
-      ensure_installed = {
-        "lemminx",
-        "xmlformatter",
+      linters_by_ft = {
+        twig = { "twigcs" },
       },
     },
   },
-
   {
     "stevearc/conform.nvim",
     optional = true,
     opts = {
       formatters_by_ft = {
-        xml = { "xmlformatter" },
-        svg = { "xmlformatter" },
+        twig = { "twig-cs-fixer" },
       },
     },
   },

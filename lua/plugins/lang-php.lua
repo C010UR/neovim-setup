@@ -1,4 +1,10 @@
 return {
+  recommended = function()
+    return LazyVim.extras.wants({
+    ft = "php",
+    root = { "composer.json", ".phpactor.json", ".phpactor.yml" },
+    })
+  end,
   {
     "nvim-treesitter/nvim-treesitter",
     opts = { ensure_installed = { "php", "twig" } },
@@ -134,22 +140,11 @@ return {
     optional = true,
     opts = function()
       local dap = require("dap")
-      local path = require("mason-registry").get_package("php-debug-adapter"):get_install_path()
       dap.adapters.php = {
         type = "executable",
-        command = "node",
-        args = { path .. "/extension/out/phpDebug.js" },
+        command = "php-debug-adapter",
+        args = {},
       }
-    end,
-  },
-  {
-    "nvimtools/none-ls.nvim",
-    optional = true,
-    opts = function(_, opts)
-      local nls = require("null-ls")
-      opts.sources = opts.sources or {}
-      table.insert(opts.sources, nls.builtins.formatting.phpcsfixer)
-      table.insert(opts.sources, nls.builtins.diagnostics.phpcs)
     end,
   },
   {

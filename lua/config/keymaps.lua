@@ -1,7 +1,3 @@
--- Keymaps are automatically loaded on the VeryLazy event
--- Default keymaps that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/keymaps.lua
--- Add any additional keymaps here
-
 local del = vim.keymap.del
 local map = vim.keymap.set
 
@@ -57,7 +53,7 @@ map("n", "<leader>bn", function()
 
     if parsed.col then
       local line_content = vim.api.nvim_buf_get_lines(0, row - 1, row, false)[1] or ""
-      col = math.min(parsed.col, #line_content)
+      col = math.min(parsed.col, #line_content) or 0
     end
 
     vim.api.nvim_win_set_cursor(0, { row, col })

@@ -1,29 +1,23 @@
 return {
+  recommended = function()
+    return LazyVim.extras.wants({
+      ft = "yaml",
+    })
+  end,
+
+  {
+    "nvim-treesitter/nvim-treesitter",
+    opts = { ensure_installed = { "yaml" } },
+  },
+
+  -- yaml schema support
   {
     "b0o/SchemaStore.nvim",
     lazy = true,
     version = false, -- last release is way too old
   },
-  {
-    "cuducos/yaml.nvim",
-    ft = { "yaml" },
-    dependencies = {
-      "folke/snacks.nvim",
-    },
-    keys = {
-      {
-        "<leader>fy",
-        function()
-          require("yaml_nvim").snacks()
-        end,
-        desc = "Snacks YAML Find",
-      },
-    },
-  },
-  {
-    "nvim-treesitter/nvim-treesitter",
-    opts = { ensure_installed = { "yaml" } },
-  },
+
+  -- correctly setup lspconfig
   {
     "neovim/nvim-lspconfig",
     opts = {
@@ -68,6 +62,25 @@ return {
       },
     },
   },
+
+  -- Search in yaml
+  {
+    "cuducos/yaml.nvim",
+    ft = { "yaml" },
+    dependencies = {
+      "folke/snacks.nvim",
+    },
+    keys = {
+      {
+        "<leader>fy",
+        function()
+          require("yaml_nvim").snacks()
+        end,
+        desc = "Snacks YAML Find",
+      },
+    },
+  },
+
   {
     "mason-org/mason.nvim",
     opts = {
@@ -77,6 +90,7 @@ return {
       },
     },
   },
+
   {
     "stevearc/conform.nvim",
     optional = true,

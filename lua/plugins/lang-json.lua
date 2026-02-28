@@ -1,4 +1,10 @@
 return {
+  recommended = function()
+    return LazyVim.extras.wants({
+      ft = { "json", "jsonc", "json5" },
+      root = { "*.json" },
+    })
+  end,
   {
     "b0o/SchemaStore.nvim",
     lazy = true,
