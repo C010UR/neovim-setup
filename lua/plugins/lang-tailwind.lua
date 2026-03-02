@@ -60,18 +60,36 @@ return {
     },
   },
   {
-    "hrsh7th/nvim-cmp",
+    "saghen/blink.cmp",
     optional = true,
-    dependencies = {
-      { "roobert/tailwindcss-colorizer-cmp.nvim", opts = {} },
+    opts = {
+      appearance = {
+        use_nvim_cmp_as_default = false,
+      },
+      completion = {
+        menu = {
+          draw = {
+            components = {
+              kind_icon = {
+                text = function(ctx)
+                  local icon = ctx.kind_icon
+                  if ctx.item.source_name == "LSP" then
+                    local color_item = require("nvim-highlight-colors").format
+                      and require("nvim-highlight-colors").format(ctx.item.documentation, { kind = ctx.kind })
+                    if color_item and color_item.icon then
+                      icon = color_item.icon .. " "
+                    end
+                  end
+                  return icon .. ctx.icon_gap
+                end,
+              },
+            },
+          },
+        },
+      },
     },
-    opts = function(_, opts)
-      -- original LazyVim kind icon formatter
-      local format_kinds = opts.formatting.format
-      opts.formatting.format = function(entry, item)
-        format_kinds(entry, item) -- add icons
-        return require("tailwindcss-colorizer-cmp").formatter(entry, item)
-      end
-    end,
+    dependencies = {
+      { "brenoprata10/nvim-highlight-colors", opts = {} },
+    },
   },
 }

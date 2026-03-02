@@ -7,6 +7,8 @@ del("n", "<leader>K")
 del("n", "<leader>-")
 del("n", "<leader>|")
 
+map("n", "<leader>bb", "<cmd>e!<cr>", { desc = "Reload buffer from disk" })
+
 map("n", "<leader>bc", function()
   local path = Utils.relativePath()
 

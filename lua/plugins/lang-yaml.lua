@@ -10,7 +10,7 @@ return {
     opts = { ensure_installed = { "yaml" } },
   },
 
-  -- yaml schema support
+  -- yaml schema support (shared with lang-json)
   {
     "b0o/SchemaStore.nvim",
     lazy = true,

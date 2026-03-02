@@ -81,13 +81,6 @@ return {
         _99.stop_all_requests()
       end)
 
-      --- Example: Using rules + actions for custom behaviors
-      --- Create a rule file like ~/.rules/debug.md that defines custom behavior.
-      --- For instance, a "debug" rule could automatically add printf statements
-      --- throughout a function to help debug its execution flow.
-      vim.keymap.set("n", "<leader>9fd", function()
-        _99.fill_in_function()
-      end)
     end,
   },
 }
