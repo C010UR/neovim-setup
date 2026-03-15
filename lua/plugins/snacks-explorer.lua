@@ -141,5 +141,21 @@ return {
     },
     { "<leader>e", "<leader>fe", desc = "Explorer Snacks (root dir)", remap = true },
     { "<leader>E", "<leader>fE", desc = "Explorer Snacks (cwd)", remap = true },
+    {
+      "<C-p>",
+      function()
+        local explorer = Snacks.explorer()
+
+        if not explorer then
+          explorer = Snacks.explorer()
+        end
+
+        vim.defer_fn(function()
+          explorer:focus("input", { show = true })
+          vim.cmd.startinsert()
+        end, 20)
+      end,
+      desc = "Open Snacks explorer and focus input",
+    },
   },
 }

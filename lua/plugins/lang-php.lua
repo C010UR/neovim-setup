@@ -1,8 +1,8 @@
 return {
   recommended = function()
     return LazyVim.extras.wants({
-    ft = "php",
-    root = { "composer.json", ".phpactor.json", ".phpactor.yml" },
+      ft = "php",
+      root = { "composer.json", ".phpactor.json", ".phpactor.yml" },
     })
   end,
   {
@@ -14,7 +14,7 @@ return {
     opts = {
       servers = {
         intelephense = {
-          enabled = true,
+          enabled = false,
           settings = {
             intelephense = {
               maxMemory = 16384,
@@ -121,7 +121,11 @@ return {
           init_options = {
             storagePath = vim.fn.expand("~/.cache/intelephense-local"),
             globalStoragePath = vim.fn.expand("~/.cache/intelephense-global"),
+            licenseKey = vim.fn.expand("~/intelephense/licence.txt"),
           },
+        },
+        phpactor = {
+          enabled = true,
         },
       },
     },
