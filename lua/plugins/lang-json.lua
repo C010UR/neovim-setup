@@ -16,25 +16,27 @@ return {
   },
   {
     "neovim/nvim-lspconfig",
-    dependencies = {
-      "b0o/schemastore.nvim",
-    },
-    servers = {
-      jsonls = {
-        -- lazy-load schemastore when needed
-        before_init = function(_, new_config)
-          new_config.settings.json.schemas = new_config.settings.json.schemas or {}
-          vim.list_extend(new_config.settings.json.schemas, require("schemastore").json.schemas())
-        end,
-        settings = {
-          json = {
-            format = {
-              enable = true,
+    opts = {
+      servers = {
+        jsonls = {
+          -- lazy-load schemastore when needed
+          before_init = function(_, new_config)
+            new_config.settings.json.schemas = new_config.settings.json.schemas or {}
+            vim.list_extend(new_config.settings.json.schemas, require("schemastore").json.schemas())
+          end,
+          settings = {
+            json = {
+              format = {
+                enable = true,
+              },
+              validate = { enable = true },
             },
-            validate = { enable = true },
           },
         },
       },
+    },
+    dependencies = {
+      "b0o/SchemaStore.nvim",
     },
   },
   {

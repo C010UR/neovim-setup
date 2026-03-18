@@ -42,7 +42,7 @@ map("n", "<leader>bn", function()
 
   local parsed = Utils.parsePath(clipboard)
 
-  if parsed.exists == 0 then
+  if not parsed.exists then
     vim.notify('File not found: "' .. clipboard .. '"', vim.log.levels.ERROR)
     return
   end
@@ -54,7 +54,7 @@ map("n", "<leader>bn", function()
     local col = parsed.col or 0
 
     if parsed.col then
-      local line_content = vim.api.nvim_buf_get_lines(0, row - 1, row, false)[1] or ""
+      local line_content = vim.api.nvim_buf_get_lines(0, row - 1, row or 0, false)[1] or ""
       col = math.min(parsed.col, #line_content) or 0
     end
 

@@ -124,6 +124,5 @@ return {
       },
     },
     -- mason-nvim-dap is loaded when nvim-dap loads
-    config = function() end,
   },
 }

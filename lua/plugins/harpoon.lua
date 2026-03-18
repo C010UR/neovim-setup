@@ -17,16 +17,18 @@ return {
           desc = "Harpoon File",
         },
         {
-          "<C-S-P>",
+          "<C-p>",
           function()
             harpoon:list():prev()
           end,
+          desc = "Harpoon Prev",
         },
         {
-          "<C-S-N>",
+          "<C-n>",
           function()
             harpoon:list():next()
           end,
+          desc = "Harpoon Next",
         },
       }
 

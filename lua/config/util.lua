@@ -22,7 +22,7 @@ end
 
 ---Parse a file path with optional line and column numbers
 ---@param path string # Input path in format "file.lua", "file.lua:42", or "file.lua:42:10"
----@return {path: string, exists: integer, row: integer|nil, col: integer|nil} # Parsed path components
+---@return {path: string, exists: boolean, row: integer|nil, col: integer|nil} # Parsed path components
 M.parsePath = function(path)
   local filePath, row, col
 
@@ -60,7 +60,7 @@ M.parsePath = function(path)
 
   return {
     path = fullPath,
-    exists = vim.fn.filereadable(fullPath) == 0,
+    exists = vim.fn.filereadable(fullPath) == 1,
     row = row,
     col = col,
   }
