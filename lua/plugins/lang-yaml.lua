@@ -65,7 +65,7 @@ return {
 
   -- Search in yaml
   {
-    "cuducos/yaml.nvim",
+    "https://tangled.org/cuducos.me/yaml.nvim",
     ft = { "yaml" },
     dependencies = {
       "folke/snacks.nvim",
@@ -76,11 +76,10 @@ return {
         function()
           require("yaml_nvim").snacks()
         end,
-        desc = "Snacks YAML Find",
+        desc = "YAML Key Find",
       },
     },
   },
-
   {
     "mason-org/mason.nvim",
     opts = {

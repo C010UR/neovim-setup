@@ -3,7 +3,7 @@ return {
     "ThePrimeagen/harpoon",
     branch = "harpoon2",
     dependencies = {
-      { "nvim-telescope/telescope.nvim" },
+      { "folke/snacks.nvim" },
     },
     keys = function()
       local harpoon = require("harpoon")
@@ -47,30 +47,41 @@ return {
         })
       end
 
-      -- basic telescope configuration
-      local conf = require("telescope.config").values
-      local function toggle_telescope(harpoon_files)
-        local file_paths = {}
-        for _, item in ipairs(harpoon_files.items) do
-          table.insert(file_paths, item.value)
+      local function open_harpoon_picker(harpoon_files)
+        local items = {}
+
+        for index, item in ipairs(harpoon_files.items) do
+          if item.value and item.value ~= "" then
+            local selected = index
+            items[#items + 1] = {
+              text = string.format("%d %s", index, item.value),
+              file = item.value,
+              idx = index,
+              action = function()
+                harpoon:list():select(selected)
+              end,
+            }
+          end
         end
 
-        require("telescope.pickers")
-          .new({}, {
-            prompt_title = "Harpoon",
-            finder = require("telescope.finders").new_table({
-              results = file_paths,
-            }),
-            previewer = conf.file_previewer({}),
-            sorter = conf.generic_sorter({}),
-          })
-          :find()
+        if #items == 0 then
+          vim.notify("Harpoon list is empty", vim.log.levels.WARN)
+          return
+        end
+
+        Snacks.picker.pick({
+          title = "Harpoon",
+          items = items,
+          format = "file",
+          preview = "file",
+          confirm = "item_action",
+        })
       end
 
       table.insert(keys, {
         "<leader>hl",
         function()
-          toggle_telescope(harpoon:list())
+          open_harpoon_picker(harpoon:list())
         end,
         desc = "Harpoon Quick View",
       })

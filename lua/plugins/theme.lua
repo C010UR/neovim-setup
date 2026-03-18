@@ -47,7 +47,6 @@ return {
         noice = true,
         notify = true,
         snacks = true,
-        telescope = true,
         treesitter_context = true,
         which_key = true,
       },

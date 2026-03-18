@@ -3,9 +3,8 @@
 -- Add any additional options here
 
 vim.g.snacks_animate = false
-vim.g.lazyvim_picker = "telescope"
+vim.g.lazyvim_picker = "snacks"
 vim.g.lazyvim_cmp = "blink.cmp"
 vim.g.ai_cmp = false
 vim.g.autoformat = false
 vim.opt.clipboard = "unnamedplus"
-
