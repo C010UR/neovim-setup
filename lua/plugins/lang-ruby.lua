@@ -35,6 +35,7 @@ return {
           -- diagnostics will be duplicated because Solargraph
           -- already calls Rubocop if it is installed
           enabled = formatter == "rubocop" and lsp ~= "solargraph",
+          cmd = { "bundle", "exec", "rubocop", "--lsp" },
         },
         standardrb = {
           enabled = formatter == "standardrb",
