@@ -10,15 +10,21 @@ return {
       local cwd = vim.uv.cwd()
       local basename = vim.fs.basename(cwd)
       _99.setup({
+        -- provider = _99.Providers.ClaudeCodeProvider,  -- default: OpenCodeProvider
         logger = {
           level = _99.DEBUG,
           path = "/tmp/" .. basename .. ".99.debug",
           print_on_error = true,
         },
+        -- When setting this to something that is not inside the CWD tools
+        -- such as claude code or opencode will have permission issues
+        -- and generation will fail refer to tool documentation to resolve
+        -- https://opencode.ai/docs/permissions/#external-directories
+        -- https://code.claude.com/docs/en/permissions#read-and-edit
+        tmp_dir = "./tmp",
 
-        --- A new feature that is centered around tags
+        --- Completions: #rules and @files in the prompt buffer
         completion = {
-          --- Defaults to .cursor/rules
           -- I am going to disable these until i understand the
           -- problem better.  Inside of cursor rules there is also
           -- application rules, which means i need to apply these
@@ -41,10 +47,20 @@ return {
             "scratch/custom_rules/",
           },
 
-          --- Completion source integration is intentionally disabled here.
-          --- The plugin currently expects cmp-oriented wiring and this config
-          --- uses blink.cmp instead.
-          source = nil,
+          --- Configure @file completion (all fields optional, sensible defaults)
+          files = {
+            -- enabled = true,
+            -- max_file_size = 102400,     -- bytes, skip files larger than this
+            -- max_files = 5000,            -- cap on total discovered files
+            -- exclude = { ".env", ".env.*", "node_modules", ".git", ... },
+          },
+          --- File Discovery:
+          --- - In git repos: Uses `git ls-files` which automatically respects .gitignore
+          --- - Non-git repos: Falls back to filesystem scanning with manual excludes
+          --- - Both methods apply the configured `exclude` list on top of gitignore
+
+          --- What autocomplete engine to use. Defaults to native (built-in) if not specified.
+          source = "native", -- "native" (default), "cmp", or "blink"
         },
 
         --- WARNING: if you change cwd then this is likely broken
@@ -61,10 +77,6 @@ return {
         },
       })
 
-      -- Create your own short cuts for the different types of actions
-      vim.keymap.set("n", "<leader>9f", function()
-        _99.fill_in_function()
-      end)
       -- take extra note that i have visual selection only in v mode
       -- technically whatever your last visual selection is, will be used
       -- so i have this set to visual mode so i dont screw up and use an
@@ -74,13 +86,22 @@ return {
       -- so just prepare for it now
       vim.keymap.set("v", "<leader>9v", function()
         _99.visual()
-      end)
+      end, {
+        desc = "Work on selection",
+      })
 
       --- if you have a request you dont want to make any changes, just cancel it
-      vim.keymap.set("v", "<leader>9s", function()
+      vim.keymap.set("n", "<leader>9x", function()
         _99.stop_all_requests()
-      end)
+      end, {
+        desc = "Stop all requests",
+      })
 
+      vim.keymap.set("n", "<leader>9s", function()
+        _99.search()
+      end, {
+        desc = "Search",
+      })
     end,
   },
 }

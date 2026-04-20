@@ -61,6 +61,7 @@ return {
           { "<leader>s", group = "search" },
           { "<leader>u", group = "ui" },
           { "<leader>x", group = "diagnostics/quickfix" },
+          { "<leader>9", group = "ai/99" },
           { "[", group = "prev" },
           { "]", group = "next" },
           { "g", group = "goto" },
