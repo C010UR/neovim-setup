@@ -1,22 +1,18 @@
 return {
-  {
-    "LazyVim",
-    opts = {
-      colorscheme = "tokyonight",
-    },
-  },
+
+  -- tokyonight
   {
     "folke/tokyonight.nvim",
     lazy = true,
-    opts = { style = "night" },
+    opts = { style = "moon" },
   },
-  { "ellisonleao/gruvbox.nvim" },
+
+  -- catppuccin
   {
     "catppuccin/nvim",
     lazy = true,
     name = "catppuccin",
     opts = {
-      flavour = "frappe",
       lsp_styles = {
         underlines = {
           errors = { "undercurl" },
@@ -47,6 +43,7 @@ return {
         noice = true,
         notify = true,
         snacks = true,
+        telescope = true,
         treesitter_context = true,
         which_key = true,
       },
