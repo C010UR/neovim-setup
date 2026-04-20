@@ -1,10 +1,4 @@
 return {
-  recommended = function()
-    return LazyVim.extras.wants({
-      ft = "php",
-      root = { "composer.json", ".phpactor.json", ".phpactor.yml" },
-    })
-  end,
   {
     "nvim-treesitter/nvim-treesitter",
     opts = { ensure_installed = { "php", "twig" } },
@@ -32,7 +26,6 @@ return {
                   "**/vendor/**/{Tests,tests}/**",
                   "**/.history/**",
                   "**/vendor/**/vendor/**",
-                  -- Added
                   "**/var/**/",
                   "**/migrations/**",
                   "**/web/**",
@@ -127,6 +120,7 @@ return {
         phpactor = {
           enabled = true,
         },
+        twiggy_language_server = {},
       },
     },
   },
@@ -136,6 +130,8 @@ return {
       ensure_installed = {
         "phpcs",
         "php-cs-fixer",
+        "twigcs",
+        "twig-cs-fixer",
       },
     },
   },
@@ -157,6 +153,7 @@ return {
     opts = {
       linters_by_ft = {
         php = { "phpcs" },
+        twig = { "twigcs" },
       },
     },
   },
@@ -166,6 +163,7 @@ return {
     opts = {
       formatters_by_ft = {
         php = { "php_cs_fixer" },
+        twig = { "twig-cs-fixer" },
       },
     },
   },

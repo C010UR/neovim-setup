@@ -1,30 +1,18 @@
 return {
-  recommended = function()
-    return LazyVim.extras.wants({
-      ft = "yaml",
-    })
-  end,
-
   {
     "nvim-treesitter/nvim-treesitter",
     opts = { ensure_installed = { "yaml" } },
   },
-
-  -- yaml schema support (shared with lang-json)
   {
     "b0o/SchemaStore.nvim",
     lazy = true,
-    version = false, -- last release is way too old
+    version = false,
   },
-
-  -- correctly setup lspconfig
   {
     "neovim/nvim-lspconfig",
     opts = {
-      -- make sure mason installs the server
       servers = {
         yamlls = {
-          -- Have to add this for yamlls to understand that we support line folding
           capabilities = {
             textDocument = {
               foldingRange = {
@@ -33,7 +21,6 @@ return {
               },
             },
           },
-          -- lazy-load schemastore when needed
           before_init = function(_, new_config)
             new_config.settings.yaml.schemas = vim.tbl_deep_extend(
               "force",
@@ -45,15 +32,10 @@ return {
             redhat = { telemetry = { enabled = false } },
             yaml = {
               keyOrdering = false,
-              format = {
-                enable = true,
-              },
+              format = { enable = true },
               validate = true,
               schemaStore = {
-                -- Must disable built-in schemaStore support to use
-                -- schemas from SchemaStore.nvim plugin
                 enable = false,
-                -- Avoid TypeError: Cannot read properties of undefined (reading 'length')
                 url = "",
               },
             },
@@ -62,14 +44,10 @@ return {
       },
     },
   },
-
-  -- Search in yaml
   {
     "https://tangled.org/cuducos.me/yaml.nvim",
     ft = { "yaml" },
-    dependencies = {
-      "folke/snacks.nvim",
-    },
+    dependencies = { "folke/snacks.nvim" },
     keys = {
       {
         "<leader>fy",
@@ -89,7 +67,6 @@ return {
       },
     },
   },
-
   {
     "stevearc/conform.nvim",
     optional = true,

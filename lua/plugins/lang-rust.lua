@@ -1,22 +1,6 @@
-if lazyvim_docs then
-  -- LSP Server to use for Rust.
-  -- Set to "bacon-ls" to use bacon-ls instead of rust-analyzer.
-  -- only for diagnostics. The rest of LSP support will still be
-  -- provided by rust-analyzer.
-  vim.g.lazyvim_rust_diagnostics = "rust-analyzer"
-end
-
-local diagnostics = vim.g.lazyvim_rust_diagnostics or "rust-analyzer"
+local diagnostics = vim.g.rust_diagnostics or "rust-analyzer"
 
 return {
-  recommended = function()
-    return LazyVim.extras.wants({
-      ft = "rust",
-      root = { "Cargo.toml", "rust-project.json" },
-    })
-  end,
-
-  -- LSP for Cargo.toml
   {
     "Saecki/crates.nvim",
     event = { "BufRead Cargo.toml" },
@@ -34,14 +18,10 @@ return {
       },
     },
   },
-
-  -- Add Rust & related to treesitter
   {
     "nvim-treesitter/nvim-treesitter",
     opts = { ensure_installed = { "rust", "ron" } },
   },
-
-  -- Ensure Rust debugger is installed
   {
     "mason-org/mason.nvim",
     optional = true,
@@ -53,33 +33,23 @@ return {
       end
     end,
   },
-
   {
     "mrcjkb/rustaceanvim",
     ft = { "rust" },
     opts = {
       server = {
         on_attach = function(_, bufnr)
-          vim.keymap.set("n", "<leader>cR", function()
-            vim.cmd.RustLsp("codeAction")
-          end, { desc = "Code Action", buffer = bufnr })
-          vim.keymap.set("n", "<leader>dr", function()
-            vim.cmd.RustLsp("debuggables")
-          end, { desc = "Rust Debuggables", buffer = bufnr })
+          vim.keymap.set("n", "<leader>cR", function() vim.cmd.RustLsp("codeAction") end, { desc = "Code Action", buffer = bufnr })
+          vim.keymap.set("n", "<leader>dr", function() vim.cmd.RustLsp("debuggables") end, { desc = "Rust Debuggables", buffer = bufnr })
         end,
         default_settings = {
-          -- rust-analyzer language server configuration
           ["rust-analyzer"] = {
             cargo = {
               allFeatures = true,
               loadOutDirsFromCheck = true,
-              buildScripts = {
-                enable = true,
-              },
+              buildScripts = { enable = true },
             },
-            -- Add clippy lints for Rust if using rust-analyzer
             checkOnSave = diagnostics == "rust-analyzer",
-            -- Enable diagnostics if using rust-analyzer
             diagnostics = {
               enable = diagnostics == "rust-analyzer",
             },
@@ -99,7 +69,6 @@ return {
                 "venv",
                 ".venv",
               },
-              -- Avoid Roots Scanned hanging, see https://github.com/rust-lang/rust-analyzer/issues/12613#issuecomment-2096386344
               watcher = "client",
             },
           },
@@ -107,9 +76,9 @@ return {
       },
     },
     config = function(_, opts)
-      if LazyVim.has("mason.nvim") then
+      if vim.fn.executable("codelldb") == 1 then
         local codelldb = vim.fn.exepath("codelldb")
-        local codelldb_lib_ext = io.popen("uname"):read("*l") == "Linux" and ".so" or ".dylib"
+        local codelldb_lib_ext = (io.popen("uname"):read("*l") == "Linux") and ".so" or ".dylib"
         local library_path = vim.fn.expand("$MASON/opt/lldb/lib/liblldb" .. codelldb_lib_ext)
         opts.dap = {
           adapter = require("rustaceanvim.config").get_codelldb_adapter(codelldb, library_path),
@@ -117,15 +86,10 @@ return {
       end
       vim.g.rustaceanvim = vim.tbl_deep_extend("keep", vim.g.rustaceanvim or {}, opts or {})
       if vim.fn.executable("rust-analyzer") == 0 then
-        LazyVim.error(
-          "**rust-analyzer** not found in PATH, please install it.\nhttps://rust-analyzer.github.io/",
-          { title = "rustaceanvim" }
-        )
+        vim.notify("rust-analyzer not found in PATH; install it to use rustaceanvim", vim.log.levels.WARN, { title = "rustaceanvim" })
       end
     end,
   },
-
-  -- Correctly setup lspconfig for Rust 🚀
   {
     "neovim/nvim-lspconfig",
     opts = {
@@ -137,7 +101,6 @@ return {
       },
     },
   },
-
   {
     "nvim-neotest/neotest",
     optional = true,

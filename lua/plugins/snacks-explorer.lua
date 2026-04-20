@@ -1,3 +1,5 @@
+local root = require("config.root")
+
 return {
   "folke/snacks.nvim",
   opts = {
@@ -15,23 +17,20 @@ return {
       sources = {
         explorer = {
           on_show = function(picker)
-            local show = false
             local gap = 1
-            local clamp_width = function(value)
+            local function clamp_width(value)
               return math.max(20, math.min(100, value))
             end
-            --
             local position = picker.resolved_layout.layout.position
             local rel = picker.layout.root
-            local update = function(win) ---@param win snacks.win
+            local function update(win)
               local border = win:border_size().left + win:border_size().right
               win.opts.row = vim.api.nvim_win_get_position(rel.win)[1]
               win.opts.height = 0.8
               if position == "left" then
                 win.opts.col = vim.api.nvim_win_get_width(rel.win) + gap
                 win.opts.width = clamp_width(vim.o.columns - border - win.opts.col)
-              end
-              if position == "right" then
+              elseif position == "right" then
                 win.opts.col = -vim.api.nvim_win_get_width(rel.win) - gap
                 win.opts.width = clamp_width(vim.o.columns - border + win.opts.col)
               end
@@ -43,7 +42,7 @@ return {
               focusable = false,
               border = "rounded",
               backdrop = false,
-              show = show,
+              show = false,
               bo = {
                 filetype = "snacks_float_preview",
                 buftype = "nofile",
@@ -74,11 +73,10 @@ return {
           end,
           layout = {
             preset = "sidebar",
-            preview = false, ---@diagnostic disable-line
+            preview = false,
           },
           actions = {
-            -- `<A-p>`
-            toggle_preview = function(picker) --[[Override]]
+            toggle_preview = function(picker)
               picker.preview.win:toggle()
             end,
           },
@@ -88,35 +86,26 @@ return {
   },
   init = function()
     local started = false
-
     vim.api.nvim_create_autocmd("VimEnter", {
       callback = function()
         started = true
       end,
     })
-
-    -- Close the picker if no other buf is present
     vim.api.nvim_create_autocmd("BufEnter", {
       nested = true,
       callback = function()
         if not started then
           return
         end
-
-        local wins = vim.api.nvim_list_wins()
         local real_wins = {}
-
-        for _, win in ipairs(wins) do
-          local config = vim.api.nvim_win_get_config(win)
-          if config.relative == "" then
+        for _, win in ipairs(vim.api.nvim_list_wins()) do
+          if vim.api.nvim_win_get_config(win).relative == "" then
             table.insert(real_wins, win)
           end
         end
-
         if #real_wins == 1 then
           local buf = vim.api.nvim_win_get_buf(real_wins[1])
           local ft = vim.bo[buf].filetype
-
           if ft == "snacks_picker_list" or ft:match("^snacks") then
             vim.cmd("quit")
           end
@@ -128,7 +117,7 @@ return {
     {
       "<leader>fe",
       function()
-        Snacks.explorer({ cwd = LazyVim.root() })
+        Snacks.explorer({ cwd = root() })
       end,
       desc = "Explorer Snacks (root dir)",
     },
@@ -144,12 +133,7 @@ return {
     {
       "<C-p>",
       function()
-        local explorer = Snacks.explorer()
-
-        if not explorer then
-          explorer = Snacks.explorer()
-        end
-
+        local explorer = Snacks.explorer() or Snacks.explorer()
         vim.defer_fn(function()
           explorer:focus("input", { show = true })
           vim.cmd.startinsert()
@@ -164,16 +148,8 @@ return {
       function()
         local start_pos = vim.api.nvim_buf_get_mark(0, "<")
         local end_pos = vim.api.nvim_buf_get_mark(0, ">")
-        local lines = vim.api.nvim_buf_get_text(
-          0,
-          start_pos[1] - 1,
-          start_pos[2],
-          end_pos[1] - 1,
-          end_pos[2] + 1,
-          {}
-        )
+        local lines = vim.api.nvim_buf_get_text(0, start_pos[1] - 1, start_pos[2], end_pos[1] - 1, end_pos[2] + 1, {})
         local text = table.concat(lines, " "):gsub("%s+", " "):gsub("^%s*(.-)%s*$", "%1")
-
         if text ~= "" then
           Snacks.picker.grep({ search = text })
         end

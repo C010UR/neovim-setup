@@ -1,16 +1,15 @@
 return {
   {
-    "LazyVim",
-    opts = {
-      colorscheme = "tokyonight",
-    },
-  },
-  {
     "folke/tokyonight.nvim",
-    lazy = true,
+    priority = 2000,
+    lazy = false,
     opts = { style = "night" },
+    config = function(_, opts)
+      require("tokyonight").setup(opts)
+      vim.cmd.colorscheme("tokyonight")
+    end,
   },
-  { "ellisonleao/gruvbox.nvim" },
+  { "ellisonleao/gruvbox.nvim", lazy = true },
   {
     "catppuccin/nvim",
     lazy = true,
@@ -33,7 +32,6 @@ return {
         flash = true,
         fzf = true,
         grug_far = true,
-        gitsigns = true,
         headlines = true,
         illuminate = true,
         indent_blankline = { enabled = true },

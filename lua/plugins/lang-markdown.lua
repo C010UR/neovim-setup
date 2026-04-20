@@ -1,15 +1,8 @@
-LazyVim.on_very_lazy(function()
-  vim.filetype.add({
-    extension = { mdx = "markdown.mdx" },
-  })
-end)
+vim.filetype.add({
+  extension = { mdx = "markdown.mdx" },
+})
+
 return {
-  recommended = function()
-    return LazyVim.extras.wants({
-      ft = { "markdown", "markdown.mdx" },
-      root = "README.md",
-    })
-  end,
   {
     "stevearc/conform.nvim",
     optional = true,
@@ -34,7 +27,7 @@ return {
         },
       },
       formatters_by_ft = {
-        ["markdown"] = { "prettier", "markdownlint-cli2", "markdown-toc" },
+        markdown = { "prettier", "markdownlint-cli2", "markdown-toc" },
         ["markdown.mdx"] = { "prettier", "markdownlint-cli2", "markdown-toc" },
       },
     },
@@ -60,8 +53,6 @@ return {
       },
     },
   },
-
-  -- Markdown preview
   {
     "iamcco/markdown-preview.nvim",
     cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
@@ -81,5 +72,4 @@ return {
       vim.cmd([[do FileType]])
     end,
   },
-
 }

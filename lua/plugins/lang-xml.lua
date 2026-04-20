@@ -1,18 +1,8 @@
 return {
-  recommended = function()
-    return LazyVim.extras.wants({
-      ft = {
-        "xml",
-        "svg",
-      },
-    })
-  end,
-
   {
     "nvim-treesitter/nvim-treesitter",
     opts = { ensure_installed = { "xml" } },
   },
-
   {
     "neovim/nvim-lspconfig",
     opts = {
@@ -23,7 +13,6 @@ return {
       },
     },
   },
-
   {
     "mason-org/mason.nvim",
     opts = {
@@ -33,7 +22,6 @@ return {
       },
     },
   },
-
   {
     "stevearc/conform.nvim",
     optional = true,

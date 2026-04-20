@@ -1,14 +1,8 @@
 return {
-  recommended = function()
-    return LazyVim.extras.wants({
-      ft = { "json", "jsonc", "json5" },
-      root = { "*.json" },
-    })
-  end,
   {
     "b0o/SchemaStore.nvim",
     lazy = true,
-    version = false, -- last release is way too old
+    version = false,
   },
   {
     "nvim-treesitter/nvim-treesitter",
@@ -16,27 +10,22 @@ return {
   },
   {
     "neovim/nvim-lspconfig",
+    dependencies = { "b0o/SchemaStore.nvim" },
     opts = {
       servers = {
         jsonls = {
-          -- lazy-load schemastore when needed
           before_init = function(_, new_config)
             new_config.settings.json.schemas = new_config.settings.json.schemas or {}
             vim.list_extend(new_config.settings.json.schemas, require("schemastore").json.schemas())
           end,
           settings = {
             json = {
-              format = {
-                enable = true,
-              },
+              format = { enable = true },
               validate = { enable = true },
             },
           },
         },
       },
-    },
-    dependencies = {
-      "b0o/SchemaStore.nvim",
     },
   },
   {

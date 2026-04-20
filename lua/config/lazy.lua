@@ -14,37 +14,37 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
+-- Core config modules are loaded before plugin setup so global options,
+-- root detection, formatting commands, and utility helpers are ready early.
+
+require("config.options")
+require("config.root").setup()
+require("config.format").setup()
 require("config.util")
+
+-- Recreate the LazyFile event used throughout the local specs.
+
+local Event = require("lazy.core.handler.event")
+Event.mappings.LazyFile = { id = "LazyFile", event = { "BufReadPost", "BufNewFile", "BufWritePre" } }
+Event.mappings["User LazyFile"] = Event.mappings.LazyFile
 
 require("lazy").setup({
   spec = {
-    -- load the vendored LazyVim namespace first
-    { import = "lazyvim.plugins" },
-    -- import/override with your plugins
     { import = "plugins" },
   },
   defaults = {
-    -- By default, only LazyVim plugins will be lazy-loaded. Your custom plugins will load during startup.
-    -- If you know what you're doing, you can set this to `true` to have all your custom plugins lazy-loaded by default.
     lazy = false,
-    -- It's recommended to leave version=false for now, since a lot the plugin that support versioning,
-    -- have outdated releases, which may break your Neovim install.
-    version = false, -- always use the latest git commit
-    -- version = "*", -- try installing the latest stable version for plugins that support semver
+    version = false,
   },
   install = { colorscheme = { "tokyonight", "habamax" } },
   checker = {
-    enabled = true, -- check for plugin updates periodically
-    notify = false, -- notify on update
-  }, -- automatically check for plugin updates
+    enabled = true,
+    notify = false,
+  },
   performance = {
     rtp = {
-      -- disable some rtp plugins
       disabled_plugins = {
         "gzip",
-        -- "matchit",
-        -- "matchparen",
-        -- "netrwPlugin",
         "tarPlugin",
         "tohtml",
         "tutor",
@@ -53,3 +53,6 @@ require("lazy").setup({
     },
   },
 })
+
+require("config.autocmds")
+require("config.keymaps")

@@ -6,8 +6,6 @@ return {
     keys = {
       { "<leader>cg", "<cmd>GuessIndent<cr>", desc = "Guess Indent" },
     },
-    config = function(_, opts)
-      require("guess-indent").setup(opts)
-    end,
+    opts = {},
   },
 }

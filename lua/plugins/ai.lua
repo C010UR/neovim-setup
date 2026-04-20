@@ -41,9 +41,9 @@ return {
             "scratch/custom_rules/",
           },
 
-          --- What autocomplete do you use.  We currently only
-          --- support cmp right now
-          --- TODO: add blink when the support is added
+          --- Completion source integration is intentionally disabled here.
+          --- The plugin currently expects cmp-oriented wiring and this config
+          --- uses blink.cmp instead.
           source = nil,
         },
 

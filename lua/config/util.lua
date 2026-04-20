@@ -1,66 +1,47 @@
+local root = require("config.root")
+
 ---@class Utils
 local M = {}
 
----Get the relative path of the current buffer from the project root
----@return string|nil # Relative path or nil if path or root cannot be determined
 M.relativePath = function()
-  local absolutePath = LazyVim.root.bufpath(vim.api.nvim_get_current_buf())
-  local root = LazyVim.root.get()
-
-  if absolutePath == nil or root == nil then
+  local absolute_path = root.bufpath(vim.api.nvim_get_current_buf())
+  local project_root = root.get({ normalize = true })
+  if absolute_path == nil or project_root == nil then
     return nil
   end
-
-  return string.sub(absolutePath, string.len(root) + 2)
+  return absolute_path:sub(#project_root + 2)
 end
 
----Get the current line number of the cursor
----@return integer # Current line number (1-indexed)
 M.currentLineNumber = function()
   return vim.api.nvim_win_get_cursor(0)[1]
 end
 
----Parse a file path with optional line and column numbers
----@param path string # Input path in format "file.lua", "file.lua:42", or "file.lua:42:10"
----@return {path: string, exists: boolean, row: integer|nil, col: integer|nil} # Parsed path components
 M.parsePath = function(path)
-  local filePath, row, col
-
-  -- Try to match "file:line:col" format
-  filePath, row, col = path:match("^(.+):(%d+):(%d+)$")
-
-  if not filePath then
-    -- Try to match "file:line" format
-    filePath, row = path:match("^(.+):(%d+)$")
+  local file_path, row, col = path:match("^(.+):(%d+):(%d+)$")
+  if not file_path then
+    file_path, row = path:match("^(.+):(%d+)$")
   end
-
-  if not filePath then
-    -- No line/col info, use entire path
-    filePath = path
+  if not file_path then
+    file_path = path
   else
     row = tonumber(row)
     col = col and tonumber(col) or nil
   end
 
-  -- Resolve full path
-  local fullPath
-  if filePath:match("^[~/]") then
-    -- Absolute or home path
-    fullPath = vim.fn.expand(filePath)
-
-    if vim.fn.filereadable(fullPath) == 0 then
-      local root = LazyVim.root.get()
-      fullPath = vim.fs.normalize(root .. filePath)
+  local full_path
+  if file_path:match("^[~/]") then
+    full_path = vim.fn.expand(file_path)
+    if vim.fn.filereadable(full_path) == 0 then
+      local project_root = root.get({ normalize = true })
+      full_path = vim.fs.normalize(project_root .. file_path)
     end
   else
-    -- Relative path - prepend project root
-    local root = LazyVim.root.get()
-    fullPath = vim.fs.normalize(root .. "/" .. filePath)
+    full_path = vim.fs.normalize(root.get({ normalize = true }) .. "/" .. file_path)
   end
 
   return {
-    path = fullPath,
-    exists = vim.fn.filereadable(fullPath) == 1,
+    path = full_path,
+    exists = vim.fn.filereadable(full_path) == 1,
     row = row,
     col = col,
   }

@@ -1,23 +1,10 @@
 return {
-  recommended = function()
-    return LazyVim.extras.wants({
-      ft = "dockerfile",
-      root = {
-        "Dockerfile",
-        "Containerfile",
-        "docker-compose.yml",
-        "compose.yml",
-        "docker-compose.yaml",
-        "compose.yaml",
-      },
-    })
-  end,
   {
     "nvim-treesitter/nvim-treesitter",
     opts = { ensure_installed = { "dockerfile" } },
   },
   {
-    "mason.nvim",
+    "mason-org/mason.nvim",
     opts = { ensure_installed = { "hadolint" } },
   },
   {
