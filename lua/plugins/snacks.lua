@@ -50,7 +50,6 @@ return {
           input = {
             keys = {
               ["<a-c>"] = { "toggle_cwd", mode = { "n", "i" } },
-              ["<a-t>"] = { "trouble_open", mode = { "n", "i" } },
               ["<a-s>"] = { "flash", mode = { "n", "i" } },
               ["s"] = { "flash" },
             },
@@ -63,11 +62,6 @@ return {
             local current = picker_instance:cwd()
             picker_instance:set_cwd(current == project_root and cwd or project_root)
             picker_instance:find()
-          end,
-          trouble_open = function(...)
-            if package.loaded["trouble.sources.snacks"] then
-              return require("trouble.sources.snacks").actions.trouble_open.action(...)
-            end
           end,
           flash = function(picker_instance)
             if not package.loaded["flash"] then
@@ -174,11 +168,7 @@ return {
       { "<leader>uC", function() Snacks.picker.colorschemes() end, desc = "Colorschemes" },
     },
     config = function(_, opts)
-      local notify = vim.notify
       require("snacks").setup(opts)
-      if package.loaded["noice"] then
-        vim.notify = notify
-      end
     end,
   },
   {

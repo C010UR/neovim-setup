@@ -161,11 +161,6 @@ function M.execute(opts)
     arguments = opts.arguments,
   }
 
-  if opts.open and package.loaded["trouble"] then
-    require("trouble").open({ mode = "lsp_command", params = params })
-    return
-  end
-
   return client:exec_cmd(vim.tbl_extend("force", params, { title = opts.title }), { bufnr = buf }, opts.handler)
 end
 

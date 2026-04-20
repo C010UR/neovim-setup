@@ -1,6 +1,32 @@
 local lsp = require("config.lsp")
 local uri_util = require("config.uri")
 
+local biome_root_markers = { "biome.json", "biome.jsonc" }
+local eslint_root_markers = {
+  "eslint.config.js",
+  "eslint.config.mjs",
+  "eslint.config.cjs",
+  "eslint.config.ts",
+  "eslint.config.mts",
+  "eslint.config.cts",
+  ".eslintrc",
+  ".eslintrc.js",
+  ".eslintrc.cjs",
+  ".eslintrc.json",
+  ".eslintrc.yaml",
+  ".eslintrc.yml",
+}
+local ts_root_markers = { "tsconfig.json", "tsconfig.base.json", "jsconfig.json" }
+
+local function root_dir(markers)
+  return function(bufnr, on_dir)
+    local root = vim.fs.root(bufnr, markers)
+    if root then
+      on_dir(root)
+    end
+  end
+end
+
 return {
   {
     "neovim/nvim-lspconfig",
@@ -13,13 +39,20 @@ return {
           enabled = false,
         },
         eslint = {
+          root_dir = root_dir(eslint_root_markers),
+          single_file_support = false,
           settings = {
             workingDirectories = { mode = "auto" },
             format = false,
           },
         },
-        biome = {},
+        biome = {
+          root_dir = root_dir(biome_root_markers),
+          single_file_support = false,
+        },
         vtsls = {
+          root_dir = root_dir(ts_root_markers),
+          single_file_support = false,
           filetypes = {
             "javascript",
             "javascriptreact",
@@ -112,13 +145,13 @@ return {
           if vim.lsp.config.denols and vim.lsp.config.vtsls then
             local function resolve(server)
               local markers = vim.lsp.config[server].root_markers
-              local root_dir = vim.lsp.config[server].root_dir
+              local root_dir_fn = vim.lsp.config[server].root_dir
               vim.lsp.config(server, {
                 root_dir = function(bufnr, on_dir)
                   local is_deno = vim.fs.root(bufnr, { "deno.json", "deno.jsonc" }) ~= nil
                   if is_deno == (server == "denols") then
-                    if root_dir then
-                      return root_dir(bufnr, on_dir)
+                    if root_dir_fn then
+                      return root_dir_fn(bufnr, on_dir)
                     elseif type(markers) == "table" then
                       local root = vim.fs.root(bufnr, markers)
                       return root and on_dir(root)
@@ -202,8 +235,6 @@ return {
         "graphql",
         "javascript",
         "javascriptreact",
-        "json",
-        "jsonc",
         "svelte",
         "typescript",
         "typescriptreact",
@@ -215,94 +246,13 @@ return {
         table.insert(opts.formatters_by_ft[ft], "biome-check")
       end
       opts.formatters = opts.formatters or {}
-      opts.formatters["biome-check"] = { require_cwd = true }
-    end,
-  },
-  {
-    "mfussenegger/nvim-dap",
-    optional = true,
-    dependencies = {
-      {
-        "mason-org/mason.nvim",
-        opts = function(_, opts)
-          opts.ensure_installed = opts.ensure_installed or {}
-          table.insert(opts.ensure_installed, "js-debug-adapter")
+      opts.formatters["biome-check"] = vim.tbl_deep_extend("force", opts.formatters["biome-check"] or {}, {
+        require_cwd = true,
+        condition = function(_, ctx)
+          return vim.fs.root(ctx.filename, biome_root_markers) ~= nil
         end,
-      },
-    },
-    opts = function()
-      local dap = require("dap")
-      for _, adapter_type in ipairs({ "node", "chrome", "msedge" }) do
-        local pwa_type = "pwa-" .. adapter_type
-        if not dap.adapters[pwa_type] then
-          dap.adapters[pwa_type] = {
-            type = "server",
-            host = "localhost",
-            port = "${port}",
-            executable = {
-              command = "js-debug-adapter",
-              args = { "${port}" },
-            },
-          }
-        end
-        if not dap.adapters[adapter_type] then
-          dap.adapters[adapter_type] = function(cb, config)
-            local native_adapter = dap.adapters[pwa_type]
-            config.type = pwa_type
-            if type(native_adapter) == "function" then
-              native_adapter(cb, config)
-            else
-              cb(native_adapter)
-            end
-          end
-        end
-      end
-
-      local js_filetypes = { "typescript", "javascript", "typescriptreact", "javascriptreact" }
-      local vscode = require("dap.ext.vscode")
-      vscode.type_to_filetypes["node"] = js_filetypes
-      vscode.type_to_filetypes["pwa-node"] = js_filetypes
-
-      for _, language in ipairs(js_filetypes) do
-        if not dap.configurations[language] then
-          local runtime_executable = nil
-          if language:find("typescript") then
-            runtime_executable = vim.fn.executable("tsx") == 1 and "tsx" or "ts-node"
-          end
-          dap.configurations[language] = {
-            {
-              type = "pwa-node",
-              request = "launch",
-              name = "Launch file",
-              program = "${file}",
-              cwd = "${workspaceFolder}",
-              sourceMaps = true,
-              runtimeExecutable = runtime_executable,
-              skipFiles = { "<node_internals>/**", "node_modules/**" },
-              resolveSourceMapLocations = { "${workspaceFolder}/**", "!**/node_modules/**" },
-            },
-            {
-              type = "pwa-node",
-              request = "attach",
-              name = "Attach",
-              processId = require("dap.utils").pick_process,
-              cwd = "${workspaceFolder}",
-              sourceMaps = true,
-              runtimeExecutable = runtime_executable,
-              skipFiles = { "<node_internals>/**", "node_modules/**" },
-              resolveSourceMapLocations = { "${workspaceFolder}/**", "!**/node_modules/**" },
-            },
-          }
-        end
-      end
+      })
     end,
-  },
-  {
-    "jay-babu/mason-nvim-dap.nvim",
-    optional = true,
-    opts = {
-      automatic_installation = { exclude = { "chrome" } },
-    },
   },
   {
     "mason-org/mason.nvim",

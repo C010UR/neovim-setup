@@ -28,7 +28,7 @@ return {
   },
   {
     "mason-org/mason.nvim",
-    opts = { ensure_installed = { "erb-formatter", "erb-lint" } },
+    opts = { ensure_installed = { "erb-formatter" } },
   },
   {
     "mfussenegger/nvim-dap",
@@ -47,16 +47,6 @@ return {
       formatters_by_ft = {
         ruby = { formatter },
         eruby = { "erb_format" },
-      },
-    },
-  },
-  {
-    "nvim-neotest/neotest",
-    optional = true,
-    dependencies = { "olimorris/neotest-rspec" },
-    opts = {
-      adapters = {
-        ["neotest-rspec"] = {},
       },
     },
   },

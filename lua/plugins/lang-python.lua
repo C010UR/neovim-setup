@@ -1,8 +1,5 @@
 local lsp = require("config.lsp")
 
-local python_lsp = vim.g.python_lsp or "pyright"
-local ruff = vim.g.python_ruff or "ruff"
-
 return {
   {
     "nvim-treesitter/nvim-treesitter",
@@ -12,6 +9,7 @@ return {
     "neovim/nvim-lspconfig",
     opts = {
       servers = {
+        pyright = {},
         ruff = {
           cmd_env = { RUFF_TRACE = "messages" },
           init_options = {
@@ -27,48 +25,19 @@ return {
             },
           },
         },
-        ruff_lsp = {
-          keys = {
-            {
-              "<leader>co",
-              lsp.action["source.organizeImports"],
-              desc = "Organize Imports",
-            },
-          },
-        },
       },
       setup = {
-        [ruff] = function()
+        ruff = function()
           vim.api.nvim_create_autocmd("LspAttach", {
             group = vim.api.nvim_create_augroup("config_python_ruff_hover", { clear = true }),
             callback = function(event)
               local client = vim.lsp.get_client_by_id(event.data.client_id)
-              if client and client.name == ruff then
+              if client and client.name == "ruff" then
                 client.server_capabilities.hoverProvider = false
               end
             end,
           })
         end,
-      },
-    },
-  },
-  {
-    "neovim/nvim-lspconfig",
-    opts = function(_, opts)
-      local servers = { "pyright", "basedpyright", "ruff", "ruff_lsp", ruff, python_lsp }
-      for _, server in ipairs(servers) do
-        opts.servers[server] = opts.servers[server] or {}
-        opts.servers[server].enabled = server == python_lsp or server == ruff
-      end
-    end,
-  },
-  {
-    "nvim-neotest/neotest",
-    optional = true,
-    dependencies = { "nvim-neotest/neotest-python" },
-    opts = {
-      adapters = {
-        ["neotest-python"] = {},
       },
     },
   },

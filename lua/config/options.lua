@@ -6,7 +6,6 @@ vim.g.snacks_animate = false
 vim.g.ai_cmp = false
 vim.g.root_spec = { "lsp", { ".git", "lua" }, "cwd" }
 vim.g.root_lsp_ignore = { "copilot" }
-vim.g.trouble_lualine = true
 
 local opt = vim.opt
 

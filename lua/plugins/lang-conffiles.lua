@@ -120,7 +120,6 @@ return {
       ensure_installed = {
         "json-lsp",
         "jq",
-        "biome",
         "prettier",
         "yaml-language-server",
         "yamlfmt",
@@ -145,7 +144,7 @@ return {
     opts = {
       formatters_by_ft = {
         json = { "jq" },
-        jsonc = { "biome", "prettier" },
+        jsonc = { "prettier" },
         yaml = { "yamlfmt" },
         xml = { "xmlformatter" },
         svg = { "xmlformatter" },
