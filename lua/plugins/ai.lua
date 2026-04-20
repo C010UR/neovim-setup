@@ -11,6 +11,7 @@ return {
       local basename = vim.fs.basename(cwd)
       _99.setup({
         -- provider = _99.Providers.ClaudeCodeProvider,  -- default: OpenCodeProvider
+        provider = _99.Providers.OpenCodeProvider,
         logger = {
           level = _99.DEBUG,
           path = "/tmp/" .. basename .. ".99.debug",
@@ -44,7 +45,8 @@ return {
           --- ... the other rules in that dir ...
           ---
           custom_rules = {
-            "scratch/custom_rules/",
+            "opencode/skills",
+            ".mux/skills",
           },
 
           --- Configure @file completion (all fields optional, sensible defaults)
@@ -60,7 +62,7 @@ return {
           --- - Both methods apply the configured `exclude` list on top of gitignore
 
           --- What autocomplete engine to use. Defaults to native (built-in) if not specified.
-          source = "native", -- "native" (default), "cmp", or "blink"
+          source = "blink", -- "native" (default), "cmp", or "blink"
         },
 
         --- WARNING: if you change cwd then this is likely broken

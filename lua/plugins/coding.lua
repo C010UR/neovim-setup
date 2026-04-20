@@ -134,6 +134,12 @@ return {
     },
   },
   {
+    'saghen/blink.compat',
+    version = '2.*',
+    lazy = true,
+    opts = {},
+  },
+  {
     "catppuccin",
     optional = true,
     opts = {
@@ -173,18 +179,18 @@ return {
             },
           },
           keys = {
-            { "<leader>cl", function() Snacks.picker.lsp_config() end, desc = "Lsp Info" },
-            { "gd", function() Snacks.picker.lsp_definitions() end, desc = "Goto Definition", has = "definition" },
-            { "gr", function() Snacks.picker.lsp_references() end, nowait = true, desc = "References" },
-            { "gI", function() Snacks.picker.lsp_implementations() end, desc = "Goto Implementation", has = "implementation" },
-            { "gy", function() Snacks.picker.lsp_type_definitions() end, desc = "Goto Type Definition", has = "typeDefinition" },
-            { "gD", vim.lsp.buf.declaration, desc = "Goto Declaration", has = "declaration" },
-            { "K", vim.lsp.buf.hover, desc = "Hover", has = "hover" },
-            { "gK", vim.lsp.buf.signature_help, desc = "Signature Help", has = "signatureHelp" },
-            { "<c-k>", vim.lsp.buf.signature_help, mode = "i", desc = "Signature Help", has = "signatureHelp" },
-            { "<leader>ca", vim.lsp.buf.code_action, desc = "Code Action", mode = { "n", "x" }, has = "codeAction" },
-            { "<leader>cc", vim.lsp.codelens.run, desc = "Run Codelens", mode = { "n", "x" }, has = "codeLens" },
-            { "<leader>cC", vim.lsp.codelens.refresh, desc = "Refresh & Display Codelens", mode = { "n" }, has = "codeLens" },
+            { "<leader>cl", function() Snacks.picker.lsp_config() end,           desc = "Lsp Info" },
+            { "gd",         function() Snacks.picker.lsp_definitions() end,      desc = "Goto Definition",            has = "definition" },
+            { "gr",         function() Snacks.picker.lsp_references() end,       nowait = true,                       desc = "References" },
+            { "gI",         function() Snacks.picker.lsp_implementations() end,  desc = "Goto Implementation",        has = "implementation" },
+            { "gy",         function() Snacks.picker.lsp_type_definitions() end, desc = "Goto Type Definition",       has = "typeDefinition" },
+            { "gD",         vim.lsp.buf.declaration,                             desc = "Goto Declaration",           has = "declaration" },
+            { "K",          vim.lsp.buf.hover,                                   desc = "Hover",                      has = "hover" },
+            { "gK",         vim.lsp.buf.signature_help,                          desc = "Signature Help",             has = "signatureHelp" },
+            { "<c-k>",      vim.lsp.buf.signature_help,                          mode = "i",                          desc = "Signature Help", has = "signatureHelp" },
+            { "<leader>ca", vim.lsp.buf.code_action,                             desc = "Code Action",                mode = { "n", "x" },     has = "codeAction" },
+            { "<leader>cc", vim.lsp.codelens.run,                                desc = "Run Codelens",               mode = { "n", "x" },     has = "codeLens" },
+            { "<leader>cC", vim.lsp.codelens.refresh,                            desc = "Refresh & Display Codelens", mode = { "n" },          has = "codeLens" },
             {
               "<leader>cR",
               function()
@@ -193,8 +199,8 @@ return {
               desc = "Rename File",
               has = { "workspace/didRenameFiles", "workspace/willRenameFiles" },
             },
-            { "<leader>cr", vim.lsp.buf.rename, desc = "Rename", has = "rename" },
-            { "<leader>cA", lsp.action.source, desc = "Source Action", has = "codeAction" },
+            { "<leader>cr", vim.lsp.buf.rename, desc = "Rename",        has = "rename" },
+            { "<leader>cA", lsp.action.source,  desc = "Source Action", has = "codeAction" },
             {
               "]]",
               function()
