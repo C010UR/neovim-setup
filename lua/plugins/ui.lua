@@ -226,10 +226,15 @@ return {
     "nvim-mini/mini.indentscope",
     version = false,
     event = "LazyFile",
-    opts = {
-      symbol = "│",
-      options = { try_as_border = true },
-    },
+    opts = function()
+      return {
+        symbol = "│",
+        options = { try_as_border = true },
+        draw = {
+          animation = require("mini.indentscope").gen_animation.none(),
+        },
+      }
+    end,
     init = function()
       vim.api.nvim_create_autocmd("FileType", {
         pattern = {

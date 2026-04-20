@@ -3,6 +3,15 @@ local icons = require("config.icons")
 local lsp = require("config.lsp")
 
 return {
+  {
+    "folke/lazydev.nvim",
+    ft = "lua",
+    opts = {
+      library = {
+        { path = "${3rd}/luv/library", words = { "vim%.uv" } },
+      },
+    },
+  },
   -- Base LSP and Mason integration shared by language-specific specs.
   {
     "neovim/nvim-lspconfig",
