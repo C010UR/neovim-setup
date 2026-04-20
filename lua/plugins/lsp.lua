@@ -47,7 +47,6 @@ return {
       },
       servers = {
         stylua = { enabled = false },
-        taplo = {},
         lua_ls = {
           settings = {
             Lua = {
