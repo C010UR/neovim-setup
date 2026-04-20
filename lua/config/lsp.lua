@@ -72,6 +72,16 @@ function M.enable_keymaps()
         return
       end
       local buf = event.buf
+
+      if package.loaded["nvim-navic"] and client.server_capabilities.documentSymbolProvider then
+        local navic = require("nvim-navic")
+        if not vim.b[buf].navic_client_id then
+          local ok = pcall(navic.attach, client, buf)
+          if ok then
+            vim.b[buf].navic_client_id = client.id
+          end
+        end
+      end
       local applied = vim.b[buf].config_lsp_applied_keys or {}
       for _, server in ipairs({ "*", client.name }) do
         for _, keys in ipairs(M._server_keys[server] or {}) do

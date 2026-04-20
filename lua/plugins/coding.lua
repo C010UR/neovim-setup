@@ -142,6 +142,25 @@ return {
   },
   {
     "neovim/nvim-lspconfig",
+    dependencies = {
+      {
+        "SmiteshP/nvim-navic",
+        opts = function()
+          local icons = require("config.icons")
+          return {
+            icons = vim.tbl_extend("force", vim.deepcopy(icons.kinds), {
+              enabled = true,
+            }),
+            highlight = true,
+            separator = icons.misc.dots,
+            safe_output = true,
+            lsp = {
+              auto_attach = false,
+            },
+          }
+        end,
+      },
+    },
     opts = {
       servers = {
         ["*"] = {
