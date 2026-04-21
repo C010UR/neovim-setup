@@ -1,5 +1,15 @@
 local diagnostics = vim.g.rust_diagnostics or "rust-analyzer"
 
+local cargo_root_markers = {
+  "Cargo.toml",
+  "rust-project.json",
+}
+
+local rust_standalone = {
+  filetypes = { "rust" },
+  extensions = { "rs" },
+}
+
 return {
   {
     "Saecki/crates.nvim",
@@ -103,6 +113,8 @@ return {
       servers = {
         bacon_ls = {
           enabled = diagnostics == "bacon-ls",
+          root_markers = cargo_root_markers,
+          standalone = rust_standalone,
         },
         rust_analyzer = { enabled = false },
       },

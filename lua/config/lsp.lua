@@ -53,6 +53,107 @@ local function supports_any(client, methods)
   return false
 end
 
+local function contains(list, value)
+  return type(list) == "table" and vim.tbl_contains(list, value)
+end
+
+local function buffer_name(buf)
+  local name = vim.api.nvim_buf_get_name(buf)
+  return name ~= "" and vim.fs.normalize(name) or nil
+end
+
+local function buffer_dir(buf)
+  local name = buffer_name(buf)
+  return name and vim.fs.dirname(name) or nil
+end
+
+local function matches_standalone(buf, standalone)
+  if type(standalone) ~= "table" then
+    return false
+  end
+
+  local ft = vim.bo[buf].filetype
+  if contains(standalone.filetypes, ft) then
+    return true
+  end
+
+  local name = buffer_name(buf)
+  if not name then
+    return false
+  end
+
+  local base = vim.fs.basename(name)
+  if contains(standalone.filenames, base) then
+    return true
+  end
+
+  local ext = base:match("%.([^.]+)$")
+  return ext ~= nil and contains(standalone.extensions, ext)
+end
+
+local function resolve_root(root_dir, buf, on_dir)
+  if type(root_dir) == "function" then
+    local called = false
+    local result = root_dir(buf, function(path)
+      called = true
+      if path then
+        on_dir(path)
+      end
+    end)
+    if type(result) == "string" and result ~= "" then
+      called = true
+      on_dir(result)
+    elseif result == false then
+      called = true
+    end
+    return called
+  end
+
+  if type(root_dir) == "string" and root_dir ~= "" then
+    on_dir(root_dir)
+    return true
+  end
+
+  return false
+end
+
+function M.resolve_root_dir(opts)
+  opts = opts or {}
+  if opts.root_dir == nil and opts.root_markers == nil and opts.workspace_required == nil and opts.standalone == nil then
+    return nil
+  end
+
+  local config = {
+    root_dir = opts.root_dir,
+    root_markers = vim.deepcopy(opts.root_markers),
+    workspace_required = opts.workspace_required,
+    standalone = vim.deepcopy(opts.standalone),
+  }
+
+  return function(buf, on_dir)
+    if resolve_root(config.root_dir, buf, on_dir) then
+      return
+    end
+
+    local root = config.root_markers and vim.fs.root(buf, config.root_markers) or nil
+    if root then
+      on_dir(root)
+      return
+    end
+
+    if config.workspace_required then
+      return
+    end
+
+    if matches_standalone(buf, config.standalone) then
+      local dir = buffer_dir(buf)
+      if dir then
+        on_dir(dir)
+      end
+    end
+  end
+end
+
 function M.register_keys(server, spec)
   M._server_keys[server] = M._server_keys[server] or {}
   vim.list_extend(M._server_keys[server], spec or {})

@@ -1,5 +1,21 @@
 local lsp = require("config.lsp")
 
+local python_root_markers = {
+  "pyproject.toml",
+  "ruff.toml",
+  ".ruff.toml",
+  "setup.py",
+  "setup.cfg",
+  "requirements.txt",
+  "Pipfile",
+  "pyrightconfig.json",
+}
+
+local python_standalone = {
+  filetypes = { "python" },
+  extensions = { "py", "pyi", "pyw" },
+}
+
 return {
   {
     "nvim-treesitter/nvim-treesitter",
@@ -9,8 +25,13 @@ return {
     "neovim/nvim-lspconfig",
     opts = {
       servers = {
-        pyright = {},
+        pyright = {
+          root_markers = python_root_markers,
+          standalone = python_standalone,
+        },
         ruff = {
+          root_markers = python_root_markers,
+          standalone = python_standalone,
           cmd_env = { RUFF_TRACE = "messages" },
           init_options = {
             settings = {

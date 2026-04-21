@@ -2,6 +2,11 @@ vim.filetype.add({
   extension = { mdx = "markdown.mdx" },
 })
 
+local markdown_standalone = {
+  filetypes = { "markdown", "markdown.mdx" },
+  extensions = { "md", "mdx", "markdown" },
+}
+
 return {
   {
     "stevearc/conform.nvim",
@@ -49,7 +54,9 @@ return {
     "neovim/nvim-lspconfig",
     opts = {
       servers = {
-        marksman = {},
+        marksman = {
+          standalone = markdown_standalone,
+        },
       },
     },
   },

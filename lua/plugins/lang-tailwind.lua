@@ -1,9 +1,26 @@
+local tailwind_root_markers = {
+  "tailwind.config.js",
+  "tailwind.config.cjs",
+  "tailwind.config.mjs",
+  "tailwind.config.ts",
+  "tailwind.config.cts",
+  "tailwind.config.mts",
+  "postcss.config.js",
+  "postcss.config.cjs",
+  "postcss.config.mjs",
+  "postcss.config.ts",
+  "postcss.config.cts",
+  "postcss.config.mts",
+}
+
 return {
   {
     "neovim/nvim-lspconfig",
     opts = {
       servers = {
         tailwindcss = {
+          root_markers = tailwind_root_markers,
+          workspace_required = true,
           filetypes_exclude = { "markdown" },
           filetypes_include = {},
           settings = {

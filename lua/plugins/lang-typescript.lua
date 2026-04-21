@@ -16,7 +16,18 @@ local eslint_root_markers = {
   ".eslintrc.yaml",
   ".eslintrc.yml",
 }
-local ts_root_markers = { "tsconfig.json", "tsconfig.base.json", "jsconfig.json" }
+local ts_root_markers = { "tsconfig.json", "tsconfig.base.json", "jsconfig.json", "package.json" }
+local ts_standalone = {
+  filetypes = {
+    "javascript",
+    "javascriptreact",
+    "javascript.jsx",
+    "typescript",
+    "typescriptreact",
+    "typescript.tsx",
+  },
+  extensions = { "js", "jsx", "cjs", "mjs", "ts", "tsx", "cts", "mts" },
+}
 
 return {
   {
@@ -43,7 +54,7 @@ return {
         },
         vtsls = {
           root_markers = ts_root_markers,
-          workspace_required = true,
+          standalone = ts_standalone,
           filetypes = {
             "javascript",
             "javascriptreact",

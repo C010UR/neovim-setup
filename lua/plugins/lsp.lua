@@ -2,6 +2,20 @@ local format = require("config.format")
 local icons = require("config.icons")
 local lsp = require("config.lsp")
 
+local lua_root_markers = {
+  { ".luarc.json", ".luarc.jsonc" },
+  "stylua.toml",
+  ".stylua.toml",
+  "selene.toml",
+  "selene.yml",
+  ".git",
+}
+
+local lua_standalone = {
+  filetypes = { "lua" },
+  extensions = { "lua" },
+}
+
 return {
   {
     "folke/lazydev.nvim",
@@ -61,6 +75,8 @@ return {
       servers = {
         stylua = { enabled = false },
         lua_ls = {
+          root_markers = lua_root_markers,
+          standalone = lua_standalone,
           settings = {
             Lua = {
               workspace = {
@@ -181,6 +197,10 @@ return {
           mason_exclude[#mason_exclude + 1] = server
           return false
         end
+
+        server_opts.root_dir = lsp.resolve_root_dir(server_opts) or server_opts.root_dir
+        server_opts.standalone = nil
+        server_opts.workspace_required = nil
 
         vim.lsp.config(server, server_opts)
         if not use_mason then

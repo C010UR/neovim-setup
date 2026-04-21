@@ -1,3 +1,9 @@
+local shell_standalone = {
+  filetypes = { "sh", "bash", "zsh", "ksh" },
+  extensions = { "sh", "bash", "zsh", "ksh" },
+  filenames = { ".bashrc", ".bash_profile", ".profile", ".zshrc", ".zprofile", ".zshenv", ".kshrc" },
+}
+
 return {
   -- Shared support for shell scripting and shell-adjacent files.
   {
@@ -27,7 +33,9 @@ return {
     "neovim/nvim-lspconfig",
     opts = {
       servers = {
-        bashls = {},
+        bashls = {
+          standalone = shell_standalone,
+        },
       },
     },
   },

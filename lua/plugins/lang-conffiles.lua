@@ -1,3 +1,28 @@
+local toml_standalone = {
+  filetypes = { "toml" },
+  extensions = { "toml" },
+}
+
+local json_standalone = {
+  filetypes = { "json", "jsonc" },
+  extensions = { "json", "jsonc", "json5" },
+}
+
+local yaml_standalone = {
+  filetypes = { "yaml" },
+  extensions = { "yaml", "yml" },
+}
+
+local xml_standalone = {
+  filetypes = { "xml", "xsd", "xsl", "svg" },
+  extensions = { "xml", "xsd", "xsl", "xslt", "svg" },
+}
+
+local dockerfile_standalone = {
+  filetypes = { "dockerfile" },
+  filenames = { "Dockerfile", "Containerfile" },
+}
+
 return {
   -- Shared support for common configuration files, dotfiles, and related markup.
   {
@@ -49,10 +74,18 @@ return {
     dependencies = { "b0o/SchemaStore.nvim" },
     opts = {
       servers = {
-        taplo = {},
-        dockerls = {},
-        docker_compose_language_service = {},
+        taplo = {
+          standalone = toml_standalone,
+        },
+        dockerls = {
+          standalone = dockerfile_standalone,
+        },
+        docker_compose_language_service = {
+          workspace_required = true,
+          root_markers = { "compose.yml", "compose.yaml", "docker-compose.yml", "docker-compose.yaml" },
+        },
         jsonls = {
+          standalone = json_standalone,
           before_init = function(_, new_config)
             new_config.settings.json.schemas = new_config.settings.json.schemas or {}
             vim.list_extend(new_config.settings.json.schemas, require("schemastore").json.schemas())
@@ -65,6 +98,7 @@ return {
           },
         },
         yamlls = {
+          standalone = yaml_standalone,
           capabilities = {
             textDocument = {
               foldingRange = {
@@ -95,6 +129,7 @@ return {
         },
         lemminx = {
           enabled = true,
+          standalone = xml_standalone,
         },
       },
     },

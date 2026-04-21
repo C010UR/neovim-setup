@@ -1,3 +1,21 @@
+local php_root_markers = {
+  "composer.json",
+  ".phpactor.json",
+  ".phpactor.yml",
+  "phpactor.json",
+  "phpactor.yml",
+}
+
+local php_standalone = {
+  filetypes = { "php" },
+  extensions = { "php", "phtml", "inc" },
+}
+
+local twig_standalone = {
+  filetypes = { "twig" },
+  extensions = { "twig" },
+}
+
 return {
   {
     "nvim-treesitter/nvim-treesitter",
@@ -9,6 +27,8 @@ return {
       servers = {
         intelephense = {
           enabled = false,
+          root_markers = php_root_markers,
+          standalone = php_standalone,
           settings = {
             intelephense = {
               maxMemory = 16384,
@@ -119,8 +139,13 @@ return {
         },
         phpactor = {
           enabled = true,
+          root_markers = php_root_markers,
+          standalone = php_standalone,
         },
-        twiggy_language_server = {},
+        twiggy_language_server = {
+          root_markers = php_root_markers,
+          standalone = twig_standalone,
+        },
       },
     },
   },
