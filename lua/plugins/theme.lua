@@ -1,19 +1,16 @@
 return {
   {
-    "LazyVim/LazyVim",
-    opts = {
-      colorscheme = "tokyonight",
-    },
-  },
-  {
     "folke/tokyonight.nvim",
-    lazy = true,
+    priority = 2000,
     opts = { style = "night" },
+    config = function(_, opts)
+      require("tokyonight").setup(opts)
+      vim.cmd.colorscheme("tokyonight")
+    end,
   },
   { "ellisonleao/gruvbox.nvim" },
   {
     "catppuccin/nvim",
-    lazy = true,
     name = "catppuccin",
     opts = {
       flavour = "frappe",
@@ -28,23 +25,18 @@ return {
       integrations = {
         aerial = true,
         alpha = true,
-        cmp = true,
         dashboard = true,
         flash = true,
         fzf = true,
         grug_far = true,
-        gitsigns = true,
         headlines = true,
         illuminate = true,
         indent_blankline = { enabled = true },
         leap = true,
-        lsp_trouble = true,
         mason = true,
         mini = true,
         navic = { enabled = true, custom_bg = "lualine" },
-        neotest = true,
         neotree = true,
-        noice = true,
         notify = true,
         snacks = true,
         treesitter_context = true,
