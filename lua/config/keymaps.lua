@@ -19,6 +19,8 @@ local function diagnostic_goto(next, severity)
   end
 end
 
+-- Smart <Tab>: accept the visible completion item, advance a snippet placeholder,
+-- or fall back to inserting a literal tab when neither completion nor snippets apply.
 local function accept_completion_tab()
   if vim.fn.pumvisible() == 1 then
     local info = vim.fn.complete_info({ "selected" })
@@ -39,6 +41,7 @@ local function accept_completion_tab()
   return "<Tab>"
 end
 
+-- Better movement for wrapped lines: plain j/k moves by screen line unless a count is given.
 map({ "n", "x" }, "j", "v:count == 0 ? 'gj' : 'j'", { desc = "Move Down (Display Line)", expr = true, silent = true })
 map(
   { "n", "x" },
@@ -49,16 +52,17 @@ map(
 map({ "n", "x" }, "k", "v:count == 0 ? 'gk' : 'k'", { desc = "Move Up (Display Line)", expr = true, silent = true })
 map({ "n", "x" }, "<Up>", "v:count == 0 ? 'gk' : 'k'", { desc = "Move Up (Display Line)", expr = true, silent = true })
 
+-- Window navigation and resizing.
 map("n", "<C-h>", "<C-w>h", { desc = "Go to Left Window", remap = true })
 map("n", "<C-j>", "<C-w>j", { desc = "Go to Lower Window", remap = true })
 map("n", "<C-k>", "<C-w>k", { desc = "Go to Upper Window", remap = true })
 map("n", "<C-l>", "<C-w>l", { desc = "Go to Right Window", remap = true })
-
 map("n", "<C-Up>", "<cmd>resize +2<cr>", { desc = "Increase Window Height" })
 map("n", "<C-Down>", "<cmd>resize -2<cr>", { desc = "Decrease Window Height" })
 map("n", "<C-Left>", "<cmd>vertical resize -2<cr>", { desc = "Decrease Window Width" })
 map("n", "<C-Right>", "<cmd>vertical resize +2<cr>", { desc = "Increase Window Width" })
 
+-- Move lines or selected blocks without entering command-line mode manually.
 map("n", "<A-j>", "<cmd>execute 'move .+' . v:count1<cr>==", { desc = "Move Line Down" })
 map("n", "<A-k>", "<cmd>execute 'move .-' . (v:count1 + 1)<cr>==", { desc = "Move Line Up" })
 map("i", "<A-j>", "<esc><cmd>m .+1<cr>==gi", { desc = "Move Line Down" })
@@ -66,6 +70,7 @@ map("i", "<A-k>", "<esc><cmd>m .-2<cr>==gi", { desc = "Move Line Up" })
 map("v", "<A-j>", ":<C-u>execute \"'<,'>move '>+\" . v:count1<cr>gv=gv", { desc = "Move Selection Down" })
 map("v", "<A-k>", ":<C-u>execute \"'<,'>move '<-\" . (v:count1 + 1)<cr>gv=gv", { desc = "Move Selection Up" })
 
+-- Buffer navigation and buffer/file utilities.
 map("n", "<S-h>", "<cmd>bprevious<cr>", { desc = "Previous Buffer" })
 map("n", "<S-l>", "<cmd>bnext<cr>", { desc = "Next Buffer" })
 map("n", "[b", "<cmd>bprevious<cr>", { desc = "Previous Buffer" })
@@ -104,11 +109,13 @@ map("n", "<leader>bn", function()
     vim.notify("Clipboard is empty", vim.log.levels.WARN)
     return
   end
+
   local parsed = Utils.parsePath(clipboard)
   if not parsed.exists then
     vim.notify('File not found: "' .. clipboard .. '"', vim.log.levels.ERROR)
     return
   end
+
   vim.cmd("edit " .. vim.fn.fnameescape(parsed.path))
   if parsed.row ~= nil then
     local row = math.min(parsed.row, vim.api.nvim_buf_line_count(0))
@@ -129,12 +136,12 @@ map("n", "<leader>bn", function()
   end
 end, { desc = "Open File from Clipboard Path" })
 
+-- Quality-of-life editing helpers.
 map({ "i", "n", "s" }, "<esc>", function()
   vim.cmd("noh")
   stop_snippet()
   return "<esc>"
 end, { expr = true, desc = "Escape and Clear Search Highlight" })
-
 map(
   "n",
   "<leader>ur",
@@ -147,7 +154,6 @@ map("o", "n", "'Nn'[v:searchforward]", { expr = true, desc = "Next Search Result
 map("n", "N", "'nN'[v:searchforward].'zv'", { expr = true, desc = "Previous Search Result" })
 map("x", "N", "'nN'[v:searchforward]", { expr = true, desc = "Previous Search Result" })
 map("o", "N", "'nN'[v:searchforward]", { expr = true, desc = "Previous Search Result" })
-
 map("i", ",", ",<c-g>u", { desc = "Insert Comma (Undo Breakpoint)" })
 map("i", ".", ".<c-g>u", { desc = "Insert Period (Undo Breakpoint)" })
 map("i", ";", ";<c-g>u", { desc = "Insert Semicolon (Undo Breakpoint)" })
@@ -164,6 +170,7 @@ map("n", "gco", "o<esc>Vcx<esc><cmd>normal gcc<cr>fxa<bs>", { desc = "Add Commen
 map("n", "gcO", "O<esc>Vcx<esc><cmd>normal gcc<cr>fxa<bs>", { desc = "Add Comment Above" })
 map("n", "<leader>fn", "<cmd>enew<cr>", { desc = "New Empty Buffer" })
 
+-- Quickfix, location list, formatting, and diagnostics.
 map("n", "<leader>xl", function()
   local ok, err = pcall(vim.fn.getloclist(0, { winid = 0 }).winid ~= 0 and vim.cmd.lclose or vim.cmd.lopen)
   if not ok and err then
@@ -178,7 +185,6 @@ map("n", "<leader>xq", function()
 end, { desc = "Toggle Quickfix List" })
 map("n", "[q", vim.cmd.cprev, { desc = "Previous Quickfix Item" })
 map("n", "]q", vim.cmd.cnext, { desc = "Next Quickfix Item" })
-
 map({ "n", "x" }, "<leader>cf", function()
   format.format({ force = true })
 end, { desc = "Format Buffer" })
@@ -190,6 +196,7 @@ map("n", "[e", diagnostic_goto(false, "ERROR"), { desc = "Previous Error" })
 map("n", "]w", diagnostic_goto(true, "WARN"), { desc = "Next Warning" })
 map("n", "[w", diagnostic_goto(false, "WARN"), { desc = "Previous Warning" })
 
+-- Toggle-style mappings for editor features that are nice to flip on demand.
 format.snacks_toggle():map("<leader>uf")
 format.snacks_toggle(true):map("<leader>uF")
 Snacks.toggle.option("spell", { name = "Spelling" }):map("<leader>us")
@@ -225,6 +232,8 @@ if vim.lsp.inline_completion then
     end,
   }):map("<leader>ue")
 end
+
+-- Git helpers and repository-aware tools.
 if vim.fn.executable("lazygit") == 1 then
   map("n", "<leader>gg", function()
     Snacks.lazygit({ cwd = root.git() })
@@ -256,6 +265,8 @@ map({ "n", "x" }, "<leader>gY", function()
     notify = false,
   })
 end, { desc = "Copy Git Browse URL" })
+
+-- Inspection and terminal helpers.
 map("n", "<leader>qq", "<cmd>qa<cr>", { desc = "Quit All Windows" })
 map("n", "<leader>ui", vim.show_pos, { desc = "Inspect Cursor Position" })
 map("n", "<leader>uI", function()
@@ -274,6 +285,8 @@ end, { desc = "Focus Terminal (Root Dir)" })
 map({ "n", "t" }, "<c-_>", function()
   Snacks.terminal.focus(nil, { cwd = root.get() })
 end, { desc = "which_key_ignore" })
+
+-- Window and tab management.
 map("n", "<leader>wd", "<C-W>c", { desc = "Close Window", remap = true })
 Snacks.toggle.zoom():map("<leader>wm"):map("<leader>uZ")
 Snacks.toggle.zen():map("<leader>uz")
@@ -284,6 +297,8 @@ map("n", "<leader><tab><tab>", "<cmd>tabnew<cr>", { desc = "Open New Tab" })
 map("n", "<leader><tab>]", "<cmd>tabnext<cr>", { desc = "Next Tab" })
 map("n", "<leader><tab>d", "<cmd>tabclose<cr>", { desc = "Close Tab" })
 map("n", "<leader><tab>[", "<cmd>tabprevious<cr>", { desc = "Previous Tab" })
+
+-- Buffer-local helper for Lua files.
 vim.api.nvim_create_autocmd("FileType", {
   group = vim.api.nvim_create_augroup("config_lua_run_keymap", { clear = true }),
   pattern = "lua",
