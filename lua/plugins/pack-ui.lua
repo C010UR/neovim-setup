@@ -67,7 +67,9 @@ local function get_installed_tag(path)
     return tag_cache[path] or nil
   end
 
-  local result = vim.system({ "git", "-C", path, "describe", "--tags", "--exact-match", "HEAD" }, { text = true }):wait()
+  local result = vim
+    .system({ "git", "-C", path, "describe", "--tags", "--exact-match", "HEAD" }, { text = true })
+    :wait()
   if result.code == 0 then
     local tag = vim.trim(result.stdout)
     tag_cache[path] = tag
@@ -162,15 +164,19 @@ local function resolve_remote_ref(path, callback)
         return
       end
 
-      vim.system({ "git", "-C", path, "rev-parse", "--verify", "origin/master" }, { text = true }, function(master_result)
-        if master_result.code == 0 then
-          ref_cache[path] = "origin/master"
-          callback("origin/master")
-        else
-          ref_cache[path] = false
-          callback(nil)
+      vim.system(
+        { "git", "-C", path, "rev-parse", "--verify", "origin/master" },
+        { text = true },
+        function(master_result)
+          if master_result.code == 0 then
+            ref_cache[path] = "origin/master"
+            callback("origin/master")
+          else
+            ref_cache[path] = false
+            callback(nil)
+          end
         end
-      end)
+      )
     end)
   end)
 end
@@ -307,59 +313,63 @@ local function check_updates()
       end
 
       if current_tag then
-        vim.system({ "git", "-C", path, "tag", "--list", "--sort=-version:refname" }, { text = true }, function(tag_result)
-          local current_version = parse_semver(current_tag)
-          local latest_tag
-          local latest_version
+        vim.system(
+          { "git", "-C", path, "tag", "--list", "--sort=-version:refname" },
+          { text = true },
+          function(tag_result)
+            local current_version = parse_semver(current_tag)
+            local latest_tag
+            local latest_version
 
-          if tag_result.code == 0 then
-            for tag in tag_result.stdout:gmatch("[^\n]+") do
-              local version = parse_semver(tag)
-              if version and (not latest_version or semver_gt(version, latest_version)) then
-                latest_tag = tag
-                latest_version = version
+            if tag_result.code == 0 then
+              for tag in tag_result.stdout:gmatch("[^\n]+") do
+                local version = parse_semver(tag)
+                if version and (not latest_version or semver_gt(version, latest_version)) then
+                  latest_tag = tag
+                  latest_version = version
+                end
               end
             end
-          end
 
-          local result = { name = name }
-          if current_version and latest_version and latest_version[1] > current_version[1] then
-            result.breaking = true
-          end
+            local result = { name = name }
+            if current_version and latest_version and latest_version[1] > current_version[1] then
+              result.breaking = true
+            end
 
-          local function after_released()
-            resolve_remote_ref(path, function(ref)
-              if not ref then
-                finish_one(result)
-                return
-              end
-
-              local compare_from = latest_tag or current_tag
-              git_log(path, compare_from .. ".." .. ref, function(unreleased)
-                local breaking_lines = filter_breaking(unreleased)
-                if #breaking_lines > 0 then
-                  result.unreleased_breaking = breaking_lines
+            local function after_released()
+              resolve_remote_ref(path, function(ref)
+                if not ref then
+                  finish_one(result)
+                  return
                 end
-                finish_one(result)
-              end)
-            end)
-          end
 
-          local is_newer = current_version and latest_version and semver_gt(latest_version, current_version)
-          if is_newer and latest_tag then
-            result.latest_ref = latest_tag
-            git_log(path, "HEAD.." .. latest_tag, function(commits)
-              result.updates = commits
-              if has_breaking_commit(commits) then
-                result.breaking = true
-              end
+                local compare_from = latest_tag or current_tag
+                git_log(path, compare_from .. ".." .. ref, function(unreleased)
+                  local breaking_lines = filter_breaking(unreleased)
+                  if #breaking_lines > 0 then
+                    result.unreleased_breaking = breaking_lines
+                  end
+                  finish_one(result)
+                end)
+              end)
+            end
+
+            local is_newer = current_version and latest_version and semver_gt(latest_version, current_version)
+            if is_newer and latest_tag then
+              result.latest_ref = latest_tag
+              git_log(path, "HEAD.." .. latest_tag, function(commits)
+                result.updates = commits
+                if has_breaking_commit(commits) then
+                  result.breaking = true
+                end
+                after_released()
+              end)
+            else
+              result.updates = {}
               after_released()
-            end)
-          else
-            result.updates = {}
-            after_released()
+            end
           end
-        end)
+        )
       else
         resolve_remote_ref(path, function(ref)
           if not ref then
@@ -482,7 +492,8 @@ local function build_content()
     local update_count = state.updates[name] and #state.updates[name] or 0
     local update_display = update_count > 0 and ("  ↑%d"):format(update_count) or ""
     local unreleased = state.unreleased_breaking[name]
-    local unreleased_display = unreleased and #unreleased > 0 and ("  ⚠ %d breaking unreleased"):format(#unreleased) or ""
+    local unreleased_display = unreleased and #unreleased > 0 and ("  ⚠ %d breaking unreleased"):format(#unreleased)
+      or ""
     local line = ("   %s %s%s%s%s%s"):format(icon, name, pad, version_display, update_display, unreleased_display)
     local current_line = #lines
     add(line)
@@ -617,7 +628,8 @@ local function setup_keymaps()
   end, opts)
 
   vim.keymap.set("n", "X", function()
-    local names = vim.iter(vim.pack.get(nil, { info = false }))
+    local names = vim
+      .iter(vim.pack.get(nil, { info = false }))
       :filter(function(plugin)
         return not plugin.active
       end)

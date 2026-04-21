@@ -8,7 +8,8 @@ local function source_path(level)
   return info.source:sub(1, 1) == "@" and info.source:sub(2) or nil
 end
 
-local CONFIG_ROOT = vim.fs.normalize(vim.fs.joinpath(vim.fs.dirname(assert(source_path(1), "missing module source")), "..", ".."))
+local CONFIG_ROOT =
+  vim.fs.normalize(vim.fs.joinpath(vim.fs.dirname(assert(source_path(1), "missing module source")), "..", ".."))
 
 local state = {
   plugins = {},

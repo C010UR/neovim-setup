@@ -114,18 +114,91 @@ return {
             },
           },
           keys = {
-            { "<leader>cl", function() Snacks.picker.lsp_config() end,           desc = "Open LSP Information" },
-            { "gd",         function() Snacks.picker.lsp_definitions() end,      desc = "Go to Definition",            has = "definition" },
-            { "gr",         function() Snacks.picker.lsp_references() end,       nowait = true,                       desc = "Open References" },
-            { "gI",         function() Snacks.picker.lsp_implementations() end,  desc = "Go to Implementation",        has = "implementation" },
-            { "gy",         function() Snacks.picker.lsp_type_definitions() end, desc = "Go to Type Definition",       has = "typeDefinition" },
-            { "gD",         vim.lsp.buf.declaration,                             desc = "Go to Declaration",           has = "declaration" },
-            { "K",          vim.lsp.buf.hover,                                   desc = "Show Hover Documentation",                      has = "hover" },
-            { "gK",         vim.lsp.buf.signature_help,                          desc = "Show Signature Help",             has = "signatureHelp" },
-            { "<c-k>",      vim.lsp.buf.signature_help,                          mode = "i",                          desc = "Show Signature Help", has = "signatureHelp" },
-            { "<leader>ca", vim.lsp.buf.code_action,                             desc = "Open Code Actions",                mode = { "n", "x" },     has = "codeAction" },
-            { "<leader>cc", vim.lsp.codelens.run,                                desc = "Run CodeLens",               mode = { "n", "x" },     has = "codeLens" },
-            { "<leader>cC", vim.lsp.codelens.refresh,                            desc = "Refresh CodeLens", mode = { "n" },          has = "codeLens" },
+            {
+              "<leader>cl",
+              function()
+                Snacks.picker.lsp_config()
+              end,
+              desc = "Open LSP Information",
+            },
+            {
+              "gd",
+              function()
+                Snacks.picker.lsp_definitions()
+              end,
+              desc = "Go to Definition",
+              has = "definition",
+            },
+            {
+              "gr",
+              function()
+                Snacks.picker.lsp_references()
+              end,
+              nowait = true,
+              desc = "Open References",
+            },
+            {
+              "gI",
+              function()
+                Snacks.picker.lsp_implementations()
+              end,
+              desc = "Go to Implementation",
+              has = "implementation",
+            },
+            {
+              "gy",
+              function()
+                Snacks.picker.lsp_type_definitions()
+              end,
+              desc = "Go to Type Definition",
+              has = "typeDefinition",
+            },
+            {
+              "gD",
+              vim.lsp.buf.declaration,
+              desc = "Go to Declaration",
+              has = "declaration",
+            },
+            {
+              "K",
+              vim.lsp.buf.hover,
+              desc = "Show Hover Documentation",
+              has = "hover",
+            },
+            {
+              "gK",
+              vim.lsp.buf.signature_help,
+              desc = "Show Signature Help",
+              has = "signatureHelp",
+            },
+            {
+              "<c-k>",
+              vim.lsp.buf.signature_help,
+              mode = "i",
+              desc = "Show Signature Help",
+              has = "signatureHelp",
+            },
+            {
+              "<leader>ca",
+              vim.lsp.buf.code_action,
+              desc = "Open Code Actions",
+              mode = { "n", "x" },
+              has = "codeAction",
+            },
+            {
+              "<leader>cc",
+              vim.lsp.codelens.run,
+              desc = "Run CodeLens",
+              mode = { "n", "x" },
+              has = "codeLens",
+            },
+            {
+              "<leader>cC",
+              vim.lsp.codelens.refresh,
+              desc = "Refresh CodeLens",
+              mode = { "n" },
+              has = "codeLens",
+            },
             {
               "<leader>cR",
               function()
@@ -135,7 +208,7 @@ return {
               has = { "workspace/didRenameFiles", "workspace/willRenameFiles" },
             },
             { "<leader>cr", vim.lsp.buf.rename, desc = "Rename Symbol", has = "rename" },
-            { "<leader>cA", lsp.action.source,  desc = "Run Source Action", has = "codeAction" },
+            { "<leader>cA", lsp.action.source, desc = "Run Source Action", has = "codeAction" },
             {
               "]]",
               function()
@@ -208,8 +281,22 @@ return {
               desc = "Open Workspace Symbols",
               has = "workspace/symbol",
             },
-            { "gai", function() Snacks.picker.lsp_incoming_calls() end, desc = "Open Incoming Calls", has = "callHierarchy/incomingCalls" },
-            { "gao", function() Snacks.picker.lsp_outgoing_calls() end, desc = "Open Outgoing Calls", has = "callHierarchy/outgoingCalls" },
+            {
+              "gai",
+              function()
+                Snacks.picker.lsp_incoming_calls()
+              end,
+              desc = "Open Incoming Calls",
+              has = "callHierarchy/incomingCalls",
+            },
+            {
+              "gao",
+              function()
+                Snacks.picker.lsp_outgoing_calls()
+              end,
+              desc = "Open Outgoing Calls",
+              has = "callHierarchy/outgoingCalls",
+            },
           },
         },
       },

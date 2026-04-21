@@ -108,14 +108,21 @@ return {
           end
           local buf = event.buf
 
-          if opts.completion.autotrigger and vim.lsp.completion and client:supports_method("textDocument/completion") then
+          if
+            opts.completion.autotrigger
+            and vim.lsp.completion
+            and client:supports_method("textDocument/completion")
+          then
             vim.lsp.completion.enable(true, client.id, buf, {
               autotrigger = true,
             })
           end
 
           if opts.inlay_hints.enabled and vim.lsp.inlay_hint then
-            if not vim.tbl_contains(opts.inlay_hints.exclude, vim.bo[buf].filetype) and client:supports_method("textDocument/inlayHint") then
+            if
+              not vim.tbl_contains(opts.inlay_hints.exclude, vim.bo[buf].filetype)
+              and client:supports_method("textDocument/inlayHint")
+            then
               vim.lsp.inlay_hint.enable(true, { bufnr = buf })
             end
           end
@@ -184,7 +191,8 @@ return {
 
       local install = vim.tbl_filter(configure, vim.tbl_keys(opts.servers))
       if have_mason then
-        local ensure = vim.deepcopy(vim.tbl_get(pack.plugin_opts("mason-lspconfig.nvim") or {}, "ensure_installed") or {})
+        local ensure =
+          vim.deepcopy(vim.tbl_get(pack.plugin_opts("mason-lspconfig.nvim") or {}, "ensure_installed") or {})
         local install_set = {}
         local ensure_installed = {}
         for _, server in ipairs(vim.list_extend(install, ensure)) do

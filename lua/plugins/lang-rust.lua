@@ -37,8 +37,12 @@ return {
     opts = {
       server = {
         on_attach = function(_, bufnr)
-          vim.keymap.set("n", "<leader>cR", function() vim.cmd.RustLsp("codeAction") end, { desc = "Open Rust Code Actions", buffer = bufnr })
-          vim.keymap.set("n", "<leader>dr", function() vim.cmd.RustLsp("debuggables") end, { desc = "Open Rust Debuggables", buffer = bufnr })
+          vim.keymap.set("n", "<leader>cR", function()
+            vim.cmd.RustLsp("codeAction")
+          end, { desc = "Open Rust Code Actions", buffer = bufnr })
+          vim.keymap.set("n", "<leader>dr", function()
+            vim.cmd.RustLsp("debuggables")
+          end, { desc = "Open Rust Debuggables", buffer = bufnr })
         end,
         default_settings = {
           ["rust-analyzer"] = {
@@ -85,7 +89,11 @@ return {
       end
       vim.g.rustaceanvim = vim.tbl_deep_extend("keep", vim.g.rustaceanvim or {}, opts or {})
       if vim.fn.executable("rust-analyzer") == 0 then
-        vim.notify("rust-analyzer not found in PATH; install it to use rustaceanvim", vim.log.levels.WARN, { title = "rustaceanvim" })
+        vim.notify(
+          "rust-analyzer not found in PATH; install it to use rustaceanvim",
+          vim.log.levels.WARN,
+          { title = "rustaceanvim" }
+        )
       end
     end,
   },

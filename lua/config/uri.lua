@@ -7,9 +7,11 @@ local function decode(str)
 end
 
 local function encode(str)
-  return (str:gsub("[^%w%-%._~!$&'()*+,;=/:@]", function(char)
-    return string.format("%%%02X", string.byte(char))
-  end))
+  return (
+    str:gsub("[^%w%-%._~!$&'()*+,;=/:@]", function(char)
+      return string.format("%%%02X", string.byte(char))
+    end)
+  )
 end
 
 function M.to_fname(uri)
