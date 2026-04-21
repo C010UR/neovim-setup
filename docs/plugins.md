@@ -1,20 +1,22 @@
 # Plugin inventory
 
-_Audited against the current repo-owned plugin graph on April 20, 2026._
+_Audited against the repo-owned `vim.pack` graph on April 21, 2026._
 
 ## Scope and conventions
 
-- Source of truth: `init.lua` → `lua/config/lazy.lua` → every file in `lua/plugins/*.lua`.
-- `folke/lazy.nvim` is bootstrapped directly in `lua/config/lazy.lua`, so it is included here even though it does not live under `lua/plugins/`.
+- Source of truth: `init.lua` → `lua/config/pack.lua` → every file in `lua/plugins/*.lua`.
+- `lua/config/pack.lua` installs plugins through Neovim 0.12 `vim.pack`, merges repeated specs, and applies the normalized graph.
 - Augment specs are merged into their primary plugin entry instead of being listed twice.
-- Dependency-only plugins are included when the repo config gives them a clear user-facing role.
-- Short-name augments such as `catppuccin`, `mini.diff`, and `snacks.nvim` are documented under their canonical plugin entry.
+- Dependency-only plugins are listed when the repo gives them a clear user-facing role.
+- Short-name augments such as `catppuccin` and `snacks.nvim` are documented under their canonical plugin entry.
+- Insert-mode and command-line completion now come from Neovim 0.12 built-ins (`vim.lsp.completion`, popup completion, and command-line wildmenu/pum options), so there is no third-party completion plugin in this inventory.
+- The generated lockfile is `nvim-pack-lock.json`.
 
 ## Bootstrap / plugin manager
 
-| Plugin | What it does here | Sources |
+| Component | What it does here | Sources |
 | --- | --- | --- |
-| `folke/lazy.nvim` | Bootstraps the plugin manager, defines the custom `LazyFile` event, imports all repo-owned specs, and loads the core config modules before plugin setup. | `lua/config/lazy.lua` |
+| Built-in `vim.pack` + repo loader | Installs plugins, normalizes repeated specs, provides `:Pack` / `:PackUpdate`, and exposes shared merged plugin metadata to the rest of the config. | `init.lua`, `lua/config/pack.lua` |
 
 ## Core UI / pickers / sessions
 
@@ -31,12 +33,11 @@ _Audited against the current repo-owned plugin graph on April 20, 2026._
 | Plugin | What it does here | Sources |
 | --- | --- | --- |
 | `folke/tokyonight.nvim` | Default active colorscheme (`tokyonight`, style `night`). | `lua/plugins/theme.lua` |
-| `ellisonleao/gruvbox.nvim` | Alternate colorscheme kept installed as a lazy-loaded option. | `lua/plugins/theme.lua` |
-| `catppuccin/nvim` | Alternate colorscheme with many enabled integrations; the repo also wires in Blink support and optional Bufferline theming when Catppuccin is active. | `lua/plugins/theme.lua`, `lua/plugins/coding.lua` |
+| `ellisonleao/gruvbox.nvim` | Alternate colorscheme kept installed as an optional theme. | `lua/plugins/theme.lua` |
+| `catppuccin/nvim` | Alternate colorscheme with many enabled integrations and optional Bufferline theming when Catppuccin is active. | `lua/plugins/theme.lua` |
 | `akinsho/bufferline.nvim` | Buffer tabline with custom diagnostics badges, `Snacks.bufdelete` close behavior, and optional Catppuccin highlights. | `lua/plugins/ui.lua`, `lua/plugins/theme.lua` |
-| `nvim-lualine/lualine.nvim` | Statusline showing mode, branch, root directory, diagnostics, Navic breadcrumbs, DAP status, Lazy updates, and MiniDiff summaries. | `lua/plugins/ui.lua` |
+| `nvim-lualine/lualine.nvim` | Statusline showing mode, branch, root directory, diagnostics, Navic breadcrumbs, and DAP status. | `lua/plugins/ui.lua` |
 | `nvim-mini/mini.icons` | File/icon provider with custom overrides for dotfiles and JS/TS config files, plus a `nvim-web-devicons` compatibility shim. | `lua/plugins/ui.lua`, `lua/plugins/lang-typescript.lua` |
-| `nvim-mini/mini.diff` | Inline Git diff signs and overlay. The repo also adds a toggle for the signs and exposes an overlay keymap. | `lua/plugins/ui.lua` |
 | `nvim-mini/mini.indentscope` | Indent guides with animation disabled and a repo-defined disable list for dashboard/help/notify/terminal-like buffers. | `lua/plugins/ui.lua` |
 
 ## Editing / navigation / search
@@ -48,7 +49,7 @@ _Audited against the current repo-owned plugin graph on April 20, 2026._
 | `NMAC427/guess-indent.nvim` | Detects indentation style on demand and exposes `GuessIndent` through a leader mapping. | `lua/plugins/guess-indent.lua` |
 | `nvim-mini/mini.move` | Line/block move helper plugin kept on with defaults; the repo does not redefine its built-in mapping set. | `lua/plugins/editor.lua` |
 
-## Coding / completion / textobjects / comments
+## Coding / textobjects / comments
 
 | Plugin | What it does here | Sources |
 | --- | --- | --- |
@@ -58,15 +59,12 @@ _Audited against the current repo-owned plugin graph on April 20, 2026._
 | `nvim-mini/mini.comment` | Comment plugin kept with defaults; the repo adds helper `gco` and `gcO` mappings in core keymaps instead of changing the plugin defaults. | `lua/plugins/coding.lua`, `lua/config/keymaps.lua` |
 | `nvim-mini/mini.surround` | Surround editing plugin kept with defaults. | `lua/plugins/coding.lua` |
 | `danymat/neogen` | Generates annotations/docblocks through a single leader mapping. | `lua/plugins/coding.lua` |
-| `saghen/blink.cmp` | Primary completion engine. This setup enables command-line completion, customizes accept behavior with `<C-y>`, uses Blink for AI prompt completion, and extends completion display for Tailwind color entries. | `lua/plugins/coding.lua`, `lua/plugins/lang-tailwind.lua` |
-| `rafamadriz/friendly-snippets` | Snippet source used by Blink. | `lua/plugins/coding.lua` |
-| `saghen/blink.compat` | Lazy-loaded Blink compatibility bridge for older completion sources; included but not otherwise customized in repo code. | `lua/plugins/coding.lua` |
 
 ## Treesitter / parsing
 
 | Plugin | What it does here | Sources |
 | --- | --- | --- |
-| `nvim-treesitter/nvim-treesitter` | Parser/highlight/indent backbone. Language modules extend its parser list and add filetype detection for config files, PHP, Python, Ruby, Rust, and shell-adjacent files. | `lua/plugins/treesitter.lua`, `lua/plugins/lang-conffiles.lua`, `lua/plugins/lang-php.lua`, `lua/plugins/lang-python.lua`, `lua/plugins/lang-ruby.lua`, `lua/plugins/lang-rust.lua`, `lua/plugins/lang-shell.lua` |
+| `nvim-treesitter/nvim-treesitter` | Parser/highlight/indent backbone on the `main` rewrite. The config now installs parsers via the registry-backed workflow and enables Treesitter features explicitly on `FileType`, while language modules extend its parser list and filetype detection for config files, PHP, Python, Ruby, Rust, and shell-adjacent files. | `lua/plugins/treesitter.lua`, `lua/plugins/lang-conffiles.lua`, `lua/plugins/lang-php.lua`, `lua/plugins/lang-python.lua`, `lua/plugins/lang-ruby.lua`, `lua/plugins/lang-rust.lua`, `lua/plugins/lang-shell.lua` |
 | `nvim-treesitter/nvim-treesitter-textobjects` | Adds the explicit function/class/parameter motion maps such as `]f`, `[f`, `]c`, and `[c`. | `lua/plugins/treesitter.lua` |
 | `windwp/nvim-ts-autotag` | Auto close/rename tag pairs in HTML-like files. | `lua/plugins/treesitter.lua` |
 | `nvim-treesitter/nvim-treesitter-context` | Sticky context header for the current Treesitter scope. | `lua/plugins/treesitter.lua` |
@@ -76,7 +74,7 @@ _Audited against the current repo-owned plugin graph on April 20, 2026._
 | Plugin | What it does here | Sources |
 | --- | --- | --- |
 | `folke/lazydev.nvim` | Lua-development helper for `vim.uv` and related library typing. | `lua/plugins/lsp.lua` |
-| `neovim/nvim-lspconfig` | Main LSP layer: diagnostics styling, foldexpr setup, inlay hints, formatter registration, lazy LSP key attachment, and per-language server config. Language modules extend it for JSON/YAML/XML, Markdown, PHP/Twig, Python, Ruby, Shell, Tailwind, TypeScript/JavaScript, and Rust-adjacent tools. | `lua/plugins/lsp.lua`, `lua/plugins/coding.lua`, `lua/plugins/lang-conffiles.lua`, `lua/plugins/lang-markdown.lua`, `lua/plugins/lang-php.lua`, `lua/plugins/lang-python.lua`, `lua/plugins/lang-ruby.lua`, `lua/plugins/lang-rust.lua`, `lua/plugins/lang-shell.lua`, `lua/plugins/lang-tailwind.lua`, `lua/plugins/lang-typescript.lua` |
+| `neovim/nvim-lspconfig` | Main LSP layer: diagnostics styling, foldexpr setup, inlay hints, native Neovim 0.12 completion enablement, formatter registration, lazy LSP key attachment, and per-language server config. Language modules extend it for JSON/YAML/XML, Markdown, PHP/Twig, Python, Ruby, Shell, Tailwind, TypeScript/JavaScript, and Rust-adjacent tools. | `lua/plugins/lsp.lua`, `lua/plugins/coding.lua`, `lua/plugins/lang-conffiles.lua`, `lua/plugins/lang-markdown.lua`, `lua/plugins/lang-php.lua`, `lua/plugins/lang-python.lua`, `lua/plugins/lang-ruby.lua`, `lua/plugins/lang-rust.lua`, `lua/plugins/lang-shell.lua`, `lua/plugins/lang-tailwind.lua`, `lua/plugins/lang-typescript.lua` |
 | `SmiteshP/nvim-navic` | Breadcrumb provider attached from `config.lsp` and shown in Lualine. | `lua/plugins/coding.lua`, `lua/plugins/ui.lua`, `lua/config/lsp.lua` |
 | `stevearc/conform.nvim` | Primary formatter dispatcher used by `config.format`. Base config covers Lua/Fish/Shell; language augments add JSON/YAML/XML/SVG, Markdown/MDX, PHP/Twig, Ruby/ERB, and JS/TS/CSS-family formatting. | `lua/plugins/formatting.lua`, `lua/plugins/lang-conffiles.lua`, `lua/plugins/lang-markdown.lua`, `lua/plugins/lang-php.lua`, `lua/plugins/lang-ruby.lua`, `lua/plugins/lang-typescript.lua` |
 | `mfussenegger/nvim-lint` | Debounced lint-on-read/write/insert-leave. Base config covers Fish; augments add Dockerfile, Markdown, PHP, and Twig linters. | `lua/plugins/linting.lua`, `lua/plugins/lang-conffiles.lua`, `lua/plugins/lang-markdown.lua`, `lua/plugins/lang-php.lua` |
@@ -99,7 +97,7 @@ _Audited against the current repo-owned plugin graph on April 20, 2026._
 
 | Plugin | What it does here | Sources |
 | --- | --- | --- |
-| `ThePrimeagen/99` | AI workflow helper configured for `OpenCodeProvider`, AGENT-file discovery, custom rules from `opencode/skills` and `.mux/skills`, and Blink-backed prompt completion. | `lua/plugins/ai.lua` |
+| `ThePrimeagen/99` | AI workflow helper configured for `OpenCodeProvider`, AGENT-file discovery, custom rules from `opencode/skills` and `.mux/skills`, and native Neovim completion in prompt buffers. | `lua/plugins/ai.lua` |
 
 ## Language-specific tooling
 
@@ -111,31 +109,4 @@ _Audited against the current repo-owned plugin graph on April 20, 2026._
 | `linux-cultist/venv-selector.nvim` | Python virtualenv selector. | `lua/plugins/lang-python.lua` |
 | `Saecki/crates.nvim` | Cargo.toml dependency helper with completion, actions, and hover support. | `lua/plugins/lang-rust.lua` |
 | `mrcjkb/rustaceanvim` | Rust-specific LSP/DAP workflow layer that can wire in `codelldb`, adds Rust buffer-local commands, and owns the main Rust analyzer configuration path. | `lua/plugins/lang-rust.lua` |
-| `brenoprata10/nvim-highlight-colors` | Colors Tailwind/LSP completion entries inside Blink's menu so CSS utility classes show real color chips. | `lua/plugins/lang-tailwind.lua` |
-
-## Notes on merged specs
-
-The following plugins are configured across multiple files and are intentionally documented once above rather than as separate entries:
-
-- `folke/snacks.nvim`
-- `neovim/nvim-lspconfig`
-- `mason-org/mason.nvim`
-- `stevearc/conform.nvim`
-- `mfussenegger/nvim-lint`
-- `mfussenegger/nvim-dap`
-- `jay-babu/mason-nvim-dap.nvim`
-- `saghen/blink.cmp`
-- `nvim-treesitter/nvim-treesitter`
-- `akinsho/bufferline.nvim`
-- `nvim-mini/mini.icons`
-- `nvim-mini/mini.diff`
-- `catppuccin/nvim`
-
-## Not listed as standalone active plugins
-
-These strings appear in specs, but they are not separate top-level entries in this setup:
-
-- short-name augments: `catppuccin`, `mini.diff`, `snacks.nvim`
-- nested theme augment for Bufferline inside `lua/plugins/theme.lua`
-- optional language augments for already-listed plugins such as `conform.nvim`, `nvim-lint`, `nvim-dap`, `mason.nvim`, and `blink.cmp`
 

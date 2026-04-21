@@ -2,7 +2,6 @@ return {
   -- Shared support for common configuration files, dotfiles, and related markup.
   {
     "b0o/SchemaStore.nvim",
-    lazy = true,
     version = false,
   },
   {
@@ -102,7 +101,6 @@ return {
   },
   {
     "https://tangled.org/cuducos.me/yaml.nvim",
-    ft = { "yaml" },
     dependencies = { "folke/snacks.nvim" },
     keys = {
       {

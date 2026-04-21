@@ -3,7 +3,6 @@ vim.g.maplocalleader = "\\"
 
 vim.g.autoformat = false
 vim.g.snacks_animate = false
-vim.g.ai_cmp = false
 vim.g.root_spec = { "lsp", { ".git", "lua" }, "cwd" }
 vim.g.root_lsp_ignore = { "copilot" }
 
@@ -11,7 +10,7 @@ local opt = vim.opt
 
 opt.autowrite = true
 opt.clipboard = "unnamedplus"
-opt.completeopt = "menu,menuone,noselect"
+opt.completeopt = "menu,menuone,noselect,popup"
 opt.conceallevel = 2
 opt.confirm = true
 opt.cursorline = true
@@ -65,6 +64,8 @@ opt.undofile = true
 opt.undolevels = 10000
 opt.updatetime = 200
 opt.virtualedit = "block"
+opt.wildmenu = true
+opt.wildoptions = "pum,fuzzy"
 opt.wildmode = "longest:full,full"
 opt.winminwidth = 5
 opt.wrap = false

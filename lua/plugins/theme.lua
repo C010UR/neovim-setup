@@ -2,17 +2,15 @@ return {
   {
     "folke/tokyonight.nvim",
     priority = 2000,
-    lazy = false,
     opts = { style = "night" },
     config = function(_, opts)
       require("tokyonight").setup(opts)
       vim.cmd.colorscheme("tokyonight")
     end,
   },
-  { "ellisonleao/gruvbox.nvim", lazy = true },
+  { "ellisonleao/gruvbox.nvim" },
   {
     "catppuccin/nvim",
-    lazy = true,
     name = "catppuccin",
     opts = {
       flavour = "frappe",
@@ -27,7 +25,6 @@ return {
       integrations = {
         aerial = true,
         alpha = true,
-        cmp = true,
         dashboard = true,
         flash = true,
         fzf = true,

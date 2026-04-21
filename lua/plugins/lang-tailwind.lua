@@ -29,35 +29,4 @@ return {
       },
     },
   },
-  {
-    "saghen/blink.cmp",
-    optional = true,
-    dependencies = { { "brenoprata10/nvim-highlight-colors", opts = {} } },
-    opts = {
-      appearance = {
-        use_nvim_cmp_as_default = false,
-      },
-      completion = {
-        menu = {
-          draw = {
-            components = {
-              kind_icon = {
-                text = function(ctx)
-                  local icon = ctx.kind_icon
-                  if ctx.item.source_name == "LSP" then
-                    local color_item = require("nvim-highlight-colors").format
-                      and require("nvim-highlight-colors").format(ctx.item.documentation, { kind = ctx.kind })
-                    if color_item and color_item.icon then
-                      icon = color_item.icon .. " "
-                    end
-                  end
-                  return icon .. ctx.icon_gap
-                end,
-              },
-            },
-          },
-        },
-      },
-    },
-  },
 }

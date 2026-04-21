@@ -57,8 +57,6 @@ return {
   },
   {
     "linux-cultist/venv-selector.nvim",
-    cmd = "VenvSelect",
-    ft = "python",
     keys = { { "<leader>cv", "<cmd>:VenvSelect<cr>", desc = "Select Virtualenv", ft = "python" } },
     opts = {
       options = {

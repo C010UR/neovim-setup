@@ -2,11 +2,9 @@ return {
   {
     "nvim-treesitter/nvim-treesitter",
     branch = "main",
-    commit = vim.fn.has("nvim-0.12") == 0 and "7caec274fd19c12b55902a5b795100d21531391f" or nil,
     version = false,
     build = ":TSUpdate",
-    event = { "LazyFile", "VeryLazy" },
-    cmd = { "TSUpdate", "TSInstall", "TSLog", "TSUninstall" },
+    dependencies = { "neovim-treesitter/treesitter-parser-registry" },
     opts_extend = { "ensure_installed" },
     opts = {
       ensure_installed = {
@@ -34,23 +32,46 @@ return {
         "xml",
         "yaml",
       },
-      auto_install = true,
-      highlight = { enable = true },
-      indent = { enable = true },
+      highlight = true,
+      indent = true,
+      folds = true,
     },
     config = function(_, opts)
-      local ok, ts = pcall(require, "nvim-treesitter")
-      if ok and ts.setup then
-        ts.setup(opts)
-      else
-        require("nvim-treesitter.configs").setup(opts)
+      local ts = require("nvim-treesitter")
+      local interactive = #vim.api.nvim_list_uis() > 0
+      if interactive then
+        ts.install(opts.ensure_installed)
       end
+
+      vim.api.nvim_create_autocmd("FileType", {
+        group = vim.api.nvim_create_augroup("config_treesitter_features", { clear = true }),
+        callback = function(event)
+          local ok = true
+          if opts.highlight then
+            ok = pcall(vim.treesitter.start, event.buf)
+          end
+          if not ok then
+            return
+          end
+
+          if opts.folds then
+            local win = vim.fn.bufwinid(event.buf)
+            if win ~= -1 and vim.wo[win].foldmethod == "indent" then
+              vim.wo[win].foldmethod = "expr"
+              vim.wo[win].foldexpr = "v:lua.vim.treesitter.foldexpr()"
+            end
+          end
+
+          if opts.indent then
+            vim.bo[event.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+          end
+        end,
+      })
     end,
   },
   {
     "nvim-treesitter/nvim-treesitter-textobjects",
     branch = "main",
-    event = "VeryLazy",
     opts = {
       move = {
         enable = true,
@@ -72,7 +93,6 @@ return {
   },
   {
     "windwp/nvim-ts-autotag",
-    event = "LazyFile",
     opts = {},
   },
   {

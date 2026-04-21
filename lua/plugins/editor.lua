@@ -2,7 +2,6 @@ return {
   {
     "MagicDuck/grug-far.nvim",
     opts = { headerMaxWidth = 80 },
-    cmd = { "GrugFar", "GrugFarWithin" },
     keys = {
       {
         "<leader>sr",
@@ -23,7 +22,6 @@ return {
   },
   {
     "folke/flash.nvim",
-    event = "VeryLazy",
     opts = {},
     keys = {
       { "s", mode = { "n", "x", "o" }, function() require("flash").jump() end, desc = "Flash Jump" },
@@ -43,7 +41,6 @@ return {
   },
   {
     "folke/which-key.nvim",
-    event = "VeryLazy",
     opts_extend = { "spec" },
     opts = {
       preset = "helix",
@@ -134,8 +131,6 @@ return {
   },
   {
     "folke/todo-comments.nvim",
-    cmd = { "TodoQuickFix" },
-    event = "LazyFile",
     opts = {},
     keys = {
       { "]t", function() require("todo-comments").jump_next() end, desc = "Next Todo Comment" },
@@ -146,7 +141,6 @@ return {
   },
   {
     "nvim-mini/mini.move",
-    event = "VeryLazy",
     opts = {},
   },
 }

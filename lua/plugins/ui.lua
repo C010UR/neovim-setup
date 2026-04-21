@@ -4,7 +4,6 @@ local lualine = require("config.lualine")
 return {
   {
     "akinsho/bufferline.nvim",
-    event = "VeryLazy",
     keys = {
       { "<leader>bp", "<Cmd>BufferLineTogglePin<CR>", desc = "Toggle Buffer Pin" },
       { "<leader>bP", "<Cmd>BufferLineGroupClose ungrouped<CR>", desc = "Close Non-Pinned Buffers" },
@@ -56,7 +55,6 @@ return {
   {
     "nvim-lualine/lualine.nvim",
     dependencies = { "SmiteshP/nvim-navic" },
-    event = "VeryLazy",
     init = function()
       vim.g.lualine_laststatus = vim.o.laststatus
       if vim.fn.argc(-1) > 0 then
@@ -116,31 +114,6 @@ return {
                 return { fg = Snacks.util.color("Debug") }
               end,
             },
-            {
-              require("lazy.status").updates,
-              cond = require("lazy.status").has_updates,
-              color = function()
-                return { fg = Snacks.util.color("Special") }
-              end,
-            },
-            {
-              "diff",
-              symbols = {
-                added = icons.git.added,
-                modified = icons.git.modified,
-                removed = icons.git.removed,
-              },
-              source = function()
-                local summary = vim.b.minidiff_summary
-                if summary then
-                  return {
-                    added = summary.add,
-                    modified = summary.change,
-                    removed = summary.delete,
-                  }
-                end
-              end,
-            },
           },
           lualine_y = {
             { "progress", separator = " ", padding = { left = 1, right = 0 } },
@@ -152,7 +125,7 @@ return {
             end,
           },
         },
-        extensions = { "neo-tree", "lazy", "fzf" },
+        extensions = { "neo-tree", "fzf" },
       }
 
       return opts
@@ -160,7 +133,6 @@ return {
   },
   {
     "nvim-mini/mini.icons",
-    lazy = true,
     opts = {
       file = {
         [".keep"] = { glyph = "󰊢", hl = "MiniIconsGrey" },
@@ -178,54 +150,8 @@ return {
     end,
   },
   {
-    "nvim-mini/mini.diff",
-    event = "VeryLazy",
-    keys = {
-      {
-        "<leader>go",
-        function()
-          require("mini.diff").toggle_overlay(0)
-        end,
-        desc = "Toggle Diff Overlay",
-      },
-    },
-    opts = {
-      view = {
-        style = "sign",
-        signs = {
-          add = "▎",
-          change = "▎",
-          delete = "",
-        },
-      },
-    },
-  },
-  {
-    "mini.diff",
-    opts = function()
-      Snacks.toggle({
-        name = "Mini Diff Signs",
-        get = function()
-          return vim.g.minidiff_disable ~= true
-        end,
-        set = function(state)
-          vim.g.minidiff_disable = not state
-          if state then
-            require("mini.diff").enable(0)
-          else
-            require("mini.diff").disable(0)
-          end
-          vim.defer_fn(function()
-            vim.cmd([[redraw!]])
-          end, 200)
-        end,
-      }):map("<leader>uG")
-    end,
-  },
-  {
     "nvim-mini/mini.indentscope",
     version = false,
-    event = "LazyFile",
     opts = function()
       return {
         symbol = "│",

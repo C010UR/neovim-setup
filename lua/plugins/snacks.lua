@@ -15,7 +15,6 @@ return {
   {
     "folke/snacks.nvim",
     priority = 1000,
-    lazy = false,
     opts = {
       bigfile = { enabled = true },
       quickfile = { enabled = true },
@@ -111,7 +110,7 @@ return {
             { icon = " ", key = "c", desc = "Open Config", action = ":lua Snacks.dashboard.pick('files', { cwd = vim.fn.stdpath('config') })" },
             { icon = " ", key = "p", desc = "Open Projects", action = ":lua Snacks.picker.projects()" },
             { icon = " ", key = "s", desc = "Restore Session", section = "session" },
-            { icon = "󰒲 ", key = "l", desc = "Open Lazy", action = ":Lazy" },
+            { icon = "󰒲 ", key = "l", desc = "Open Plugins", action = ":Pack" },
             { icon = " ", key = "q", desc = "Quit Neovim", action = ":qa" },
           },
         },
@@ -144,7 +143,7 @@ return {
       { "<leader>sB", function() Snacks.picker.grep_buffers() end, desc = "Search Open Buffers" },
       { "<leader>sg", pick("live_grep"), desc = "Live Grep (Root Dir)" },
       { "<leader>sG", pick("live_grep", { root = false }), desc = "Live Grep (CWD)" },
-      { "<leader>sp", function() Snacks.picker.lazy() end, desc = "Search Plugin Specs" },
+      { "<leader>sp", function() require("config.pack").open() end, desc = "Open Plugin Manager" },
       { "<leader>sw", pick("grep_word"), desc = "Grep Selection or Word (Root Dir)", mode = { "n", "x" } },
       { "<leader>sW", pick("grep_word", { root = false }), desc = "Grep Selection or Word (CWD)", mode = { "n", "x" } },
       { '<leader>s"', function() Snacks.picker.registers() end, desc = "Open Registers" },
@@ -164,16 +163,17 @@ return {
       { "<leader>sm", function() Snacks.picker.marks() end, desc = "Open Marks" },
       { "<leader>sR", function() Snacks.picker.resume() end, desc = "Resume Last Picker" },
       { "<leader>sq", function() Snacks.picker.qflist() end, desc = "Open Quickfix List" },
-      { "<leader>su", function() Snacks.picker.undo() end, desc = "Open Undo History" },
+      { "<leader>su", function() require("config.pack").open_undotree() end, desc = "Open Undo Tree" },
       { "<leader>uC", function() Snacks.picker.colorschemes() end, desc = "Browse Colorschemes" },
     },
     config = function(_, opts)
-      require("snacks").setup(opts)
+      local snacks = require("snacks")
+      _G.Snacks = snacks
+      snacks.setup(opts)
     end,
   },
   {
     "folke/persistence.nvim",
-    event = "BufReadPre",
     opts = {},
     keys = {
       { "<leader>qs", function() require("persistence").load() end, desc = "Restore Session" },
@@ -182,5 +182,5 @@ return {
       { "<leader>qd", function() require("persistence").stop() end, desc = "Stop Saving Session" },
     },
   },
-  { "nvim-lua/plenary.nvim", lazy = true },
+  { "nvim-lua/plenary.nvim" },
 }

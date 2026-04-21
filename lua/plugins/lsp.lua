@@ -5,17 +5,18 @@ local lsp = require("config.lsp")
 return {
   {
     "folke/lazydev.nvim",
-    ft = "lua",
     opts = {
       library = {
         { path = "${3rd}/luv/library", words = { "vim%.uv" } },
       },
+      enabled = function(root_dir)
+        return not vim.uv.fs_stat(root_dir .. "/.luarc.json")
+      end,
     },
   },
   -- Base LSP and Mason integration shared by language-specific specs.
   {
     "neovim/nvim-lspconfig",
-    event = { "BufReadPre", "BufNewFile" },
     dependencies = {
       "mason-org/mason.nvim",
       { "mason-org/mason-lspconfig.nvim", config = function() end },
@@ -53,6 +54,9 @@ return {
       format = {
         formatting_options = nil,
         timeout_ms = nil,
+      },
+      completion = {
+        autotrigger = true,
       },
       servers = {
         stylua = { enabled = false },
@@ -104,6 +108,12 @@ return {
           end
           local buf = event.buf
 
+          if opts.completion.autotrigger and vim.lsp.completion and client:supports_method("textDocument/completion") then
+            vim.lsp.completion.enable(true, client.id, buf, {
+              autotrigger = true,
+            })
+          end
+
           if opts.inlay_hints.enabled and vim.lsp.inlay_hint then
             if not vim.tbl_contains(opts.inlay_hints.exclude, vim.bo[buf].filetype) and client:supports_method("textDocument/inlayHint") then
               vim.lsp.inlay_hint.enable(true, { bufnr = buf })
@@ -138,8 +148,8 @@ return {
         vim.lsp.config("*", default_server_opts)
       end
 
-      local have_mason = package.loaded["mason-lspconfig"] ~= nil or require("lazy.core.config").plugins["mason-lspconfig.nvim"] ~= nil
-      local mason_all = have_mason and vim.tbl_keys(require("mason-lspconfig.mappings").get_mason_map().lspconfig_to_package) or {}
+      local pack = require("config.pack")
+      local have_mason = pack.is_registered("mason-lspconfig.nvim")
       local mason_exclude = {}
 
       local function configure(server)
@@ -156,7 +166,7 @@ return {
 
         server_opts.enabled = nil
         server_opts.keys = nil
-        local use_mason = server_opts.mason ~= false and vim.tbl_contains(mason_all, server)
+        local use_mason = have_mason and server_opts.mason ~= false
         server_opts.mason = nil
 
         local setup = opts.setup[server] or opts.setup["*"]
@@ -174,20 +184,30 @@ return {
 
       local install = vim.tbl_filter(configure, vim.tbl_keys(opts.servers))
       if have_mason then
-        local mason_lspconfig_opts = require("lazy.core.config").plugins["mason-lspconfig.nvim"]
-        local ensure = (mason_lspconfig_opts and mason_lspconfig_opts.opts and mason_lspconfig_opts.opts.ensure_installed) or {}
-        require("mason-lspconfig").setup({
-          ensure_installed = vim.list_extend(install, ensure),
-          automatic_enable = { exclude = mason_exclude },
-        })
+        local ensure = vim.deepcopy(vim.tbl_get(pack.plugin_opts("mason-lspconfig.nvim") or {}, "ensure_installed") or {})
+        local install_set = {}
+        local ensure_installed = {}
+        for _, server in ipairs(vim.list_extend(install, ensure)) do
+          if not install_set[server] then
+            install_set[server] = true
+            ensure_installed[#ensure_installed + 1] = server
+          end
+        end
+        local ok, err = pcall(function()
+          require("mason-lspconfig").setup({
+            ensure_installed = ensure_installed,
+            automatic_enable = { exclude = mason_exclude },
+          })
+        end)
+        if not ok then
+          vim.notify(err, vim.log.levels.WARN, { title = "mason-lspconfig" })
+        end
       end
     end,
   },
   {
     "mason-org/mason.nvim",
-    cmd = "Mason",
     keys = { { "<leader>cm", "<cmd>Mason<cr>", desc = "Open Mason" } },
-    build = ":MasonUpdate",
     opts_extend = { "ensure_installed" },
     opts = {
       ensure_installed = {
@@ -198,19 +218,25 @@ return {
     config = function(_, opts)
       require("mason").setup(opts)
       local registry = require("mason-registry")
-      registry:on("package:install:success", function()
-        vim.defer_fn(function()
-          require("lazy.core.handler.event").trigger({ event = "FileType", buf = vim.api.nvim_get_current_buf() })
-        end, 100)
-      end)
-      registry.refresh(function()
-        for _, tool in ipairs(opts.ensure_installed) do
-          local ok, pkg = pcall(registry.get_package, tool)
-          if ok and pkg and not pkg:is_installed() then
-            pkg:install()
+      local interactive = #vim.api.nvim_list_uis() > 0
+      if interactive then
+        registry:on("package:install:success", function()
+          vim.defer_fn(function()
+            vim.api.nvim_exec_autocmds("FileType", {
+              buffer = vim.api.nvim_get_current_buf(),
+              modeline = false,
+            })
+          end, 100)
+        end)
+        registry.refresh(function()
+          for _, tool in ipairs(opts.ensure_installed) do
+            local ok, pkg = pcall(registry.get_package, tool)
+            if ok and pkg and not pkg:is_installed() then
+              pkg:install()
+            end
           end
-        end
-      end)
+        end)
+      end
     end,
   },
 }

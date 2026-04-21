@@ -5,7 +5,7 @@ end
 vim.api.nvim_create_autocmd({ "FocusGained", "TermClose", "TermLeave" }, {
   group = augroup("checktime"),
   callback = function()
-    if vim.o.buftype ~= "nofile" then
+    if vim.bo.buftype ~= "nofile" then
       vim.cmd("checktime")
     end
   end,
@@ -14,7 +14,7 @@ vim.api.nvim_create_autocmd({ "FocusGained", "TermClose", "TermLeave" }, {
 vim.api.nvim_create_autocmd("TextYankPost", {
   group = augroup("highlight_yank"),
   callback = function()
-    (vim.hl or vim.highlight).on_yank()
+    vim.hl.on_yank()
   end,
 })
 
@@ -112,13 +112,3 @@ vim.api.nvim_create_autocmd("BufWritePre", {
   end,
 })
 
-vim.api.nvim_create_autocmd("LspProgress", {
-  group = augroup("lsp_progress"),
-  callback = function(ev)
-    local value = ev.data.params.value or {}
-    local msg = value.message or "done"
-    if #msg > 40 then
-      msg = msg:sub(1, 37) .. "..."
-    end
-  end,
-})

@@ -145,16 +145,6 @@ function M.setup()
   vim.api.nvim_create_user_command("FormatInfo", function()
     M.info()
   end, { desc = "Show info about the current buffer's formatters" })
-
-  -- Keep the LazyFormat command names for compatibility with older habits.
-
-  vim.api.nvim_create_user_command("LazyFormat", function()
-    M.format({ force = true })
-  end, { desc = "Format selection or buffer" })
-
-  vim.api.nvim_create_user_command("LazyFormatInfo", function()
-    M.info()
-  end, { desc = "Show info about the current buffer's formatters" })
 end
 
 function M.snacks_toggle(buf)

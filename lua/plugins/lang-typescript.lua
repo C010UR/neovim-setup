@@ -18,15 +18,6 @@ local eslint_root_markers = {
 }
 local ts_root_markers = { "tsconfig.json", "tsconfig.base.json", "jsconfig.json" }
 
-local function root_dir(markers)
-  return function(bufnr, on_dir)
-    local root = vim.fs.root(bufnr, markers)
-    if root then
-      on_dir(root)
-    end
-  end
-end
-
 return {
   {
     "neovim/nvim-lspconfig",
@@ -39,20 +30,20 @@ return {
           enabled = false,
         },
         eslint = {
-          root_dir = root_dir(eslint_root_markers),
-          single_file_support = false,
+          root_markers = eslint_root_markers,
+          workspace_required = true,
           settings = {
             workingDirectories = { mode = "auto" },
             format = false,
           },
         },
         biome = {
-          root_dir = root_dir(biome_root_markers),
-          single_file_support = false,
+          root_markers = biome_root_markers,
+          workspace_required = true,
         },
         vtsls = {
-          root_dir = root_dir(ts_root_markers),
-          single_file_support = false,
+          root_markers = ts_root_markers,
+          workspace_required = true,
           filetypes = {
             "javascript",
             "javascriptreact",

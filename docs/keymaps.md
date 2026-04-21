@@ -1,6 +1,6 @@
 # Keymap inventory
 
-_Audited against the explicit repo-defined mappings on April 20, 2026._
+_Audited against the explicit repo-defined mappings on April 21, 2026._
 
 ## Scope and conventions
 
@@ -9,12 +9,12 @@ _Audited against the explicit repo-defined mappings on April 20, 2026._
   - `<localleader>` = `\`
 - Source of truth:
   - direct `vim.keymap.set(...)` / local `map(...)`
-  - Lazy `keys = { ... }`
+  - normalized plugin-spec `keys = { ... }` entries loaded through `lua/config/pack.lua`
   - `Snacks.toggle(...):map(...)`
   - LSP key specs registered through `config.lsp.register_keys()` and attached in `config.lsp.enable_keymaps()`
-  - repo-customized plugin-local key tables such as Snacks terminal/picker/dashboard keys and Blink overrides
+  - repo-customized plugin-local key tables such as Snacks terminal/picker/dashboard keys
 - This doc includes **explicit repo-defined mappings and repo-customized plugin-local key tables**.
-- Unchanged upstream defaults are intentionally omitted. That includes most defaults from `mini.comment`, `mini.surround`, `mini.move`, and Blink preset bindings that the repo does not override.
+- Unchanged upstream defaults are intentionally omitted. That includes most defaults from `mini.comment`, `mini.surround`, and `mini.move` that the repo does not override.
 - Scope labels used below: `global`, `buffer-local`, `filetype-local`, `terminal-local`, `picker-local`, `dashboard-local`, and `conditional`.
 
 ## Core editing and movement
@@ -30,6 +30,7 @@ _Audited against the explicit repo-defined mappings on April 20, 2026._
 - `N` — modes `n,x,o`; scope `global` — Repeat search in the opposite direction; normal mode also opens folds with `zv`.
 - `,`, `.`, `;` — mode `i`; scope `global` — Insert punctuation and create an undo breakpoint.
 - `<C-s>` — modes `i,n,x,s`; scope `global` — Save the current file.
+- `<C-Space>` — mode `i`; scope `global` — Trigger native LSP completion manually.
 - `<` — mode `x`; scope `global` — Indent left and keep the selection active.
 - `>` — mode `x`; scope `global` — Indent right and keep the selection active.
 - `gco` — mode `n`; scope `global` — Insert a commented line below.
@@ -133,7 +134,7 @@ _Audited against the explicit repo-defined mappings on April 20, 2026._
 - `<leader>sB` — mode `n`; scope `global` — Grep across open buffers.
 - `<leader>sg` — mode `n`; scope `global` — Live grep from the detected project root.
 - `<leader>sG` — mode `n`; scope `global` — Live grep from the current working directory.
-- `<leader>sp` — mode `n`; scope `global` — Search plugin specs.
+- `<leader>sp` — mode `n`; scope `global` — Open the `vim.pack` plugin manager buffer.
 - `<leader>sw` — modes `n,x`; scope `global` — Grep the current word or visual selection from the project root.
 - `<leader>sW` — modes `n,x`; scope `global` — Grep the current word or visual selection from the current working directory.
 - `<leader>s"` — mode `n`; scope `global` — Open the registers picker.
@@ -149,7 +150,7 @@ _Audited against the explicit repo-defined mappings on April 20, 2026._
 - `<leader>sM` — mode `n`; scope `global` — Open man pages.
 - `<leader>sm` — mode `n`; scope `global` — Open marks.
 - `<leader>sR` — mode `n`; scope `global` — Resume the last picker.
-- `<leader>su` — mode `n`; scope `global` — Open undo history.
+- `<leader>su` — mode `n`; scope `global` — Open Neovim's built-in undo tree.
 
 ### Search and replace / TODO helpers
 
@@ -255,10 +256,9 @@ These objects are available under the usual `mini.ai` prefixes (`a`, `i`, `an`, 
 - `<leader>gs` — mode `n`; scope `global` — Open Git status.
 - `<leader>gS` — mode `n`; scope `global` — Open Git stash.
 
-### MiniDiff controls from `lua/plugins/ui.lua`
+### Diff note
 
-- `<leader>go` — mode `n`; scope `global` — Toggle the MiniDiff overlay.
-- `<leader>uG` — mode `n`; scope `global` — Toggle MiniDiff signs.
+- No inline diff mappings are defined; use LazyGit or the Snacks Git pickers above.
 
 ## Diagnostics / quickfix / location lists
 
@@ -347,6 +347,7 @@ From `lua/plugins/snacks.lua` and `lua/config/keymaps.lua`:
 - `<leader>uw` — mode `n`; scope `global` — Toggle wrap.
 - `<leader>uL` — mode `n`; scope `global` — Toggle relative numbers.
 - `<leader>ud` — mode `n`; scope `global` — Toggle diagnostics.
+- `<leader>ue` — mode `n`; scope `global` — Toggle LSP inline completion when Neovim's built-in inline completion API is available.
 - `<leader>ul` — mode `n`; scope `global` — Toggle line numbers.
 - `<leader>uc` — mode `n`; scope `global` — Toggle conceal level.
 - `<leader>uA` — mode `n`; scope `global` — Toggle the tabline.
@@ -359,7 +360,6 @@ From `lua/plugins/snacks.lua` and `lua/config/keymaps.lua`:
 - `<leader>uh` — mode `n`; scope `conditional` — Toggle LSP inlay hints when `vim.lsp.inlay_hint` exists.
 - `<leader>uz` — mode `n`; scope `global` — Toggle zen mode.
 - `<leader>up` — mode `n`; scope `global` — Toggle Mini Pairs.
-- `<leader>uG` — mode `n`; scope `global` — Toggle MiniDiff signs.
 
 ### Terminal entry points and terminal-local keys
 
@@ -396,16 +396,15 @@ Dashboard-local keys:
 - `c` — scope `dashboard-local` — Find config files.
 - `p` — scope `dashboard-local` — Projects.
 - `s` — scope `dashboard-local` — Restore session.
-- `l` — scope `dashboard-local` — Open Lazy.
+- `l` — scope `dashboard-local` — Open the `vim.pack` plugin manager.
 - `q` — scope `dashboard-local` — Quit.
 
-### Blink-local overrides from `lua/plugins/coding.lua`
+### Native completion notes
 
-These are plugin-local completion bindings, not new global Neovim mappings.
-
-- `<C-y>` — scope `completion-menu-local` — Select and accept the current Blink completion item.
-- `<Left>` — scope `cmdline-completion-local` — Disabled in Blink's command-line preset.
-- `<Right>` — scope `cmdline-completion-local` — Disabled in Blink's command-line preset.
+- `<C-y>` still accepts the currently selected completion item through Neovim's built-in popup menu.
+- `<C-Space>` triggers native LSP completion manually.
+- `<leader>ue` toggles Neovim's built-in LSP inline completion when supported by an attached server.
+- `<Tab>`, `<Left>`, and `<Right>` use Neovim's native command-line completion behavior.
 
 ## AI
 
@@ -456,34 +455,8 @@ From `lua/plugins/lang-typescript.lua`:
 
 ## Notes on duplicates and precedence
 
-### Global duplicates with matching intent
-
-- `<leader>,` and `<leader>fb` both open the buffers picker.
-- `<leader><space>` and `<leader>ff` both find files from the detected project root.
-- `<leader>:` and `<leader>sc` both open command history.
-- `<leader>sd` / `<leader>xx`, `<leader>sD` / `<leader>xX`, `<leader>sl` / `<leader>xL`, and `<leader>sq` / `<leader>xQ` are paired Snacks picker aliases.
-- `<leader>e` remaps to `<leader>fe`, and `<leader>E` remaps to `<leader>fE`.
-- `<leader>wm` and `<leader>uZ` trigger the same zoom toggle.
-- `<C-_>` is used as an alias for `<C-/>` in both global terminal focus and terminal-local terminal hide flows.
-
-### Buffer and quickfix overlaps
-
-- `<S-h>`, `<S-l>`, `[b`, and `]b` are defined in both `lua/config/keymaps.lua` and Bufferline's `keys` table in `lua/plugins/ui.lua`.
-- `[q` and `]q` are defined in `lua/config/keymaps.lua` and again in the optional Snacks augment in `lua/plugins/editor.lua`.
-- In both cases the source shows intentional duplication, but it does not declare one universal winner. The docs above describe the shared effective behavior and note the duplicate sources.
-
-### LSP dedupe rule
-
-`lua/config/lsp.lua` attaches generic `"*"` server mappings before per-server mappings and dedupes by `mode + lhs`. That means:
-
-- generic LSP keys like `<leader>co` can prevent server-specific duplicates from attaching
-- `vtsls` `gD` (“goto source definition”) may be skipped because generic LSP already uses `gD` for declaration
-- Python's Ruff module and TypeScript's `vtsls` module both register `<leader>co`, but the generic LSP `<leader>co` usually wins when it is available.
-
-### Rust-specific overrides
-
-Rust sets fresh `buffer-local` mappings in `rustaceanvim`'s `on_attach`, so in Rust buffers:
-
-- `<leader>cR` is Rust code action rather than the generic LSP file-rename helper
-- `<leader>dr` is Rust debuggables rather than the global DAP REPL toggle.
+- `<leader>,` / `<leader>fb`, `<leader><space>` / `<leader>ff`, `<leader>:` / `<leader>sc`, and the paired Snacks `s*` / `x*` pickers are intentional aliases.
+- `<S-h>`, `<S-l>`, `[b`, `]b`, `[q`, and `]q` are defined in more than one source, but the effective behavior is the same.
+- `lua/config/lsp.lua` attaches generic `"*"` mappings before per-server mappings and dedupes by `mode + lhs`, so generic keys like `<leader>co` can prevent server-specific duplicates such as `vtsls` `gD` or `<leader>co` from attaching.
+- Rust sets fresh `buffer-local` mappings in `rustaceanvim`'s `on_attach`, so in Rust buffers `<leader>cR` and `<leader>dr` override the generic meanings.
 

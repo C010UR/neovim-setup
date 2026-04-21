@@ -1,4 +1,3 @@
-local icons = require("config.icons")
 local lsp = require("config.lsp")
 local mini = require("config.mini")
 
@@ -7,7 +6,6 @@ local mini = require("config.mini")
 return {
   {
     "nvim-mini/mini.pairs",
-    event = "VeryLazy",
     opts = {
       modes = { insert = true, command = true, terminal = false },
       skip_next = [=[[%w%%%'%[%"%.%`%$]]=],
@@ -21,12 +19,10 @@ return {
   },
   {
     "folke/ts-comments.nvim",
-    event = "VeryLazy",
     opts = {},
   },
   {
     "nvim-mini/mini.ai",
-    event = "VeryLazy",
     opts = function()
       local ai = require("mini.ai")
       return {
@@ -62,18 +58,15 @@ return {
   {
     "nvim-mini/mini.comment",
     version = false,
-    event = "VeryLazy",
     opts = {},
   },
   {
     "nvim-mini/mini.surround",
     version = false,
-    event = "VeryLazy",
     opts = {},
   },
   {
     "danymat/neogen",
-    cmd = "Neogen",
     keys = {
       {
         "<leader>cn",
@@ -85,65 +78,6 @@ return {
     },
     opts = {
       snippet_engine = "nvim",
-    },
-  },
-  {
-    "saghen/blink.cmp",
-    version = "*",
-    event = { "InsertEnter", "CmdlineEnter" },
-    dependencies = {
-      "rafamadriz/friendly-snippets",
-    },
-    opts = {
-      snippets = { preset = "default" },
-      appearance = {
-        use_nvim_cmp_as_default = false,
-        nerd_font_variant = "mono",
-        kind_icons = icons.kinds,
-      },
-      completion = {
-        accept = { auto_brackets = { enabled = true } },
-        menu = { draw = { treesitter = { "lsp" } } },
-        documentation = { auto_show = true, auto_show_delay_ms = 200 },
-        ghost_text = { enabled = vim.g.ai_cmp },
-      },
-      sources = {
-        default = { "lsp", "path", "snippets", "buffer" },
-      },
-      cmdline = {
-        enabled = true,
-        keymap = {
-          preset = "cmdline",
-          ["<Right>"] = false,
-          ["<Left>"] = false,
-        },
-        completion = {
-          list = { selection = { preselect = false } },
-          menu = {
-            auto_show = function()
-              return vim.fn.getcmdtype() == ":"
-            end,
-          },
-          ghost_text = { enabled = true },
-        },
-      },
-      keymap = {
-        preset = "enter",
-        ["<C-y>"] = { "select_and_accept" },
-      },
-    },
-  },
-  {
-    'saghen/blink.compat',
-    version = '2.*',
-    lazy = true,
-    opts = {},
-  },
-  {
-    "catppuccin",
-    optional = true,
-    opts = {
-      integrations = { blink_cmp = true },
     },
   },
   {

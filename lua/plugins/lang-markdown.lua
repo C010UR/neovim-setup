@@ -55,9 +55,7 @@ return {
   },
   {
     "iamcco/markdown-preview.nvim",
-    cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
     build = function()
-      require("lazy").load({ plugins = { "markdown-preview.nvim" } })
       vim.fn["mkdp#util#install"]()
     end,
     keys = {
@@ -69,7 +67,10 @@ return {
       },
     },
     config = function()
-      vim.cmd([[do FileType]])
+      vim.api.nvim_exec_autocmds("FileType", {
+        buffer = vim.api.nvim_get_current_buf(),
+        modeline = false,
+      })
     end,
   },
 }

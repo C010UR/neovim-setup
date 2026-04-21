@@ -118,6 +118,11 @@ map("i", ",", ",<c-g>u", { desc = "Insert Comma (Undo Breakpoint)" })
 map("i", ".", ".<c-g>u", { desc = "Insert Period (Undo Breakpoint)" })
 map("i", ";", ";<c-g>u", { desc = "Insert Semicolon (Undo Breakpoint)" })
 map({ "i", "x", "n", "s" }, "<C-s>", "<cmd>w<cr><esc>", { desc = "Save File" })
+map("i", "<C-Space>", function()
+  if vim.lsp.completion then
+    vim.lsp.completion.get()
+  end
+end, { desc = "Trigger Completion" })
 map("x", "<", "<gv", { desc = "Indent Left and Reselect" })
 map("x", ">", ">gv", { desc = "Indent Right and Reselect" })
 map("n", "gco", "o<esc>Vcx<esc><cmd>normal gcc<cr>fxa<bs>", { desc = "Add Comment Below" })
@@ -167,6 +172,17 @@ Snacks.toggle.profiler():map("<leader>dpp")
 Snacks.toggle.profiler_highlights():map("<leader>dph")
 if vim.lsp.inlay_hint then
   Snacks.toggle.inlay_hints():map("<leader>uh")
+end
+if vim.lsp.inline_completion then
+  Snacks.toggle({
+    name = "Inline Completion",
+    get = function()
+      return vim.lsp.inline_completion.is_enabled({ bufnr = 0 })
+    end,
+    set = function(state)
+      vim.lsp.inline_completion.enable(state, { bufnr = 0 })
+    end,
+  }):map("<leader>ue")
 end
 if vim.fn.executable("lazygit") == 1 then
   map("n", "<leader>gg", function() Snacks.lazygit({ cwd = root.git() }) end, { desc = "LazyGit (Root Dir)" })

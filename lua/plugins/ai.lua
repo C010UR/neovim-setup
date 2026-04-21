@@ -61,8 +61,8 @@ return {
           --- - Non-git repos: Falls back to filesystem scanning with manual excludes
           --- - Both methods apply the configured `exclude` list on top of gitignore
 
-          --- What autocomplete engine to use. Defaults to native (built-in) if not specified.
-          source = "blink", -- "native" (default), "cmp", or "blink"
+          --- Use Neovim's built-in completion stack.
+          source = "native", -- "native" (default) or "cmp"
         },
 
         --- WARNING: if you change cwd then this is likely broken

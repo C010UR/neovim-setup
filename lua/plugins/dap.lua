@@ -26,6 +26,7 @@ return {
         "theHamsta/nvim-dap-virtual-text",
         opts = {},
       },
+      "jay-babu/mason-nvim-dap.nvim",
     },
     keys = {
       { "<leader>dB", function() require("dap").set_breakpoint(vim.fn.input("Breakpoint condition: ")) end, desc = "Set Conditional Breakpoint" },
@@ -47,9 +48,12 @@ return {
       { "<leader>dw", function() require("dap.ui.widgets").hover() end, desc = "Open Debug Widgets" },
     },
     config = function()
-      local plugin = require("lazy.core.config").plugins["mason-nvim-dap.nvim"]
-      if plugin then
-        local opts = type(plugin.opts) == "function" and plugin.opts(plugin, {}) or plugin.opts or {}
+      local pack = require("config.pack")
+      if pack.is_registered("mason-nvim-dap.nvim") then
+        local opts = vim.deepcopy(pack.plugin_opts("mason-nvim-dap.nvim") or {})
+        if #vim.api.nvim_list_uis() == 0 then
+          opts.automatic_installation = false
+        end
         require("mason-nvim-dap").setup(opts)
       end
 
@@ -91,7 +95,6 @@ return {
   {
     "jay-babu/mason-nvim-dap.nvim",
     dependencies = "mason.nvim",
-    cmd = { "DapInstall", "DapUninstall" },
     opts = {
       automatic_installation = true,
       handlers = {},
