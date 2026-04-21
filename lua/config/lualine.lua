@@ -12,8 +12,19 @@ local lsp_state = {
   setup_ran = false,
 }
 
-local function escape_statusline(text)
-  return (text or ""):gsub("%%", "%%%%")
+local function sanitize_statusline(text)
+  if text == nil then
+    return ""
+  end
+  if type(text) ~= "string" then
+    text = tostring(text)
+  end
+
+  local ok, utils = pcall(require, "lualine.utils.utils")
+  if ok and type(utils.stl_escape) == "function" then
+    return utils.stl_escape(text)
+  end
+  return text:gsub("%%", "%%%%")
 end
 
 local function truncate(text, max_length)
@@ -183,7 +194,7 @@ function M.status(icon, status)
 end
 
 function M.format(component, text, hl_group)
-  text = text:gsub("%%", "%%%%")
+  text = sanitize_statusline(text)
   if not hl_group or hl_group == "" then
     return text
   end
@@ -299,7 +310,7 @@ function M.root_dir(opts)
   return {
     function()
       local name = get_name()
-      return name and ((opts.icon and opts.icon .. " ") or "") .. name or ""
+      return name and sanitize_statusline(((opts.icon and opts.icon .. " ") or "") .. name) or ""
     end,
     cond = function()
       return type(get_name()) == "string"
@@ -314,10 +325,6 @@ function M.lsp_clients(opts)
     ignore = {},
     icon = "",
     inactive_icon = "",
-    show_count = true,
-    show_names = false,
-    name_length = 0,
-    separator = ", ",
     always_visible = true,
   }, opts or {})
 
@@ -331,22 +338,7 @@ function M.lsp_clients(opts)
       return opts.always_visible and opts.inactive_icon or ""
     end
 
-    local parts = { opts.icon }
-    if opts.show_count then
-      parts[#parts + 1] = tostring(#clients)
-    end
-    if opts.show_names then
-      parts[#parts + 1] = truncate(
-        table.concat(
-          vim.tbl_map(function(client)
-            return client.name
-          end, clients),
-          opts.separator
-        ),
-        opts.name_length
-      )
-    end
-    return escape_statusline(table.concat(parts, " "))
+    return sanitize_statusline(string.format("%s %d", opts.icon, #clients))
   end
 
   return {
@@ -417,7 +409,7 @@ function M.lsp_progress(opts)
       parts[#parts + 1] = table.concat(segment, opts.separator)
     end
 
-    return escape_statusline(table.concat(parts, opts.client_separator))
+    return sanitize_statusline(table.concat(parts, opts.client_separator))
   end
 
   return {
@@ -433,6 +425,7 @@ function M.breadcrumbs(opts)
   opts = vim.tbl_extend("force", {
     prefix = "",
     length = 48,
+    highlight = true,
   }, opts or {})
 
   local function location()
@@ -441,12 +434,19 @@ function M.breadcrumbs(opts)
       return ""
     end
 
-    local breadcrumb = navic.get_location()
+    local breadcrumb = navic.get_location({
+      highlight = opts.highlight,
+      safe_output = true,
+    })
     if breadcrumb == "" then
       return ""
     end
 
-    return escape_statusline((opts.prefix or "") .. truncate(breadcrumb, opts.length))
+    local prefix = opts.prefix or ""
+    if opts.highlight then
+      return prefix .. breadcrumb
+    end
+    return sanitize_statusline(prefix .. truncate(breadcrumb, opts.length))
   end
 
   return {
@@ -454,9 +454,87 @@ function M.breadcrumbs(opts)
     cond = function()
       return location() ~= ""
     end,
-    color = opts.color,
+    color = opts.highlight and nil or opts.color,
   }
 end
+
+local function sanitize_component_output(component)
+  if type(component) == "table" and type(component[1]) == "function" then
+    local text = component[1]
+    component[1] = function(...)
+      return sanitize_statusline(text(...))
+    end
+  end
+  return component
+end
+
+function M.profiler_status()
+  return sanitize_component_output(Snacks.profiler.status())
+end
+
+function M.dap_status()
+  return {
+    function()
+      return sanitize_statusline("  " .. require("dap").status())
+    end,
+    cond = function()
+      return package.loaded["dap"] and require("dap").status() ~= ""
+    end,
+    color = function()
+      return { fg = Snacks.util.color("Debug") }
+    end,
+  }
+end
+
+function M.opts()
+  return {
+    options = {
+      theme = "auto",
+      component_separators = { left = "|", right = "|" },
+      section_separators = { left = "", right = "" },
+      globalstatus = vim.o.laststatus == 3,
+      disabled_filetypes = { statusline = { "dashboard", "alpha", "ministarter", "snacks_dashboard" } },
+    },
+    sections = {
+      lualine_a = { "mode" },
+      lualine_b = { "branch" },
+      lualine_c = {
+        M.root_dir(),
+        {
+          "diagnostics",
+          separator = "",
+          symbols = {
+            error = icons.diagnostics.Error,
+            warn = icons.diagnostics.Warn,
+            info = icons.diagnostics.Info,
+            hint = icons.diagnostics.Hint,
+          },
+        },
+        M.lsp_clients({ always_visible = false }),
+        { "filetype", icon_only = true, separator = "", padding = { left = 1, right = 0 } },
+        { M.pretty_path() },
+        M.breadcrumbs({ color = function() return { fg = Snacks.util.color("Comment") } end }),
+      },
+      lualine_x = {
+        M.profiler_status(),
+        M.lsp_progress(),
+        M.dap_status(),
+      },
+      lualine_y = {
+        { "progress", separator = " ", padding = { left = 1, right = 0 } },
+        { "location", padding = { left = 0, right = 1 } },
+      },
+      lualine_z = {
+        function()
+          return ""
+        end,
+      },
+    },
+    extensions = { "neo-tree", "fzf" },
+  }
+end
+
+M.sanitize_statusline = sanitize_statusline
 
 M.icons = icons
 

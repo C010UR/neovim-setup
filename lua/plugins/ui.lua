@@ -67,63 +67,7 @@ return {
       local lualine_require = require("lualine_require")
       lualine_require.require = require
       vim.o.laststatus = vim.g.lualine_laststatus
-
-      local opts = {
-        options = {
-          theme = "auto",
-          component_separators = { left = "|", right = "|" },
-          section_separators = { left = "", right = "" },
-          globalstatus = vim.o.laststatus == 3,
-          disabled_filetypes = { statusline = { "dashboard", "alpha", "ministarter", "snacks_dashboard" } },
-        },
-        sections = {
-          lualine_a = { "mode" },
-          lualine_b = { "branch" },
-          lualine_c = {
-            lualine.root_dir(),
-            {
-              "diagnostics",
-              symbols = {
-                error = icons.diagnostics.Error,
-                warn = icons.diagnostics.Warn,
-                info = icons.diagnostics.Info,
-                hint = icons.diagnostics.Hint,
-              },
-            },
-            lualine.lsp_clients({ show_names = true, always_visible = false, name_length = 24 }),
-            { "filetype", icon_only = true, separator = "", padding = { left = 1, right = 0 } },
-            { lualine.pretty_path() },
-            lualine.breadcrumbs({ color = function() return { fg = Snacks.util.color("Comment") } end }),
-          },
-          lualine_x = {
-            Snacks.profiler.status(),
-            lualine.lsp_progress(),
-            {
-              function()
-                return "  " .. require("dap").status()
-              end,
-              cond = function()
-                return package.loaded["dap"] and require("dap").status() ~= ""
-              end,
-              color = function()
-                return { fg = Snacks.util.color("Debug") }
-              end,
-            },
-          },
-          lualine_y = {
-            { "progress", separator = " ", padding = { left = 1, right = 0 } },
-            { "location", padding = { left = 0, right = 1 } },
-          },
-          lualine_z = {
-            function()
-              return ""
-            end,
-          },
-        },
-        extensions = { "neo-tree", "fzf" },
-      }
-
-      return opts
+      return lualine.opts()
     end,
   },
   {
