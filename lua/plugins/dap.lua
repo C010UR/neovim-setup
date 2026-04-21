@@ -24,6 +24,7 @@ return {
       "rcarriga/nvim-dap-ui",
       {
         "theHamsta/nvim-dap-virtual-text",
+        main = "nvim-dap-virtual-text",
         opts = {},
       },
       "jay-babu/mason-nvim-dap.nvim",

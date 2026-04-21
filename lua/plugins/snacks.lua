@@ -91,6 +91,10 @@ return {
         end,
       },
       dashboard = {
+        sections = {
+          { section = "header" },
+          { section = "keys", gap = 1, padding = 1 },
+        },
         preset = {
           pick = function(cmd, opts)
             return pick(cmd, opts)()
@@ -143,7 +147,7 @@ return {
       { "<leader>sB", function() Snacks.picker.grep_buffers() end, desc = "Search Open Buffers" },
       { "<leader>sg", pick("live_grep"), desc = "Live Grep (Root Dir)" },
       { "<leader>sG", pick("live_grep", { root = false }), desc = "Live Grep (CWD)" },
-      { "<leader>sp", function() require("config.pack").open() end, desc = "Open Plugin Manager" },
+      { "<leader>sp", function() require("plugins.pack-ui").open() end, desc = "Open Plugin Manager" },
       { "<leader>sw", pick("grep_word"), desc = "Grep Selection or Word (Root Dir)", mode = { "n", "x" } },
       { "<leader>sW", pick("grep_word", { root = false }), desc = "Grep Selection or Word (CWD)", mode = { "n", "x" } },
       { '<leader>s"', function() Snacks.picker.registers() end, desc = "Open Registers" },

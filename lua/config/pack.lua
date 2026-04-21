@@ -21,40 +21,6 @@ local state = {
 -- This loader preserves the repo's declaration shape (merged specs, opts,
 -- dependencies, and keys), but otherwise follows native vim.pack behavior.
 
-local MAIN_MODULE = {
-  ["bufferline.nvim"] = "bufferline",
-  ["catppuccin"] = "catppuccin",
-  ["conform.nvim"] = "conform",
-  ["crates.nvim"] = "crates",
-  ["flash.nvim"] = "flash",
-  ["grug-far.nvim"] = "grug-far",
-  ["guess-indent.nvim"] = "guess-indent",
-  ["lazydev.nvim"] = "lazydev",
-  ["lualine.nvim"] = "lualine",
-  ["mason-lspconfig.nvim"] = "mason-lspconfig",
-  ["mason-nvim-dap.nvim"] = "mason-nvim-dap",
-  ["mason.nvim"] = "mason",
-  ["mini.ai"] = "mini.ai",
-  ["mini.comment"] = "mini.comment",
-  ["mini.icons"] = "mini.icons",
-  ["mini.indentscope"] = "mini.indentscope",
-  ["mini.move"] = "mini.move",
-  ["mini.pairs"] = "mini.pairs",
-  ["mini.surround"] = "mini.surround",
-  ["nvim-dap-virtual-text"] = "nvim-dap-virtual-text",
-  ["nvim-lint"] = "lint",
-  ["nvim-navic"] = "nvim-navic",
-  ["nvim-ts-autotag"] = "nvim-ts-autotag",
-  ["nvim-treesitter-context"] = "treesitter-context",
-  ["persistence.nvim"] = "persistence",
-  ["snacks.nvim"] = "snacks",
-  ["todo-comments.nvim"] = "todo-comments",
-  ["tokyonight.nvim"] = "tokyonight",
-  ["ts-comments.nvim"] = "ts-comments",
-  ["venv-selector.nvim"] = "venv-selector",
-  ["which-key.nvim"] = "which-key",
-}
-
 local DISABLED_BUILTINS = {
   "gzip",
   "tarPlugin",
@@ -388,9 +354,6 @@ local function guess_main(plugin)
   if plugin.main then
     return plugin.main
   end
-  if MAIN_MODULE[plugin.name] then
-    return MAIN_MODULE[plugin.name]
-  end
   if plugin.name:match("^mini%.") then
     return plugin.name
   end
@@ -542,16 +505,6 @@ local function register_build_hooks()
   })
 end
 
-local function register_pack_commands()
-  vim.api.nvim_create_user_command("Pack", function()
-    vim.pack.update(nil, { offline = true })
-  end, { desc = "Open vim.pack status" })
-
-  vim.api.nvim_create_user_command("PackUpdate", function()
-    vim.pack.update()
-  end, { desc = "Check for plugin updates" })
-end
-
 local function bootstrap_plugins()
   discover_specs()
   resolve_specs()
@@ -560,7 +513,6 @@ local function bootstrap_plugins()
   state.keymap_group = vim.api.nvim_create_augroup("config_pack_keymaps", { clear = true })
 
   register_build_hooks()
-  register_pack_commands()
 
   for _, plugin in ipairs(state.order) do
     for _, init in ipairs(plugin.init_specs) do
@@ -593,11 +545,6 @@ local function bootstrap_plugins()
       register_keymap(key_spec)
     end
   end
-end
-
-function M.open(names, opts)
-  opts = vim.tbl_extend("force", { offline = true }, opts or {})
-  vim.pack.update(names, opts)
 end
 
 function M.open_undotree()

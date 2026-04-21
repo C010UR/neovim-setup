@@ -16,7 +16,8 @@ _Audited against the repo-owned `vim.pack` graph on April 21, 2026._
 
 | Component | What it does here | Sources |
 | --- | --- | --- |
-| Built-in `vim.pack` + repo loader | Installs plugins, normalizes repeated specs, provides `:Pack` / `:PackUpdate`, and exposes shared merged plugin metadata to the rest of the config. | `init.lua`, `lua/config/pack.lua` |
+| Built-in `vim.pack` + repo loader | Installs plugins, normalizes repeated specs, and exposes shared merged plugin metadata to the rest of the config. | `init.lua`, `lua/config/pack.lua` |
+| Local `pack-ui` module | Provides the floating `:Pack` UI plus `:PackUpdate` for inspecting, checking, updating, cleaning, and logging `vim.pack` plugins without pushing UI policy back into `config.pack`. | `lua/plugins/pack-ui.lua` |
 
 ## Core UI / pickers / sessions
 

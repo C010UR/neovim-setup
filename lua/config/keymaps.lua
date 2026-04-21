@@ -19,6 +19,26 @@ local function diagnostic_goto(next, severity)
   end
 end
 
+local function accept_completion_tab()
+  if vim.fn.pumvisible() == 1 then
+    local info = vim.fn.complete_info({ "selected" })
+    if (info.selected or -1) == -1 then
+      return "<C-n><C-y>"
+    end
+    return "<C-y>"
+  end
+
+  if vim.lsp.inline_completion and vim.lsp.inline_completion.get() then
+    return ""
+  end
+
+  if vim.snippet and vim.snippet.active and vim.snippet.active({ direction = 1 }) then
+    return "<Cmd>lua vim.snippet.jump(1)<CR>"
+  end
+
+  return "<Tab>"
+end
+
 map({ "n", "x" }, "j", "v:count == 0 ? 'gj' : 'j'", { desc = "Move Down (Display Line)", expr = true, silent = true })
 map({ "n", "x" }, "<Down>", "v:count == 0 ? 'gj' : 'j'", { desc = "Move Down (Display Line)", expr = true, silent = true })
 map({ "n", "x" }, "k", "v:count == 0 ? 'gk' : 'k'", { desc = "Move Up (Display Line)", expr = true, silent = true })
@@ -118,6 +138,7 @@ map("i", ",", ",<c-g>u", { desc = "Insert Comma (Undo Breakpoint)" })
 map("i", ".", ".<c-g>u", { desc = "Insert Period (Undo Breakpoint)" })
 map("i", ";", ";<c-g>u", { desc = "Insert Semicolon (Undo Breakpoint)" })
 map({ "i", "x", "n", "s" }, "<C-s>", "<cmd>w<cr><esc>", { desc = "Save File" })
+map({ "i", "s" }, "<Tab>", accept_completion_tab, { expr = true, desc = "Accept Completion / Jump Snippet" })
 map("i", "<C-Space>", function()
   if vim.lsp.completion then
     vim.lsp.completion.get()

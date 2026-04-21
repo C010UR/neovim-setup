@@ -30,6 +30,7 @@ _Audited against the explicit repo-defined mappings on April 21, 2026._
 - `N` — modes `n,x,o`; scope `global` — Repeat search in the opposite direction; normal mode also opens folds with `zv`.
 - `,`, `.`, `;` — mode `i`; scope `global` — Insert punctuation and create an undo breakpoint.
 - `<C-s>` — modes `i,n,x,s`; scope `global` — Save the current file.
+- `<Tab>` — modes `i,s`; scope `global` — Accept the current popup completion item (selecting the first item when needed), otherwise accept inline completion, jump to the next snippet tabstop, or insert a literal tab.
 - `<C-Space>` — mode `i`; scope `global` — Trigger native LSP completion manually.
 - `<` — mode `x`; scope `global` — Indent left and keep the selection active.
 - `>` — mode `x`; scope `global` — Indent right and keep the selection active.
@@ -134,7 +135,7 @@ _Audited against the explicit repo-defined mappings on April 21, 2026._
 - `<leader>sB` — mode `n`; scope `global` — Grep across open buffers.
 - `<leader>sg` — mode `n`; scope `global` — Live grep from the detected project root.
 - `<leader>sG` — mode `n`; scope `global` — Live grep from the current working directory.
-- `<leader>sp` — mode `n`; scope `global` — Open the `vim.pack` plugin manager buffer.
+- `<leader>sp` — mode `n`; scope `global` — Open the floating `vim.pack` plugin manager UI.
 - `<leader>sw` — modes `n,x`; scope `global` — Grep the current word or visual selection from the project root.
 - `<leader>sW` — modes `n,x`; scope `global` — Grep the current word or visual selection from the current working directory.
 - `<leader>s"` — mode `n`; scope `global` — Open the registers picker.
@@ -396,15 +397,16 @@ Dashboard-local keys:
 - `c` — scope `dashboard-local` — Find config files.
 - `p` — scope `dashboard-local` — Projects.
 - `s` — scope `dashboard-local` — Restore session.
-- `l` — scope `dashboard-local` — Open the `vim.pack` plugin manager.
+- `l` — scope `dashboard-local` — Open the floating `vim.pack` plugin manager UI.
 - `q` — scope `dashboard-local` — Quit.
 
 ### Native completion notes
 
 - `<C-y>` still accepts the currently selected completion item through Neovim's built-in popup menu.
+- `<Tab>` accepts popup completion first (selecting the first item when needed), then falls back to inline completion, snippet jumping, or a literal tab.
 - `<C-Space>` triggers native LSP completion manually.
 - `<leader>ue` toggles Neovim's built-in LSP inline completion when supported by an attached server.
-- `<Tab>`, `<Left>`, and `<Right>` use Neovim's native command-line completion behavior.
+- In command-line mode, `<Tab>`, `<Left>`, and `<Right>` still use Neovim's native completion behavior.
 
 ## AI
 

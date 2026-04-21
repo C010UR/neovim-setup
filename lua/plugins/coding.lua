@@ -85,6 +85,7 @@ return {
     dependencies = {
       {
         "SmiteshP/nvim-navic",
+        main = "nvim-navic",
         opts = function()
           local icons = require("config.icons")
           return {
