@@ -119,17 +119,17 @@ return {
       function()
         Snacks.explorer({ cwd = root() })
       end,
-      desc = "Explorer Snacks (root dir)",
+      desc = "Open Explorer (Root Dir)",
     },
     {
       "<leader>fE",
       function()
         Snacks.explorer()
       end,
-      desc = "Explorer Snacks (cwd)",
+      desc = "Open Explorer (CWD)",
     },
-    { "<leader>e", "<leader>fe", desc = "Explorer Snacks (root dir)", remap = true },
-    { "<leader>E", "<leader>fE", desc = "Explorer Snacks (cwd)", remap = true },
+    { "<leader>e", "<leader>fe", desc = "Open Explorer (Root Dir)", remap = true },
+    { "<leader>E", "<leader>fE", desc = "Open Explorer (CWD)", remap = true },
     {
       "<C-p>",
       function()
@@ -139,7 +139,7 @@ return {
           vim.cmd.startinsert()
         end, 20)
       end,
-      desc = "Open Snacks explorer and focus input",
+      desc = "Open Explorer and Focus Search",
     },
     {
       "<leader>/",

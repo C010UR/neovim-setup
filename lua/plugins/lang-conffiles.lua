@@ -110,7 +110,7 @@ return {
         function()
           require("yaml_nvim").snacks()
         end,
-        desc = "YAML Key Find",
+        desc = "Find YAML Key",
       },
     },
   },

@@ -47,8 +47,8 @@ return {
     dependencies = {
       "mfussenegger/nvim-dap-python",
       keys = {
-        { "<leader>dPt", function() require("dap-python").test_method() end, desc = "Debug Method", ft = "python" },
-        { "<leader>dPc", function() require("dap-python").test_class() end, desc = "Debug Class", ft = "python" },
+        { "<leader>dPt", function() require("dap-python").test_method() end, desc = "Debug Test Method", ft = "python" },
+        { "<leader>dPc", function() require("dap-python").test_class() end, desc = "Debug Test Class", ft = "python" },
       },
       config = function()
         require("dap-python").setup("debugpy-adapter")
@@ -59,7 +59,7 @@ return {
     "linux-cultist/venv-selector.nvim",
     cmd = "VenvSelect",
     ft = "python",
-    keys = { { "<leader>cv", "<cmd>:VenvSelect<cr>", desc = "Select VirtualEnv", ft = "python" } },
+    keys = { { "<leader>cv", "<cmd>:VenvSelect<cr>", desc = "Select Virtualenv", ft = "python" } },
     opts = {
       options = {
         notify_user_on_venv_activation = true,

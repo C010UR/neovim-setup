@@ -4,7 +4,7 @@ return {
     cmd = "GuessIndent",
     event = "LazyFile",
     keys = {
-      { "<leader>cg", "<cmd>GuessIndent<cr>", desc = "Guess Indent" },
+      { "<leader>cg", "<cmd>GuessIndent<cr>", desc = "Detect Indentation" },
     },
     opts = {},
   },

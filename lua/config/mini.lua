@@ -72,7 +72,7 @@ end
 function M.pairs(opts)
   if package.loaded["snacks"] then
     Snacks.toggle({
-      name = "Mini Pairs",
+      name = "Auto Pairs",
       get = function()
         return not vim.g.minipairs_disable
       end,

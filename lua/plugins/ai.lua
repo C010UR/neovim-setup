@@ -89,20 +89,20 @@ return {
       vim.keymap.set("v", "<leader>9v", function()
         _99.visual()
       end, {
-        desc = "Work on selection",
+        desc = "Work on Selection with 99",
       })
 
       --- if you have a request you dont want to make any changes, just cancel it
       vim.keymap.set("n", "<leader>9x", function()
         _99.stop_all_requests()
       end, {
-        desc = "Stop all requests",
+        desc = "Stop All 99 Requests",
       })
 
       vim.keymap.set("n", "<leader>9s", function()
         _99.search()
       end, {
-        desc = "Search",
+        desc = "Search with 99",
       })
     end,
   },
