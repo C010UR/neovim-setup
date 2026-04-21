@@ -757,7 +757,7 @@ open = function()
     row = row,
     col = col,
     style = "minimal",
-    border = "rounded",
+    border = vim.o.winborder,
     title = " vim.pack ",
     title_pos = "center",
   })

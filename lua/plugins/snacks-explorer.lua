@@ -40,7 +40,7 @@ return {
               relative = "editor",
               external = false,
               focusable = false,
-              border = "rounded",
+              border = true,
               backdrop = false,
               show = false,
               bo = {

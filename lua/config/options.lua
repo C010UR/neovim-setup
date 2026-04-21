@@ -31,6 +31,7 @@ opt.grepprg = "rg --vimgrep"
 -- Completion and command-line UI.
 opt.completeopt = "menu,menuone,noselect,popup"
 opt.pumblend = 10
+opt.pumborder = "single"
 opt.pumheight = 10
 opt.wildmenu = true
 opt.wildoptions = "pum,fuzzy"
@@ -48,6 +49,7 @@ opt.splitkeep = "screen"
 opt.splitright = true
 opt.timeoutlen = vim.g.vscode and 1000 or 300
 opt.updatetime = 200
+opt.winborder = "single"
 opt.winminwidth = 5
 
 -- Line numbers and cursor feedback.
