@@ -241,6 +241,7 @@ return {
       ensure_installed = {
         "stylua",
         "shfmt",
+        "fish-lsp",
       },
     },
     config = function(_, opts)

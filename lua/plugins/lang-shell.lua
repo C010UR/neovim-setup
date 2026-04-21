@@ -21,11 +21,8 @@ return {
         },
       })
 
-      add("bash")
-
-      local xdg_config = vim.env.XDG_CONFIG_HOME or vim.env.HOME .. "/.config"
-      if vim.uv.fs_stat(xdg_config .. "/fish") ~= nil then
-        add("fish")
+      for _, lang in ipairs({ "bash", "fish" }) do
+        add(lang)
       end
     end,
   },
@@ -36,6 +33,7 @@ return {
         bashls = {
           standalone = shell_standalone,
         },
+        fish_lsp = {},
       },
     },
   },
