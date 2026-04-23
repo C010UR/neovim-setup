@@ -131,17 +131,6 @@ return {
     { "<leader>e", "<leader>fe", desc = "Open Explorer (Root Dir)", remap = true },
     { "<leader>E", "<leader>fE", desc = "Open Explorer (CWD)", remap = true },
     {
-      "<C-p>",
-      function()
-        local explorer = Snacks.explorer() or Snacks.explorer()
-        vim.defer_fn(function()
-          explorer:focus("input", { show = true })
-          vim.cmd.startinsert()
-        end, 20)
-      end,
-      desc = "Open Explorer and Focus Search",
-    },
-    {
       "<leader>/",
       mode = "x",
       desc = "Live Grep Selection",

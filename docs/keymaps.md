@@ -125,7 +125,6 @@ _Audited against the explicit repo-defined mappings on April 21, 2026._
 - `<leader>fE` — mode `n`; scope `global` — Open the Snacks explorer at the current working directory.
 - `<leader>e` — mode `n`; scope `global` — Remap to `<leader>fe`.
 - `<leader>E` — mode `n`; scope `global` — Remap to `<leader>fE`.
-- `<C-p>` — mode `n`; scope `global` — Open Snacks explorer and focus its input field.
 - `<leader>/` — mode `x`; scope `global` — Grep the current visual selection.
 
 ### Search maps from `lua/plugins/snacks.lua`
