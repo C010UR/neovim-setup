@@ -1,11 +1,11 @@
 # Plugin inventory
 
-_Audited against the repo-owned `vim.pack` graph on April 21, 2026._
+_Audited against the repo-owned `vim.pack` graph on April 23, 2026._
 
 ## Scope and conventions
 
 - Source of truth: `init.lua` → `lua/config/pack.lua` → every file in `lua/plugins/*.lua`.
-- `lua/config/pack.lua` installs plugins through Neovim 0.12 `vim.pack`, merges repeated specs, and applies the normalized graph.
+- `lua/config/pack.lua` installs plugins through Neovim 0.12 `vim.pack`, merges repeated specs (including `opts`, `data`, and `hooks`), and applies the normalized graph.
 - Augment specs are merged into their primary plugin entry instead of being listed twice.
 - Dependency-only plugins are listed when the repo gives them a clear user-facing role.
 - Short-name augments such as `catppuccin` and `snacks.nvim` are documented under their canonical plugin entry.
@@ -18,6 +18,24 @@ _Audited against the repo-owned `vim.pack` graph on April 21, 2026._
 | --- | --- | --- |
 | Built-in `vim.pack` + repo loader | Installs plugins, normalizes repeated specs, and exposes shared merged plugin metadata to the rest of the config. | `init.lua`, `lua/config/pack.lua` |
 | Local `pack-ui` module | Provides the floating `:Pack` UI plus `:PackUpdate` for inspecting, checking, updating, cleaning, and logging `vim.pack` plugins without pushing UI policy back into `config.pack`. | `lua/plugins/pack-ui.lua` |
+
+## Pack spec / hook conventions
+
+- Prefer explicit `hooks = { pre = ..., post = ... }` for plugin lifecycle work instead of the legacy `build = ...` shorthand.
+- Hook stages map to native `vim.pack` events: `pre` runs on `PackChangedPre`, `post` runs on `PackChanged`.
+- Hook kinds can target `install`, `update`, `delete`, or `"*"` for all three kinds.
+- Hook actions can be:
+  - an Ex command string, like `":TSUpdate"`
+  - a Lua callback, like `function(plugin, event) ... end`
+  - a list of actions, mixed as needed
+  - a structured shell command, like `{ cmd = { "make", "install" } }`, which runs in the plugin directory
+- `build = ...` is still supported, but it is treated as a compatibility shorthand for `hooks.post.install` and `hooks.post.update`.
+- `data = { ... }` is merged across augment specs and passed through to the final `vim.pack.add()` spec.
+
+Current examples in this repo:
+
+- `lua/plugins/treesitter.lua` uses explicit post-install/post-update hooks to run `:TSUpdate`.
+- `lua/plugins/lang-markdown.lua` uses explicit post-install/post-update hooks to run Markdown Preview's install helper.
 
 ## Core UI / pickers / sessions
 

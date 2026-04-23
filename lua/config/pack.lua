@@ -20,7 +20,7 @@ local state = {
 }
 
 -- This loader preserves the repo's declaration shape (merged specs, opts,
--- dependencies, and keys), but otherwise follows native vim.pack behavior.
+-- hooks, dependencies, and keys), but otherwise follows native vim.pack behavior.
 
 local DISABLED_BUILTINS = {
   "gzip",
@@ -87,6 +87,8 @@ local function is_single_spec(spec)
     or spec.init ~= nil
     or spec.keys ~= nil
     or spec.dependencies ~= nil
+    or spec.data ~= nil
+    or spec.hooks ~= nil
     or spec.optional ~= nil
 end
 
@@ -150,6 +152,87 @@ local function merge_opts(dst, src, extend_patterns, path)
     result[key] = merge_opts(result[key], value, extend_patterns, append_path(path, key))
   end
   return result
+end
+
+local PACK_CHANGE_KINDS = { "install", "update", "delete" }
+local PACK_CHANGE_KIND_SET = vim.tbl_add_reverse_lookup(vim.deepcopy(PACK_CHANGE_KINDS))
+local PACK_CHANGE_EVENTS = {
+  { event = "PackChangedPre", stage = "pre" },
+  { event = "PackChanged", stage = "post" },
+}
+
+local function merge_data(dst, src)
+  return merge_opts(dst, src, {}, {})
+end
+
+local function is_cmd_argv(value)
+  if type(value) ~= "table" or not vim.islist(value) or #value == 0 then
+    return false
+  end
+
+  for _, item in ipairs(value) do
+    if type(item) ~= "string" then
+      return false
+    end
+  end
+
+  return true
+end
+
+local function hook_actions(value)
+  if value == nil then
+    return {}
+  end
+  if type(value) == "table" and vim.islist(value) then
+    return vim.deepcopy(value)
+  end
+  return { value }
+end
+
+local function new_hook_stage()
+  local stage = {}
+  for _, kind in ipairs(PACK_CHANGE_KINDS) do
+    stage[kind] = {}
+  end
+  return stage
+end
+
+local function add_hook_actions(stage, kinds, value)
+  for _, action in ipairs(hook_actions(value)) do
+    for _, kind in ipairs(kinds) do
+      stage[kind][#stage[kind] + 1] = action
+    end
+  end
+end
+
+local function resolve_stage_hooks(stage, value, default_kinds)
+  if value == nil then
+    return
+  end
+
+  if type(value) == "table" and not vim.islist(value) then
+    local has_kind_map = false
+    for key in pairs(value) do
+      if key == "*" or PACK_CHANGE_KIND_SET[key] then
+        has_kind_map = true
+        break
+      end
+    end
+
+    if has_kind_map then
+      if value["*"] ~= nil then
+        add_hook_actions(stage, PACK_CHANGE_KINDS, value["*"])
+      end
+      for _, kind in ipairs(PACK_CHANGE_KINDS) do
+        if value[kind] ~= nil then
+          add_hook_actions(stage, { kind }, value[kind])
+        end
+      end
+      return
+    end
+  end
+
+  add_hook_actions(stage, default_kinds or PACK_CHANGE_KINDS, value)
 end
 
 local function normalize_version(raw)
@@ -284,6 +367,8 @@ local function resolve_specs()
           priority = 0,
           opts_extend = {},
           opts_specs = {},
+          data_specs = {},
+          hook_specs = {},
           config_specs = {},
           init_specs = {},
           build_specs = {},
@@ -313,6 +398,12 @@ local function resolve_specs()
       end
       if raw.opts ~= nil then
         plugin.opts_specs[#plugin.opts_specs + 1] = raw.opts
+      end
+      if raw.data ~= nil then
+        plugin.data_specs[#plugin.data_specs + 1] = raw.data
+      end
+      if raw.hooks ~= nil then
+        plugin.hook_specs[#plugin.hook_specs + 1] = raw.hooks
       end
       if raw.config ~= nil then
         plugin.config_specs[#plugin.config_specs + 1] = raw.config
@@ -393,6 +484,86 @@ function M.plugin_opts(name)
   plugin._opts = have_opts and opts or nil
   plugin._opts_resolved = true
   return plugin._opts
+end
+
+function M.plugin_data(name)
+  local plugin = state.plugins[name]
+  if not plugin then
+    return nil
+  end
+  if plugin._data_resolved then
+    return plugin._data
+  end
+
+  local data = nil
+  local have_data = false
+  for _, spec in ipairs(plugin.data_specs) do
+    have_data = true
+    if type(spec) == "function" then
+      local result = spec(plugin, data)
+      if result ~= nil then
+        data = result
+      end
+    else
+      data = merge_data(data, spec)
+    end
+  end
+
+  plugin._data = have_data and data or nil
+  plugin._data_resolved = true
+  return plugin._data
+end
+
+local function plugin_spec_data(plugin)
+  local data = M.plugin_data(plugin.name)
+  if type(data) == "table" then
+    data = vim.deepcopy(data)
+  end
+  if plugin.desc == nil then
+    return data
+  end
+  if data == nil then
+    return { desc = plugin.desc }
+  end
+  if type(data) == "table" and not vim.islist(data) then
+    if data.desc == nil then
+      data.desc = plugin.desc
+    end
+    return data
+  end
+  return data
+end
+
+function M.plugin_hooks(name)
+  local plugin = state.plugins[name]
+  if not plugin then
+    return nil
+  end
+  if plugin._hooks_resolved then
+    return plugin._hooks
+  end
+
+  local hooks = {
+    pre = new_hook_stage(),
+    post = new_hook_stage(),
+  }
+
+  for _, build in ipairs(plugin.build_specs) do
+    resolve_stage_hooks(hooks.post, build, { "install", "update" })
+  end
+
+  for _, spec in ipairs(plugin.hook_specs) do
+    if type(spec) == "table" and not vim.islist(spec) and (spec.pre ~= nil or spec.post ~= nil) then
+      resolve_stage_hooks(hooks.pre, spec.pre)
+      resolve_stage_hooks(hooks.post, spec.post)
+    else
+      resolve_stage_hooks(hooks.post, spec)
+    end
+  end
+
+  plugin._hooks = hooks
+  plugin._hooks_resolved = true
+  return plugin._hooks
 end
 
 local function default_config(plugin, opts)
@@ -481,39 +652,172 @@ local function register_keymap(key_spec)
   vim.keymap.set(mode, lhs, rhs, map_opts)
 end
 
-local function register_build_hooks()
-  vim.api.nvim_create_autocmd("PackChanged", {
-    group = state.build_group,
-    callback = function(event)
-      local data = event.data or {}
-      local spec = data.spec or {}
-      local plugin = state.plugins[spec.name]
-      if not plugin or (data.kind ~= "install" and data.kind ~= "update") then
-        return
-      end
+-- Hook actions support functions, Ex command strings, lists of actions, or
+-- structured tables: { run = fn }, { ex = ":Cmd" }, { cmd = { "make" } }.
+-- Function/Ex hooks auto-load the plugin if needed; shell argv hooks run in
+-- the plugin directory by default and do not force a packadd.
+local function normalize_hook_action(action)
+  if type(action) == "function" then
+    return { run = action, load = true }
+  end
+  if type(action) == "string" then
+    return { ex = action, load = true }
+  end
+  if type(action) ~= "table" then
+    return nil, "unsupported hook action"
+  end
 
-      if not data.active then
-        pcall(vim.cmd.packadd, spec.name)
-      end
-      for _, build in ipairs(plugin.build_specs) do
-        if type(build) == "string" then
-          vim.cmd(build:match("^:") and build:sub(2) or build)
-        elseif type(build) == "function" then
-          build(plugin)
-        end
-      end
-    end,
-  })
+  local result = vim.deepcopy(action)
+  if type(result.run) == "function" then
+    if result.load == nil then
+      result.load = true
+    end
+    return result
+  end
+  if type(result.ex) == "string" then
+    if result.load == nil then
+      result.load = true
+    end
+    return result
+  end
+  if is_cmd_argv(result.cmd) then
+    if result.load == nil then
+      result.load = false
+    end
+    return result
+  end
+
+  return nil, "expected function, Ex command string, argv list, or { run|ex|cmd = ... }"
+end
+
+local function hook_action_label(action)
+  if type(action.ex) == "string" then
+    return action.ex
+  end
+  if is_cmd_argv(action.cmd) then
+    return table.concat(action.cmd, " ")
+  end
+  return "callback"
+end
+
+local function ensure_hook_plugin_loaded(event, loaded_state)
+  if loaded_state.loaded then
+    return true
+  end
+
+  local spec = (event and event.data or {}).spec or {}
+  local ok, err = pcall(vim.cmd.packadd, spec.name)
+  if not ok then
+    notify(("Failed to load %s for pack hook: %s"):format(spec.name or "<unknown>", err), vim.log.levels.ERROR)
+    return false
+  end
+
+  loaded_state.loaded = true
+  return true
+end
+
+local function run_system_hook(action, event)
+  local data = event.data or {}
+  local result = vim.system(action.cmd, {
+    cwd = action.cwd or data.path,
+    text = true,
+  }):wait()
+  if result.code == 0 then
+    return
+  end
+
+  local stderr = result.stderr or ""
+  local stdout = result.stdout or ""
+  local message = vim.trim(stderr ~= "" and stderr or stdout)
+  if message == "" then
+    message = ("exited with code %d"):format(result.code)
+  end
+  error(message)
+end
+
+local function run_hook_action(plugin, event, action, loaded_state)
+  local normalized, err = normalize_hook_action(action)
+  if not normalized then
+    notify(("Invalid pack hook for %s: %s"):format(plugin.name, err), vim.log.levels.WARN)
+    return
+  end
+
+  if normalized.load and not ensure_hook_plugin_loaded(event, loaded_state) then
+    return
+  end
+
+  local ok, hook_err = pcall(function()
+    if normalized.run then
+      normalized.run(plugin, event)
+      return
+    end
+    if normalized.ex then
+      vim.cmd(normalized.ex:match("^:") and normalized.ex:sub(2) or normalized.ex)
+      return
+    end
+    if normalized.cmd then
+      run_system_hook(normalized, event)
+    end
+  end)
+  if ok then
+    return
+  end
+
+  local data = event.data or {}
+  notify(
+    ("Pack hook failed for %s (%s, %s): %s"):format(
+      plugin.name,
+      data.kind or "unknown",
+      hook_action_label(normalized),
+      hook_err
+    ),
+    vim.log.levels.ERROR
+  )
+end
+
+local function run_plugin_hooks(stage, event)
+  local data = event.data or {}
+  if not PACK_CHANGE_KIND_SET[data.kind] then
+    return
+  end
+
+  local spec = data.spec or {}
+  local plugin = state.plugins[spec.name]
+  if not plugin then
+    return
+  end
+
+  local hooks = M.plugin_hooks(plugin.name)
+  local actions = hooks and hooks[stage] and hooks[stage][data.kind] or nil
+  if not actions or #actions == 0 then
+    return
+  end
+
+  local loaded_state = { loaded = data.active }
+  for _, action in ipairs(actions) do
+    run_hook_action(plugin, event, action, loaded_state)
+  end
+end
+
+local function register_hook_autocmds()
+  for _, item in ipairs(PACK_CHANGE_EVENTS) do
+    vim.api.nvim_create_autocmd(item.event, {
+      group = state.hook_group,
+      callback = function(event)
+        run_plugin_hooks(item.stage, event)
+      end,
+    })
+  end
 end
 
 local function bootstrap_plugins()
   discover_specs()
   resolve_specs()
 
-  state.build_group = vim.api.nvim_create_augroup("config_pack_builds", { clear = true })
+  state.hook_group = vim.api.nvim_create_augroup("config_pack_hooks", { clear = true })
   state.keymap_group = vim.api.nvim_create_augroup("config_pack_keymaps", { clear = true })
 
-  register_build_hooks()
+  register_hook_autocmds()
 
   for _, plugin in ipairs(state.order) do
     for _, init in ipairs(plugin.init_specs) do
@@ -528,7 +832,7 @@ local function bootstrap_plugins()
         src = plugin.src,
         name = plugin.name,
         version = plugin.version,
-        data = { desc = plugin.desc },
+        data = plugin_spec_data(plugin),
       }
     end
   end

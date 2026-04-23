@@ -62,9 +62,16 @@ return {
   },
   {
     "iamcco/markdown-preview.nvim",
-    build = function()
-      vim.fn["mkdp#util#install"]()
-    end,
+    hooks = {
+      post = {
+        install = function()
+          vim.fn["mkdp#util#install"]()
+        end,
+        update = function()
+          vim.fn["mkdp#util#install"]()
+        end,
+      },
+    },
     keys = {
       {
         "<leader>cp",

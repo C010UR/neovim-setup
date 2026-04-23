@@ -3,7 +3,12 @@ return {
     "nvim-treesitter/nvim-treesitter",
     branch = "main",
     version = false,
-    build = ":TSUpdate",
+    hooks = {
+      post = {
+        install = ":TSUpdate",
+        update = ":TSUpdate",
+      },
+    },
     dependencies = { "neovim-treesitter/treesitter-parser-registry" },
     opts_extend = { "ensure_installed" },
     opts = {
