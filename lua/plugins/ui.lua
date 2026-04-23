@@ -27,6 +27,9 @@ return {
         end,
         diagnostics = "nvim_lsp",
         always_show_bufferline = false,
+        name_formatter = function(buf)
+          return require("config.tmp").bufferline_name(buf)
+        end,
         diagnostics_indicator = function(_, _, diag)
           local ret = (diag.error and icons.diagnostics.Error .. diag.error .. " " or "")
             .. (diag.warning and icons.diagnostics.Warn .. diag.warning or "")

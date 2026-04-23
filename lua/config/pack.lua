@@ -886,6 +886,7 @@ function M.setup()
   bootstrap_plugins()
 
   require("config.format").setup()
+  require("config.tmp").setup()
   require("config.autocmds")
   require("config.keymaps")
 end

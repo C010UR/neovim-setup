@@ -1217,6 +1217,8 @@ A great built-in workflow is:
 | --- | --- | --- |
 | `:Format` | format the current buffer/selection | same idea as `<leader>cf` |
 | `:FormatInfo` | show formatter information | useful when format-on-save is confusing |
+| `:Tmp` / `:tmp` | open a writable temporary copy of the current file in a separate buffer | temp buffers are prefixed with `~` in the bufferline |
+| `:Untmp` / `:untmp` | write the current temporary buffer back to the original file | errors unless you are inside a temp buffer |
 | `:ProjectRoot` | show detected project roots | helpful when pickers seem to use the wrong root |
 | `:Mason` | open Mason | same as `<leader>cm` |
 | `:GuessIndent` | detect indentation | same as `<leader>cg` |
