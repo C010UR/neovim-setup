@@ -1,6 +1,7 @@
 local format = require("config.format")
 
 local M = {}
+local uv = vim.uv or vim.loop
 
 M.kind_filter = {
   default = {
@@ -38,6 +39,8 @@ M.kind_filter = {
 
 M._server_keys = {}
 M._did_setup_keymaps = false
+M._did_setup_progress_messages = false
+M._terminal_progress = {}
 
 -- Server-specific keymaps are registered up front and attached lazily when an
 -- LSP client connects to a buffer.
@@ -206,6 +209,149 @@ function M.enable_keymaps()
         end
       end
       vim.b[buf].config_lsp_applied_keys = applied
+    end,
+  })
+end
+
+local function progress_message_id(client_id, token)
+  return string.format("lsp.%s.%s", client_id, token)
+end
+
+local function progress_message_text(value)
+  if type(value.message) == "string" and value.message ~= "" then
+    return value.message
+  end
+  if value.kind == "end" then
+    return "done"
+  end
+  return "working"
+end
+
+local function progress_message_percent(value)
+  if type(value.percentage) == "number" then
+    return math.max(0, math.min(100, math.floor(value.percentage + 0.5)))
+  end
+  return value.kind == "end" and 100 or nil
+end
+
+local function in_tmux()
+  return type(vim.env.TMUX) == "string" and vim.env.TMUX ~= ""
+end
+
+-- tmux only forwards terminal-specific OSC sequences when they are wrapped in
+-- the DCS passthrough form and `allow-passthrough` is enabled.
+local function wrap_tmux_passthrough(content)
+  return "\027Ptmux;" .. content:gsub("\027", "\027\027") .. "\027\\"
+end
+
+local function send_terminal_escape(content)
+  if #vim.api.nvim_list_uis() == 0 then
+    return
+  end
+  if in_tmux() then
+    content = wrap_tmux_passthrough(content)
+  end
+  vim.api.nvim_ui_send(content)
+end
+
+local function terminal_progress_sequence(state, percent)
+  if percent == nil then
+    return string.format("\027]9;4;%d\027\\", state)
+  end
+  return string.format("\027]9;4;%d;%d\027\\", state, percent)
+end
+
+local function prune_terminal_progress()
+  for client_id in pairs(M._terminal_progress) do
+    if not vim.lsp.get_client_by_id(client_id) then
+      M._terminal_progress[client_id] = nil
+    end
+  end
+end
+
+local function latest_terminal_progress()
+  prune_terminal_progress()
+
+  local latest = nil
+  for _, progress in pairs(M._terminal_progress) do
+    for _, item in pairs(progress.tokens or {}) do
+      if not latest or item.updated > latest.updated then
+        latest = item
+      end
+    end
+  end
+  return latest
+end
+
+local function update_terminal_progress(client_id, token, value)
+  if value.kind == "end" then
+    local progress = M._terminal_progress[client_id]
+    if not progress then
+      return
+    end
+    progress.tokens[token] = nil
+    if vim.tbl_isempty(progress.tokens) then
+      M._terminal_progress[client_id] = nil
+    end
+    return
+  end
+
+  local progress = M._terminal_progress[client_id] or { tokens = {} }
+  progress.tokens[token] = {
+    kind = value.kind,
+    percentage = value.percentage,
+    updated = uv.hrtime(),
+  }
+  M._terminal_progress[client_id] = progress
+end
+
+local function emit_terminal_progress()
+  if not in_tmux() then
+    return
+  end
+
+  local item = latest_terminal_progress()
+  if not item then
+    send_terminal_escape(terminal_progress_sequence(0))
+    return
+  end
+
+  local percent = progress_message_percent(item)
+  if percent then
+    send_terminal_escape(terminal_progress_sequence(1, percent))
+  else
+    send_terminal_escape(terminal_progress_sequence(3))
+  end
+end
+
+function M.enable_progress_messages()
+  if M._did_setup_progress_messages or vim.fn.has("nvim-0.12") == 0 then
+    return
+  end
+  M._did_setup_progress_messages = true
+
+  vim.api.nvim_create_autocmd("LspProgress", {
+    group = vim.api.nvim_create_augroup("config_lsp_progress_messages", { clear = true }),
+    callback = function(event)
+      local data = event.data or {}
+      local params = data.params or {}
+      local value = params.value or {}
+      local client = data.client_id and vim.lsp.get_client_by_id(data.client_id) or nil
+      local token = params.token ~= nil and tostring(params.token) or nil
+      if not client or not token or token == "" or type(value.kind) ~= "string" then
+        return
+      end
+
+      vim.api.nvim_echo({ { progress_message_text(value) } }, false, {
+        id = progress_message_id(client.id, token),
+        kind = "progress",
+        percent = progress_message_percent(value),
+        source = "vim.lsp",
+        status = value.kind == "end" and "success" or "running",
+        title = value.title or client.name,
+      })
+      update_terminal_progress(client.id, token, value)
+      emit_terminal_progress()
     end,
   })
 end

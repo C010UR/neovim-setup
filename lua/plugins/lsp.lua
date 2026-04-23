@@ -114,6 +114,7 @@ return {
         end
       end
       lsp.enable_keymaps()
+      lsp.enable_progress_messages()
 
       vim.api.nvim_create_autocmd("LspAttach", {
         group = vim.api.nvim_create_augroup("config_lsp_features", { clear = true }),
