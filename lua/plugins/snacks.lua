@@ -1,6 +1,8 @@
 local pick = require("config.pick")
 local root = require("config.root")
 
+local dashboard_splash = "shader"
+
 local function term_nav(dir)
   -- Reuse normal window navigation keys when a terminal is not floating.
   return function(self)
@@ -19,7 +21,7 @@ return {
     },
     priority = 1000,
     opts = function()
-      local splash = require("milli").load({ splash = "shader" })
+      local splash = require("milli").load({ splash = dashboard_splash })
 
       return {
         bigfile = { enabled = true },
@@ -45,7 +47,7 @@ return {
         words = { enabled = true },
         explorer = {
           enabled = true,
-          replace_netrw = true,
+          replace_netrw = false,
         },
         picker = {
           enabled = true,
@@ -411,7 +413,7 @@ return {
       local snacks = require("snacks")
       _G.Snacks = snacks
       snacks.setup(opts)
-      require("milli").snacks({ splash = "fire", loop = true })
+      require("milli").snacks({ splash = dashboard_splash, loop = true })
     end,
   },
   {

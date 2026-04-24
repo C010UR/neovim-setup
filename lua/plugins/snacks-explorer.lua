@@ -84,40 +84,11 @@ return {
       },
     },
   },
-  init = function()
-    local started = false
-    vim.api.nvim_create_autocmd("VimEnter", {
-      callback = function()
-        started = true
-      end,
-    })
-    vim.api.nvim_create_autocmd("BufEnter", {
-      nested = true,
-      callback = function()
-        if not started then
-          return
-        end
-        local real_wins = {}
-        for _, win in ipairs(vim.api.nvim_list_wins()) do
-          if vim.api.nvim_win_get_config(win).relative == "" then
-            table.insert(real_wins, win)
-          end
-        end
-        if #real_wins == 1 then
-          local buf = vim.api.nvim_win_get_buf(real_wins[1])
-          local ft = vim.bo[buf].filetype
-          if ft == "snacks_picker_list" or ft:match("^snacks") then
-            vim.cmd("quit")
-          end
-        end
-      end,
-    })
-  end,
   keys = {
     {
       "<leader>fe",
       function()
-        Snacks.explorer({ cwd = root() })
+        Snacks.explorer({ cwd = root.get() })
       end,
       desc = "Open Explorer (Root Dir)",
     },

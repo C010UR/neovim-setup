@@ -2,9 +2,11 @@ local uri = require("config.uri")
 
 ---@class ConfigRoot
 ---@overload fun(opts?: { normalize?: boolean, buf?: number }): string
-local M = setmetatable({}, {
-  __call = function(_, ...)
-    return M.get(...)
+local M = {}
+
+setmetatable(M, {
+  __call = function(self, ...)
+    return self.get(...)
   end,
 })
 

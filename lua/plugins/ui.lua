@@ -1,3 +1,4 @@
+local buffers = require("config.buffers")
 local icons = require("config.icons")
 local lualine = require("config.lualine")
 
@@ -20,10 +21,10 @@ return {
     opts = {
       options = {
         close_command = function(n)
-          Snacks.bufdelete(n)
+          buffers.close(n)
         end,
         right_mouse_command = function(n)
-          Snacks.bufdelete(n)
+          buffers.close(n)
         end,
         diagnostics = "nvim_lsp",
         always_show_bufferline = false,

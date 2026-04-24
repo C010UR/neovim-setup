@@ -1,3 +1,4 @@
+local buffers = require("config.buffers")
 local format = require("config.format")
 local root = require("config.root")
 
@@ -78,7 +79,7 @@ map("n", "]b", "<cmd>bnext<cr>", { desc = "Next Buffer" })
 map("n", "<leader>`", "<cmd>e #<cr>", { desc = "Switch to Alternate Buffer" })
 map("n", "<leader>bb", "<cmd>e!<cr>", { desc = "Reload Buffer from Disk" })
 map("n", "<leader>bd", function()
-  Snacks.bufdelete()
+  buffers.close()
 end, { desc = "Close Buffer" })
 map("n", "<leader>bo", function()
   Snacks.bufdelete.other()
