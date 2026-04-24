@@ -14,117 +14,121 @@ return {
   -- Core UI, picker, explorer, notification, and utility primitives.
   {
     "folke/snacks.nvim",
-    priority = 1000,
-    opts = {
-      bigfile = { enabled = true },
-      quickfile = { enabled = true },
-      terminal = {
-        win = {
-          keys = {
-            nav_h = { "<C-h>", term_nav("h"), desc = "Go to Left Window", expr = true, mode = "t" },
-            nav_j = { "<C-j>", term_nav("j"), desc = "Go to Lower Window", expr = true, mode = "t" },
-            nav_k = { "<C-k>", term_nav("k"), desc = "Go to Upper Window", expr = true, mode = "t" },
-            nav_l = { "<C-l>", term_nav("l"), desc = "Go to Right Window", expr = true, mode = "t" },
-            hide_slash = { "<C-/>", "hide", desc = "Hide Terminal", mode = "t" },
-            hide_underscore = { "<c-_>", "hide", desc = "which_key_ignore", mode = "t" },
-          },
-        },
-      },
-      indent = { enabled = true },
-      input = { enabled = true },
-      notifier = { enabled = true },
-      scope = { enabled = true },
-      scroll = { enabled = true },
-      statuscolumn = { enabled = false },
-      words = { enabled = true },
-      explorer = {
-        enabled = true,
-        replace_netrw = true,
-      },
-      picker = {
-        enabled = true,
-        hidden = true,
-        ignored = true,
-        win = {
-          input = {
-            keys = {
-              ["<a-c>"] = { "toggle_cwd", mode = { "n", "i" }, desc = "Toggle Picker Root / CWD" },
-              ["<a-s>"] = { "flash", mode = { "n", "i" }, desc = "Flash Picker Results" },
-              ["s"] = { "flash", desc = "Flash Picker Results" },
-            },
-          },
-        },
-        actions = {
-          toggle_cwd = function(picker_instance)
-            local project_root = root.get({ buf = picker_instance.input.filter.current_buf, normalize = true })
-            local cwd = vim.fs.normalize(vim.uv.cwd() or ".")
-            local current = picker_instance:cwd()
-            picker_instance:set_cwd(current == project_root and cwd or project_root)
-            picker_instance:find()
-          end,
-          flash = function(picker_instance)
-            if not package.loaded["flash"] then
-              return
-            end
-            require("flash").jump({
-              pattern = "^",
-              label = { after = { 0, 0 } },
-              search = {
-                mode = "search",
-                exclude = {
-                  function(win)
-                    return vim.bo[vim.api.nvim_win_get_buf(win)].filetype ~= "snacks_picker_list"
-                  end,
-                },
-              },
-              action = function(match)
-                local idx = picker_instance.list:row2idx(match.pos[1])
-                picker_instance.list:_move(idx, true, true)
-              end,
-            })
-          end,
-        },
-      },
-      toggle = {
-        map = function(mode, lhs, rhs, opts)
-          vim.keymap.set(mode, lhs, rhs, opts)
-        end,
-      },
-      dashboard = {
-        sections = {
-          { section = "header" },
-          { section = "keys", gap = 1, padding = 1 },
-        },
-        preset = {
-          pick = function(cmd, opts)
-            return pick(cmd, opts)()
-          end,
-          header = [[
-███╗   ██╗███████╗ ██████╗ ██╗   ██╗██╗███╗   ███╗
-████╗  ██║██╔════╝██╔═══██╗██║   ██║██║████╗ ████║
-██╔██╗ ██║█████╗  ██║   ██║██║   ██║██║██╔████╔██║
-██║╚██╗██║██╔══╝  ██║   ██║╚██╗ ██╔╝██║██║╚██╔╝██║
-██║ ╚████║███████╗╚██████╔╝ ╚████╔╝ ██║██║ ╚═╝ ██║
-╚═╝  ╚═══╝╚══════╝ ╚═════╝   ╚═══╝  ╚═╝╚═╝     ╚═╝]],
-          keys = {
-            { icon = " ", key = "f", desc = "Find Files", action = ":lua Snacks.dashboard.pick('files')" },
-            { icon = " ", key = "n", desc = "Create New File", action = ":ene | startinsert" },
-            { icon = " ", key = "g", desc = "Find Text", action = ":lua Snacks.dashboard.pick('live_grep')" },
-            { icon = " ", key = "r", desc = "Open Recent Files", action = ":lua Snacks.dashboard.pick('oldfiles')" },
-            {
-              icon = " ",
-              key = "c",
-              desc = "Open Config",
-              action = ":lua Snacks.dashboard.pick('files', { cwd = vim.fn.stdpath('config') })",
-            },
-            { icon = " ", key = "p", desc = "Open Projects", action = ":lua Snacks.picker.projects()" },
-            { icon = " ", key = "s", desc = "Restore Session", section = "session" },
-            { icon = "󰒲 ", key = "l", desc = "Open Plugins", action = ":Pack" },
-            { icon = " ", key = "q", desc = "Quit Neovim", action = ":qa" },
-          },
-        },
-      },
+    dependencies = {
+      "amansingh-afk/milli.nvim",
     },
+    priority = 1000,
+    opts = function()
+      local splash = require("milli").load({ splash = "shader" })
+
+      return {
+        bigfile = { enabled = true },
+        quickfile = { enabled = true },
+        terminal = {
+          win = {
+            keys = {
+              nav_h = { "<C-h>", term_nav("h"), desc = "Go to Left Window", expr = true, mode = "t" },
+              nav_j = { "<C-j>", term_nav("j"), desc = "Go to Lower Window", expr = true, mode = "t" },
+              nav_k = { "<C-k>", term_nav("k"), desc = "Go to Upper Window", expr = true, mode = "t" },
+              nav_l = { "<C-l>", term_nav("l"), desc = "Go to Right Window", expr = true, mode = "t" },
+              hide_slash = { "<C-/>", "hide", desc = "Hide Terminal", mode = "t" },
+              hide_underscore = { "<c-_>", "hide", desc = "which_key_ignore", mode = "t" },
+            },
+          },
+        },
+        indent = { enabled = true },
+        input = { enabled = true },
+        notifier = { enabled = true },
+        scope = { enabled = true },
+        scroll = { enabled = true },
+        statuscolumn = { enabled = false },
+        words = { enabled = true },
+        explorer = {
+          enabled = true,
+          replace_netrw = true,
+        },
+        picker = {
+          enabled = true,
+          hidden = true,
+          ignored = true,
+          win = {
+            input = {
+              keys = {
+                ["<a-c>"] = { "toggle_cwd", mode = { "n", "i" }, desc = "Toggle Picker Root / CWD" },
+                ["<a-s>"] = { "flash", mode = { "n", "i" }, desc = "Flash Picker Results" },
+                ["s"] = { "flash", desc = "Flash Picker Results" },
+              },
+            },
+          },
+          actions = {
+            toggle_cwd = function(picker_instance)
+              local project_root = root.get({ buf = picker_instance.input.filter.current_buf, normalize = true })
+              local cwd = vim.fs.normalize(vim.uv.cwd() or ".")
+              local current = picker_instance:cwd()
+              picker_instance:set_cwd(current == project_root and cwd or project_root)
+              picker_instance:find()
+            end,
+            flash = function(picker_instance)
+              if not package.loaded["flash"] then
+                return
+              end
+              require("flash").jump({
+                pattern = "^",
+                label = { after = { 0, 0 } },
+                search = {
+                  mode = "search",
+                  exclude = {
+                    function(win)
+                      return vim.bo[vim.api.nvim_win_get_buf(win)].filetype ~= "snacks_picker_list"
+                    end,
+                  },
+                },
+                action = function(match)
+                  local idx = picker_instance.list:row2idx(match.pos[1])
+                  picker_instance.list:_move(idx, true, true)
+                end,
+              })
+            end,
+          },
+        },
+        toggle = {
+          map = function(mode, lhs, rhs, opts)
+            vim.keymap.set(mode, lhs, rhs, opts)
+          end,
+        },
+        dashboard = {
+          enabled = true,
+          sections = {
+            { section = "header" },
+            { section = "keys", gap = 1, padding = 1 },
+          },
+          preset = {
+            header = table.concat(splash.frames[1], "\n"),
+            keys = {
+              { icon = " ", key = "f", desc = "Find Files", action = ":lua Snacks.dashboard.pick('files')" },
+              { icon = " ", key = "n", desc = "Create New File", action = ":ene | startinsert" },
+              { icon = " ", key = "g", desc = "Find Text", action = ":lua Snacks.dashboard.pick('live_grep')" },
+              {
+                icon = " ",
+                key = "r",
+                desc = "Open Recent Files",
+                action = ":lua Snacks.dashboard.pick('oldfiles')",
+              },
+              {
+                icon = " ",
+                key = "c",
+                desc = "Open Config",
+                action = ":lua Snacks.dashboard.pick('files', { cwd = vim.fn.stdpath('config') })",
+              },
+              { icon = " ", key = "p", desc = "Open Projects", action = ":lua Snacks.picker.projects()" },
+              { icon = " ", key = "s", desc = "Restore Session", section = "session" },
+              { icon = "󰒲 ", key = "l", desc = "Open Plugins", action = ":Pack" },
+              { icon = " ", key = "q", desc = "Quit Neovim", action = ":qa" },
+            },
+          },
+        },
+      }
+    end,
     keys = {
       {
         "<leader>.",
@@ -407,6 +411,7 @@ return {
       local snacks = require("snacks")
       _G.Snacks = snacks
       snacks.setup(opts)
+      require("milli").snacks({ splash = "fire", loop = true })
     end,
   },
   {
