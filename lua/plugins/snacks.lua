@@ -63,6 +63,21 @@ local function schedule_directory_dashboard()
   })
 end
 
+local function setup_milli_dashboard()
+  local milli_opts = { splash = dashboard_splash, loop = true }
+  vim.api.nvim_create_autocmd("User", {
+    group = vim.api.nvim_create_augroup("config_milli_dashboard", { clear = true }),
+    pattern = "SnacksDashboardOpened",
+    callback = function()
+      local buf = vim.api.nvim_get_current_buf()
+      if vim.bo[buf].filetype ~= "snacks_dashboard" then
+        return
+      end
+      require("milli").play(buf, milli_opts)
+    end,
+  })
+end
+
 local function term_nav(dir)
   -- Reuse normal window navigation keys when a terminal is not floating.
   return function(self)
@@ -474,7 +489,7 @@ return {
       _G.Snacks = snacks
       snacks.setup(opts)
       schedule_directory_dashboard()
-      require("milli").snacks({ splash = dashboard_splash, loop = true })
+      setup_milli_dashboard()
     end,
   },
   {
