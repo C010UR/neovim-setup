@@ -3,6 +3,66 @@ local root = require("config.root")
 
 local dashboard_splash = "shader"
 
+local function startup_directory_arg()
+  if vim.fn.argc(-1) ~= 1 then
+    return nil
+  end
+
+  local arg = vim.fn.argv(0)
+  if arg == "" or vim.fn.isdirectory(arg) == 0 then
+    return nil
+  end
+
+  return arg
+end
+
+local function is_directory_buffer(buf)
+  local name = vim.api.nvim_buf_get_name(buf)
+  return vim.bo[buf].filetype == "netrw" or (name ~= "" and vim.fn.isdirectory(name) == 1)
+end
+
+local function prepare_directory_buffer_for_dashboard(buf)
+  if not vim.api.nvim_buf_is_valid(buf) then
+    return false
+  end
+
+  vim.bo[buf].modifiable = true
+  vim.bo[buf].readonly = false
+  vim.bo[buf].buflisted = false
+  vim.bo[buf].buftype = ""
+  vim.bo[buf].filetype = ""
+  pcall(vim.api.nvim_buf_set_name, buf, "")
+  vim.api.nvim_buf_set_lines(buf, 0, -1, false, { "" })
+  vim.bo[buf].modified = false
+  return true
+end
+
+-- When Neovim starts with a single directory argument, reuse the initial directory
+-- buffer so Snacks can still open its startup dashboard in buffer 1 instead of
+-- leaving netrw visible.
+local function schedule_directory_dashboard()
+  if not startup_directory_arg() then
+    return
+  end
+
+  vim.api.nvim_create_autocmd("VimEnter", {
+    group = vim.api.nvim_create_augroup("config_directory_dashboard", { clear = true }),
+    once = true,
+    callback = function()
+      if not startup_directory_arg() then
+        return
+      end
+
+      local buf = vim.api.nvim_get_current_buf()
+      if not is_directory_buffer(buf) or not prepare_directory_buffer_for_dashboard(buf) then
+        return
+      end
+
+      require("snacks.dashboard").setup()
+    end,
+  })
+end
+
 local function term_nav(dir)
   -- Reuse normal window navigation keys when a terminal is not floating.
   return function(self)
@@ -413,6 +473,7 @@ return {
       local snacks = require("snacks")
       _G.Snacks = snacks
       snacks.setup(opts)
+      schedule_directory_dashboard()
       require("milli").snacks({ splash = dashboard_splash, loop = true })
     end,
   },
