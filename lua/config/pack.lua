@@ -154,8 +154,16 @@ local function merge_opts(dst, src, extend_patterns, path)
   return result
 end
 
+local function list_to_set(list)
+  local set = {}
+  for _, item in ipairs(list) do
+    set[item] = true
+  end
+  return set
+end
+
 local PACK_CHANGE_KINDS = { "install", "update", "delete" }
-local PACK_CHANGE_KIND_SET = vim.tbl_add_reverse_lookup(vim.deepcopy(PACK_CHANGE_KINDS))
+local PACK_CHANGE_KIND_SET = list_to_set(PACK_CHANGE_KINDS)
 local PACK_CHANGE_EVENTS = {
   { event = "PackChangedPre", stage = "pre" },
   { event = "PackChanged", stage = "post" },
