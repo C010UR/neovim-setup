@@ -22,6 +22,7 @@ return {
     opts = {
       library = {
         { path = "${3rd}/luv/library", words = { "vim%.uv" } },
+        { path = "/usr/share/hypr/stubs", words = { "hl%.", "Hyprland" } },
       },
       enabled = function(root_dir)
         return not vim.uv.fs_stat(root_dir .. "/.luarc.json")
