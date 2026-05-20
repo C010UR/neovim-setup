@@ -726,10 +726,12 @@ end
 
 local function run_system_hook(action, event)
   local data = event.data or {}
-  local result = vim.system(action.cmd, {
-    cwd = action.cwd or data.path,
-    text = true,
-  }):wait()
+  local result = vim
+    .system(action.cmd, {
+      cwd = action.cwd or data.path,
+      text = true,
+    })
+    :wait()
   if result.code == 0 then
     return
   end

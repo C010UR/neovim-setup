@@ -122,7 +122,12 @@ end
 
 function M.resolve_root_dir(opts)
   opts = opts or {}
-  if opts.root_dir == nil and opts.root_markers == nil and opts.workspace_required == nil and opts.standalone == nil then
+  if
+    opts.root_dir == nil
+    and opts.root_markers == nil
+    and opts.workspace_required == nil
+    and opts.standalone == nil
+  then
     return nil
   end
 

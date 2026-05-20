@@ -1,5 +1,96 @@
 local root = require("config.root")
 
+--- Build a Snacks explorer action that runs `cb(bufnr)` for every file in the
+--- current selection (directories are expanded recursively).  Aggregates
+--- results and shows a summary notification.
+---
+--- @param title  string          Label used in notifications, e.g. "Format"
+--- @param cb     fun(bufnr: integer): boolean|nil
+---               Return true (or nothing falsy) on success, false/nil on skip.
+---               Raise an error to mark the file as failed.
+--- @return fun(picker: snacks.Picker)
+local function explorer_buf_action(title, cb)
+  return function(picker)
+    local selected = picker:selected({ fallback = true }) or {}
+    if #selected == 0 then
+      vim.notify("No entries selected", vim.log.levels.WARN, { title = title })
+      return
+    end
+
+    -- Expand selection: files directly, directories recursively.
+    local files = {}
+    local seen = {}
+    for _, item in ipairs(selected) do
+      local path = item.file
+      if path then
+        local stat = vim.uv.fs_stat(path)
+        if stat and stat.type == "file" then
+          if not seen[path] then
+            seen[path] = true
+            files[#files + 1] = path
+          end
+        elseif stat and stat.type == "directory" then
+          for name, kind in vim.fs.dir(path, { depth = math.huge }) do
+            if kind == "file" then
+              local child = path .. "/" .. name
+              if not seen[child] then
+                seen[child] = true
+                files[#files + 1] = child
+              end
+            end
+          end
+        end
+      end
+    end
+
+    if #files == 0 then
+      vim.notify("No files found in selection", vim.log.levels.WARN, { title = title })
+      return
+    end
+
+    local ok_count = 0
+    local failed = {}
+    for _, file in ipairs(files) do
+      local bufnr = vim.fn.bufadd(file)
+      vim.fn.bufload(bufnr)
+      local ok, err = pcall(cb, bufnr)
+      if ok then
+        ok_count = ok_count + 1
+      else
+        failed[#failed + 1] = { file = file, err = tostring(err) }
+      end
+    end
+
+    local level = #failed == 0 and vim.log.levels.INFO or vim.log.levels.WARN
+    vim.notify(("%s: %d/%d files"):format(title, ok_count, #files), level, { title = title })
+    for _, item in ipairs(failed) do
+      vim.notify(("%s: %s"):format(item.file, item.err), vim.log.levels.ERROR, { title = title .. " Failed" })
+    end
+  end
+end
+
+local format_explorer_selection = explorer_buf_action("Format", function(bufnr)
+  local conform = require("conform")
+  conform.format({ bufnr = bufnr, async = false, lsp_format = "fallback" })
+  vim.api.nvim_buf_call(bufnr, vim.cmd.write)
+end)
+
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "snacks_picker_list",
+  group = vim.api.nvim_create_augroup("config_explorer_keymaps", { clear = true }),
+  callback = function(ev)
+    vim.schedule(function()
+      local picker = Snacks.picker.get({ source = "explorer" })[1]
+      if not picker then
+        return
+      end
+      vim.keymap.set("n", "<leader>cf", function()
+        format_explorer_selection(picker)
+      end, { buffer = ev.buf, nowait = true, desc = "Format Selected Entries" })
+    end)
+  end,
+})
+
 return {
   "folke/snacks.nvim",
   opts = {
@@ -79,6 +170,16 @@ return {
             toggle_preview = function(picker)
               picker.preview.win:toggle()
             end,
+            format_selection = format_explorer_selection,
+          },
+          win = {
+            list = {
+              keys = {
+                -- <Tab> is already bound to select_and_next by Snacks default;
+                -- re-declaring here makes it explicit and discoverable.
+                ["<tab>"] = { "select_and_next", mode = { "n", "x" }, desc = "Select Entry and Move Down" },
+              },
+            },
           },
         },
       },

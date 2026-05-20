@@ -16,6 +16,18 @@ M.spec = { "lsp", { ".git", "lua" }, "cwd" }
 M.cache = {}
 M.detectors = {}
 
+local STARTUP_DIR
+local function startup_directory_arg()
+  if vim.fn.argc(-1) ~= 1 then
+    return nil
+  end
+  local arg = vim.fn.argv(0)
+  if arg == "" or vim.fn.isdirectory(arg) == 0 then
+    return nil
+  end
+  return M.realpath(arg)
+end
+
 local function is_win()
   return vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1
 end
@@ -28,7 +40,8 @@ local function normalize(path)
 end
 
 function M.detectors.cwd()
-  return { normalize(vim.uv.cwd()) }
+  STARTUP_DIR = STARTUP_DIR or startup_directory_arg()
+  return { STARTUP_DIR or normalize(vim.uv.cwd()) }
 end
 
 function M.bufpath(buf)

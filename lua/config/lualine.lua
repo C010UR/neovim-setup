@@ -513,7 +513,11 @@ function M.opts()
         M.lsp_clients({ always_visible = false }),
         { "filetype", icon_only = true, separator = "", padding = { left = 1, right = 0 } },
         { M.pretty_path() },
-        M.breadcrumbs({ color = function() return { fg = Snacks.util.color("Comment") } end }),
+        M.breadcrumbs({
+          color = function()
+            return { fg = Snacks.util.color("Comment") }
+          end,
+        }),
       },
       lualine_x = {
         M.profiler_status(),
