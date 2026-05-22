@@ -1,7 +1,7 @@
 local pick = require("config.pick")
 local root = require("config.root")
 
-local dashboard_splash = "shader"
+local dashboard_splash = "lights"
 
 local function startup_directory_arg()
   if vim.fn.argc(-1) ~= 1 then
@@ -78,9 +78,51 @@ local function setup_milli_dashboard()
     callback = set_hl,
   })
 
-  -- Patch milli.play so it re-locates the anchor every frame and tints everything accent.
+  -- Patch milli.play so it re-locates the anchor every frame and tints with accent.
   local runtime = require("milli.runtime")
   local _load = runtime.load
+
+  local accent = "#bb9af7"
+  local blend = 0.55
+
+  local function hex_to_rgb(hex)
+    hex = hex:gsub("#", "")
+    return tonumber(hex:sub(1, 2), 16), tonumber(hex:sub(3, 4), 16), tonumber(hex:sub(5, 6), 16)
+  end
+
+  local function rgb_to_hex(r, g, b)
+    return string.format("#%02x%02x%02x", r, g, b)
+  end
+
+  local function blend_hex(c1, c2, factor)
+    local r1, g1, b1 = hex_to_rgb(c1)
+    local r2, g2, b2 = hex_to_rgb(c2)
+    return rgb_to_hex(
+      math.floor(r1 * (1 - factor) + r2 * factor),
+      math.floor(g1 * (1 - factor) + g2 * factor),
+      math.floor(b1 * (1 - factor) + b2 * factor)
+    )
+  end
+
+  local blended_hl_cache = {}
+  local function get_blended_hl(fg, bg)
+    local orig_fg = fg
+    fg = blend_hex(fg, accent, blend)
+    local key = fg .. "_" .. bg
+    if blended_hl_cache[key] then
+      return blended_hl_cache[key]
+    end
+    local bg_suffix = bg == "NONE" and "NONE" or bg:sub(2)
+    local name = "MilliBlend_" .. fg:sub(2) .. "_" .. bg_suffix
+    local spec = { fg = fg }
+    if bg ~= "NONE" then
+      spec.bg = bg
+    end
+    vim.api.nvim_set_hl(0, name, spec)
+    blended_hl_cache[key] = name
+    return name
+  end
+
   runtime.play = function(buf, opts)
     if not buf or not vim.api.nvim_buf_is_valid(buf) then
       return
@@ -144,15 +186,34 @@ local function setup_milli_dashboard()
       vim.bo[buf].modified = false
       vim.bo[buf].modifiable = false
 
-      -- Single accent color overlay
       vim.api.nvim_buf_clear_namespace(buf, milli_ns, start_row, start_row + #padded)
-      for i, line in ipairs(frame) do
-        if line ~= "" then
-          pcall(vim.api.nvim_buf_set_extmark, buf, milli_ns, start_row + i - 1, pad_bytes, {
-            end_col = pad_bytes + #line,
-            hl_group = "MilliDashboardAccent",
-            priority = 200,
-          })
+
+      if data.colors then
+        local colors = data.colors[idx + 1]
+        if colors then
+          for row_i, row_runs in ipairs(colors) do
+            local buf_row = start_row + row_i - 1
+            for _, run in ipairs(row_runs) do
+              local sb, eb, fg, bg = run[1], run[2], run[3], run[4]
+              local hl = get_blended_hl(fg, bg)
+              pcall(vim.api.nvim_buf_set_extmark, buf, milli_ns, buf_row, pad_bytes + sb, {
+                end_col = pad_bytes + eb,
+                hl_group = hl,
+                priority = 200,
+              })
+            end
+          end
+        end
+      else
+        -- fallback: no color data -> single accent overlay
+        for i, line in ipairs(frame) do
+          if line ~= "" then
+            pcall(vim.api.nvim_buf_set_extmark, buf, milli_ns, start_row + i - 1, pad_bytes, {
+              end_col = pad_bytes + #line,
+              hl_group = "MilliDashboardAccent",
+              priority = 200,
+            })
+          end
         end
       end
     end
