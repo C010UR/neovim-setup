@@ -24,9 +24,9 @@ function M.open(command, opts)
     local fff = require("fff")
     fff.change_indexing_directory(cwd)
     if command == "files" then
-      fff.find_files()
+      fff.find_files({ cwd = cwd })
     else
-      fff.live_grep()
+      fff.live_grep({ cwd = cwd })
     end
     return
   end

@@ -39,9 +39,15 @@ local function normalize(path)
   return vim.fs.normalize(path)
 end
 
+function M.startup_dir()
+  if STARTUP_DIR == nil then
+    STARTUP_DIR = startup_directory_arg()
+  end
+  return STARTUP_DIR
+end
+
 function M.detectors.cwd()
-  STARTUP_DIR = STARTUP_DIR or startup_directory_arg()
-  return { STARTUP_DIR or normalize(vim.uv.cwd()) }
+  return { M.startup_dir() or normalize(vim.uv.cwd()) }
 end
 
 function M.bufpath(buf)
@@ -101,7 +107,17 @@ function M.detectors.pattern(buf, patterns)
     end
     return false
   end, { path = path, upward = true })[1]
-  return pattern and { vim.fs.dirname(pattern) } or {}
+  local root_dir = pattern and vim.fs.dirname(pattern) or nil
+  -- If Neovim was started with a directory argument, don't let pattern
+  -- detection escape above that directory.
+  local startup = M.startup_dir()
+  if root_dir and startup then
+    startup = normalize(startup)
+    if startup and startup ~= root_dir and startup:find(root_dir, 1, true) == 1 then
+      root_dir = startup
+    end
+  end
+  return root_dir and { root_dir } or {}
 end
 
 function M.resolve(spec)

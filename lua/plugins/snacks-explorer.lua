@@ -212,7 +212,8 @@ return {
         local lines = vim.api.nvim_buf_get_text(0, start_pos[1] - 1, start_pos[2], end_pos[1] - 1, end_pos[2] + 1, {})
         local text = table.concat(lines, " "):gsub("%s+", " "):gsub("^%s*(.-)%s*$", "%1")
         if text ~= "" then
-          require("fff").live_grep({ query = text })
+          local cwd = root.get({ normalize = true })
+          require("fff").live_grep({ query = text, cwd = cwd })
         end
       end,
     },
