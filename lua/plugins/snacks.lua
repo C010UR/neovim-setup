@@ -182,20 +182,25 @@ return {
           preset = {
             header = table.concat(splash.frames[1], "\n"),
             keys = {
-              { icon = " ", key = "f", desc = "Find Files", action = ":lua Snacks.dashboard.pick('files')" },
+              { icon = " ", key = "f", desc = "Find Files", action = ":lua require('config.pick').open('files')" },
               { icon = " ", key = "n", desc = "Create New File", action = ":ene | startinsert" },
-              { icon = " ", key = "g", desc = "Find Text", action = ":lua Snacks.dashboard.pick('live_grep')" },
+              {
+                icon = " ",
+                key = "g",
+                desc = "Find Text",
+                action = ":lua require('config.pick').open('live_grep')",
+              },
               {
                 icon = " ",
                 key = "r",
                 desc = "Open Recent Files",
-                action = ":lua Snacks.dashboard.pick('oldfiles')",
+                action = ":lua require('config.pick').open('oldfiles')",
               },
               {
                 icon = " ",
                 key = "c",
                 desc = "Open Config",
-                action = ":lua Snacks.dashboard.pick('files', { cwd = vim.fn.stdpath('config') })",
+                action = ":lua require('config.pick').open('files', { cwd = vim.fn.stdpath('config') })",
               },
               { icon = " ", key = "p", desc = "Open Projects", action = ":lua Snacks.picker.projects()" },
               { icon = " ", key = "s", desc = "Restore Session", section = "session" },

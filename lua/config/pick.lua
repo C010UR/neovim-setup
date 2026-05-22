@@ -11,10 +11,30 @@ function M.open(command, opts)
   command = commands[command ~= "auto" and command or "files"] or command or "files"
   opts = vim.deepcopy(opts or {})
 
+  -- Use fff.nvim for file and live grep searches
+  if command == "files" or command == "grep" then
+    local cwd = opts.cwd
+    if not cwd then
+      if opts.root ~= false then
+        cwd = root.get({ buf = opts.buf, normalize = true })
+      else
+        cwd = vim.fs.normalize(vim.uv.cwd() or ".")
+      end
+    end
+    local fff = require("fff")
+    fff.change_indexing_directory(cwd)
+    if command == "files" then
+      fff.find_files()
+    else
+      fff.live_grep()
+    end
+    return
+  end
+
+  -- Fallback to Snacks.picker for everything else (oldfiles, git, buffers, etc.)
   if not opts.cwd and opts.root ~= false then
     opts.cwd = root.get({ buf = opts.buf, normalize = true })
   end
-
   return Snacks.picker.pick(command, opts)
 end
 
