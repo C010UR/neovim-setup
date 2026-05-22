@@ -63,19 +63,119 @@ local function schedule_directory_dashboard()
   })
 end
 
+local milli_ns = vim.api.nvim_create_namespace("config_milli_dashboard")
+
 local function setup_milli_dashboard()
   local milli_opts = { splash = dashboard_splash, loop = true }
-  vim.api.nvim_create_autocmd("User", {
-    group = vim.api.nvim_create_augroup("config_milli_dashboard", { clear = true }),
-    pattern = "SnacksDashboardOpened",
-    callback = function()
-      local buf = vim.api.nvim_get_current_buf()
-      if vim.bo[buf].filetype ~= "snacks_dashboard" then
+
+  -- Accent color (tokyonight purple)
+  local function set_hl()
+    vim.api.nvim_set_hl(0, "MilliDashboardAccent", { fg = "#bb9af7" })
+  end
+  set_hl()
+  vim.api.nvim_create_autocmd("ColorScheme", {
+    group = vim.api.nvim_create_augroup("config_milli_dashboard_hl", { clear = true }),
+    callback = set_hl,
+  })
+
+  -- Patch milli.play so it re-locates the anchor every frame and tints everything accent.
+  local runtime = require("milli.runtime")
+  local _load = runtime.load
+  runtime.play = function(buf, opts)
+    if not buf or not vim.api.nvim_buf_is_valid(buf) then
+      return
+    end
+    local data = _load(opts)
+    local loop = opts.loop == true
+
+    -- Find anchor in frame 0
+    local first = data.frames[1]
+    if not first then
+      return
+    end
+    local anchor_idx, anchor_line
+    for i, line in ipairs(first) do
+      if line:find("[^%s]") then
+        anchor_idx = i
+        anchor_line = line
+        break
+      end
+    end
+    if not anchor_line then
+      return
+    end
+    local anchor_trim = (anchor_line:gsub("%s+$", ""))
+
+    local generation = (vim.b[buf].milli_generation or 0) + 1
+    vim.b[buf].milli_generation = generation
+
+    local function paint(idx)
+      if not vim.api.nvim_buf_is_valid(buf) or vim.b[buf].milli_generation ~= generation then
         return
       end
-      require("milli").play(buf, milli_opts)
-    end,
-  })
+      local frame = data.frames[idx + 1]
+      if not frame then
+        return
+      end
+
+      -- Re-locate anchor each frame so splits/resizes don't drift
+      local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+      local start_row, pad
+      for i, l in ipairs(lines) do
+        local pos = l:find(anchor_trim, 1, true)
+        if pos then
+          start_row = i - anchor_idx
+          pad = l:sub(1, pos - 1)
+          break
+        end
+      end
+      if not start_row then
+        return
+      end
+
+      local pad_bytes = #pad
+      local padded = {}
+      for i, line in ipairs(frame) do
+        padded[i] = pad .. line
+      end
+
+      vim.bo[buf].modifiable = true
+      pcall(vim.api.nvim_buf_set_lines, buf, start_row, start_row + #padded, false, padded)
+      vim.bo[buf].modified = false
+      vim.bo[buf].modifiable = false
+
+      -- Single accent color overlay
+      vim.api.nvim_buf_clear_namespace(buf, milli_ns, start_row, start_row + #padded)
+      for i, line in ipairs(frame) do
+        if line ~= "" then
+          pcall(vim.api.nvim_buf_set_extmark, buf, milli_ns, start_row + i - 1, pad_bytes, {
+            end_col = pad_bytes + #line,
+            hl_group = "MilliDashboardAccent",
+            priority = 200,
+          })
+        end
+      end
+    end
+
+    paint(0)
+    local idx = 1
+    local function step()
+      if not vim.api.nvim_buf_is_valid(buf) or vim.b[buf].milli_generation ~= generation then
+        return
+      end
+      if idx >= #data.frames and not loop then
+        return
+      end
+      local fi = idx % #data.frames
+      paint(fi)
+      idx = idx + 1
+      vim.defer_fn(step, data.delays[fi + 1] or 100)
+    end
+    vim.defer_fn(step, data.delays[1] or 100)
+  end
+
+  -- Let milli handle the SnacksDashboardOpened / UpdatePost wiring.
+  require("milli").snacks(milli_opts)
 end
 
 local function term_nav(dir)
