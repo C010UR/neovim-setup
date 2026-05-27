@@ -16,7 +16,9 @@ function M.open(command, opts)
     local cwd = opts.cwd
     if not cwd then
       if opts.root ~= false then
-        cwd = root.get({ buf = opts.buf, normalize = true })
+        -- Prefer the directory Neovim was started with, then project markers,
+        -- then fall back to the current working directory.
+        cwd = root.get({ buf = opts.buf, normalize = true, spec = { "startup", { ".git", "lua" }, "cwd" } })
       else
         cwd = vim.fs.normalize(vim.uv.cwd() or ".")
       end

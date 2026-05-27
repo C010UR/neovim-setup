@@ -45,8 +45,7 @@ return {
           --- ... the other rules in that dir ...
           ---
           custom_rules = {
-            "opencode/skills",
-            ".mux/skills",
+            ".opencode/skills",
           },
 
           --- Configure @file completion (all fields optional, sensible defaults)
@@ -86,7 +85,7 @@ return {
       --
       -- likely ill add a mode check and assert on required visual mode
       -- so just prepare for it now
-      vim.keymap.set("v", "<leader>9v", function()
+      vim.keymap.set("v", "<leader>99", function()
         _99.visual()
       end, {
         desc = "Work on Selection with 99",

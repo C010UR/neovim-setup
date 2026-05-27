@@ -50,6 +50,11 @@ function M.detectors.cwd()
   return { M.startup_dir() or normalize(vim.uv.cwd()) }
 end
 
+function M.detectors.startup()
+  local startup = M.startup_dir()
+  return startup and { startup } or {}
+end
+
 function M.bufpath(buf)
   return M.realpath(vim.api.nvim_buf_get_name(assert(buf)))
 end
@@ -165,11 +170,14 @@ end
 function M.get(opts)
   opts = opts or {}
   local buf = opts.buf or vim.api.nvim_get_current_buf()
-  local cached = M.cache[buf]
+  local custom_spec = opts.spec ~= nil
+  local cached = not custom_spec and M.cache[buf] or nil
   if not cached then
-    local roots = M.detect({ all = false, buf = buf })
+    local roots = M.detect({ all = false, buf = buf, spec = opts.spec })
     cached = roots[1] and roots[1].paths[1] or M.cwd()
-    M.cache[buf] = cached
+    if not custom_spec then
+      M.cache[buf] = cached
+    end
   end
   if opts.normalize or not is_win() then
     return cached
