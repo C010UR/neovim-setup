@@ -1,4 +1,5 @@
 local icons = require("config.icons")
+local git_status = require("config.git_status")
 local root = require("config.root")
 
 local M = {}
@@ -486,7 +487,33 @@ function M.dap_status()
   }
 end
 
+function M.location_git()
+  return {
+    function(self)
+      local cursor = vim.api.nvim_win_get_cursor(0)
+      local line, col = cursor[1], cursor[2] + 1
+      local text = tostring(line)
+
+      local status = git_status.get()
+      if git_status.should_show(status) then
+        local label = git_status.label(status)
+        local hl = git_status.highlight(status)
+        if hl then
+          text = text .. " " .. M.format(self, label, hl)
+        else
+          text = text .. " " .. sanitize_statusline(label)
+        end
+      end
+
+      return text .. ":" .. col
+    end,
+    padding = { left = 0, right = 1 },
+  }
+end
+
 function M.opts()
+  git_status.setup()
+  git_status.on_update(refresh_statusline)
   return {
     options = {
       theme = "auto",
@@ -526,7 +553,7 @@ function M.opts()
       },
       lualine_y = {
         { "progress", separator = " ", padding = { left = 1, right = 0 } },
-        { "location", padding = { left = 0, right = 1 } },
+        M.location_git(),
       },
       lualine_z = {
         function()

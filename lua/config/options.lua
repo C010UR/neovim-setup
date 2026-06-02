@@ -57,7 +57,7 @@ opt.cursorline = true
 opt.number = true
 opt.relativenumber = true
 opt.ruler = false
-opt.signcolumn = "yes"
+opt.signcolumn = "auto"
 
 -- Indentation, wrapping, and text formatting.
 opt.formatoptions = "jcroqlnt"
