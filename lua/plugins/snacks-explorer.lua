@@ -75,6 +75,8 @@ local format_explorer_selection = explorer_buf_action("Format", function(bufnr)
   vim.api.nvim_buf_call(bufnr, vim.cmd.write)
 end)
 
+local scaffold_explorer = require("config.scaffold.explorer")
+
 vim.api.nvim_create_autocmd("FileType", {
   pattern = "snacks_picker_list",
   group = vim.api.nvim_create_augroup("config_explorer_keymaps", { clear = true }),
@@ -171,6 +173,10 @@ return {
               picker.preview.win:toggle()
             end,
             format_selection = format_explorer_selection,
+            explorer_rename = scaffold_explorer.rename,
+            explorer_copy = scaffold_explorer.copy,
+            explorer_paste = scaffold_explorer.paste,
+            explorer_move = scaffold_explorer.move,
           },
           win = {
             list = {

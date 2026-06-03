@@ -2,17 +2,16 @@ local uri = require("config.uri")
 
 ---@class ConfigRoot
 ---@overload fun(opts?: { normalize?: boolean, buf?: number }): string
+---@type ConfigRoot|table
 local M = {}
 
+---@diagnostic disable-next-line: param-type-mismatch
 setmetatable(M, {
   __call = function(self, ...)
     return self.get(...)
   end,
 })
 
-M.spec = { "lsp", { ".git", "lua" }, "cwd" }
--- Root detection prefers active LSP workspaces, then common project markers,
--- and finally falls back to the current working directory.
 M.cache = {}
 M.detectors = {}
 
@@ -21,7 +20,7 @@ local function startup_directory_arg()
   if vim.fn.argc(-1) ~= 1 then
     return nil
   end
-  local arg = vim.fn.argv(0)
+  local arg = vim.fn.argv(0) --[[@as string]]
   if arg == "" or vim.fn.isdirectory(arg) == 0 then
     return nil
   end
@@ -94,25 +93,54 @@ function M.detectors.lsp(buf)
 
   return vim.tbl_filter(function(path)
     path = normalize(path)
-    return path and bufpath:find(path, 1, true) == 1
+    if not path then
+      return false
+    end
+    return bufpath:find(path, 1, true) == 1
   end, roots)
 end
 
-function M.detectors.pattern(buf, patterns)
-  patterns = type(patterns) == "string" and { patterns } or patterns
-  local path = M.bufpath(buf) or vim.uv.cwd()
-  local pattern = vim.fs.find(function(name)
-    for _, p in ipairs(patterns) do
-      if name == p then
-        return true
-      end
-      if p:sub(1, 1) == "*" and name:find(vim.pesc(p:sub(2)) .. "$") then
-        return true
-      end
+---@param name string
+---@param patterns string|string[]
+---@return boolean
+local function matches_pattern(name, patterns)
+  local list ---@type string[]
+  if type(patterns) == "string" then
+    list = { patterns }
+  else
+    list = patterns
+  end
+  for _, p in ipairs(list) do
+    if name == p then
+      return true
     end
-    return false
-  end, { path = path, upward = true })[1]
-  local root_dir = pattern and vim.fs.dirname(pattern) or nil
+    if p:sub(1, 1) == "*" and name:find(vim.pesc(p:sub(2)) .. "$") then
+      return true
+    end
+  end
+  return false
+end
+
+---@param path string
+---@param patterns string|string[]
+---@return string|nil
+function M.pattern_root(path, patterns)
+  local norm = M.realpath(path)
+  if not norm then
+    return nil
+  end
+
+  local search = vim.fn.isdirectory(norm) == 1 and norm or vim.fs.dirname(norm)
+  local pattern = vim.fs.find(function(name)
+    return matches_pattern(name, patterns)
+  end, { path = search, upward = true })[1]
+
+  return pattern and M.realpath(vim.fs.dirname(pattern)) or nil
+end
+
+function M.detectors.pattern(buf, patterns)
+  local path = M.bufpath(buf) or M.cwd()
+  local root_dir = M.pattern_root(path, patterns)
   -- If Neovim was started with a directory argument, don't let pattern
   -- detection escape above that directory.
   local startup = M.startup_dir()
@@ -123,6 +151,43 @@ function M.detectors.pattern(buf, patterns)
     end
   end
   return root_dir and { root_dir } or {}
+end
+
+---@param opts? { spec?: any }
+---@return table
+local function root_spec(opts)
+  if opts and opts.spec then
+    return opts.spec
+  end
+  if type(vim.g.root_spec) == "table" then
+    return vim.g.root_spec
+  end
+  vim.notify_once("vim.g.root_spec is not set; define it in lua/config/options.lua", vim.log.levels.WARN)
+  return { "lsp", { ".git", "lua" }, "cwd" }
+end
+
+--- Resolve project root from a filesystem path using marker patterns only (never LSP).
+---@param path string
+---@param opts? { spec?: any }
+---@return string
+function M.from_path(path, opts)
+  opts = opts or {}
+  local norm = M.realpath(path)
+  if not norm then
+    return M.cwd()
+  end
+
+  local spec = root_spec(opts)
+  for _, item in ipairs(spec) do
+    if type(item) == "table" then
+      local found = M.pattern_root(norm, item)
+      if found then
+        return found
+      end
+    end
+  end
+
+  return M.cwd()
 end
 
 function M.resolve(spec)
@@ -139,7 +204,7 @@ end
 
 function M.detect(opts)
   opts = opts or {}
-  opts.spec = opts.spec or (type(vim.g.root_spec) == "table" and vim.g.root_spec or M.spec)
+  opts.spec = root_spec(opts)
   opts.buf = (opts.buf == nil or opts.buf == 0) and vim.api.nvim_get_current_buf() or opts.buf
 
   local ret = {}
@@ -192,7 +257,7 @@ function M.git()
 end
 
 function M.info()
-  local spec = type(vim.g.root_spec) == "table" and vim.g.root_spec or M.spec
+  local spec = root_spec()
   local roots = M.detect({ all = true })
   local lines = {}
   local first = true

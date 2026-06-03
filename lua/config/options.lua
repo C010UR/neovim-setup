@@ -8,6 +8,9 @@ vim.g.snacks_animate = false
 vim.g.root_spec = { "lsp", { ".git", "lua" }, "cwd" }
 vim.g.root_lsp_ignore = { "copilot" }
 
+vim.g.config_scaffold_lsp_file_rename = true
+vim.g.config_scaffold_lsp_rename_timeout_ms = 10000
+
 local opt = vim.opt
 
 -- Editing behavior.

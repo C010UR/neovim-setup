@@ -1,8 +1,6 @@
 local lsp = require("config.lsp")
 local mini = require("config.mini")
 
--- Core editing primitives and completion behavior shared across languages.
-
 return {
   {
     "nvim-mini/mini.pairs",
@@ -82,6 +80,9 @@ return {
   },
   {
     "neovim/nvim-lspconfig",
+    init = function()
+      require("config.scaffold").setup()
+    end,
     dependencies = {
       {
         "SmiteshP/nvim-navic",
@@ -202,7 +203,7 @@ return {
             {
               "<leader>cR",
               function()
-                Snacks.rename.rename_file()
+                require("config.scaffold").rename_file()
               end,
               desc = "Rename File",
               has = { "workspace/didRenameFiles", "workspace/willRenameFiles" },
