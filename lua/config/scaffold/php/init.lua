@@ -3,6 +3,8 @@ require("config.scaffold.types")
 local psr4 = require("config.scaffold.php.psr4")
 local php_rename = require("config.scaffold.php.rename")
 local sync = require("config.scaffold.php.sync")
+local symfony = require("config.scaffold.php.symfony")
+local symfony_types = require("config.scaffold.php.symfony_types")
 
 ---@class ConfigScaffoldPhp
 local M = {}
@@ -14,13 +16,18 @@ M.sync_path = sync.sync_path
 M.symbol_at_cursor = php_rename.symbol_at_cursor
 M.kind_from_stem = sync.kind_from_stem
 
---- LSP client priority for workspace rename operations (caller-driven).
---- Clients earlier in this list are tried first.
 M.lsp_client_priority = { "phpactor" }
 
 ---@param ctx ScaffoldContext
 ---@return ScaffoldResult
 function M.build(ctx)
+  if symfony.is_project(ctx.root) then
+    local t = symfony.scaffold_type(ctx.stem)
+    if t and symfony_types[t] then
+      return symfony_types[t](ctx.stem, ctx.path)
+    end
+  end
+
   local namespace = psr4.namespace_for(ctx.path, psr4.project_root(ctx.path))
   local kind, name = sync.kind_from_stem(ctx.stem)
 

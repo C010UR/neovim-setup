@@ -3,29 +3,8 @@ local psr4 = require("config.scaffold.php.psr4")
 ---@class ConfigScaffoldPhpSync
 local M = {}
 
---- PHP declaration kinds (maps pseudo-kinds to actual keywords).
-local KIND_KEYWORDS = {
-  class = "class",
-  interface = "interface",
-  enum = "enum",
-  trait = "trait",
-  abstract_class = "class",
-}
-
---- PHP modifiers that may appear before the declaration kind.
-local MODIFIERS = { abstract = true, final = true, readonly = true }
-
----@param kind string Pseudo-kind (e.g. "abstract_class").
----@return string keyword The actual PHP keyword (e.g. "class").
----@return string[] modifiers Modifiers implied by the pseudo-kind.
-local function parse_kind(kind)
-  local keyword = KIND_KEYWORDS[kind] or kind
-  local modifiers = {}
-  if kind == "abstract_class" then
-    modifiers[#modifiers + 1] = "abstract"
-  end
-  return keyword, modifiers
-end
+local KIND_KEYWORDS =
+  { class = "class", interface = "interface", enum = "enum", trait = "trait", abstract_class = "class" }
 
 ---@param stem string
 ---@return string kind, string name
@@ -72,7 +51,6 @@ end
 ---@param expected ScaffoldFileMoveExpected
 ---@return string|nil
 local function replace_declaration_line(line, expected)
-  -- Skip comment lines.
   if line:match("^%s*//") or line:match("^%s*#") or line:match("/%*") or line:match("%*/") then
     return nil
   end
@@ -83,11 +61,9 @@ local function replace_declaration_line(line, expected)
     tokens[#tokens + 1] = token
   end
 
-  local kind_keyword, expected_mods = parse_kind(expected.kind)
-
   local kind_idx = nil
   for i, token in ipairs(tokens) do
-    if KIND_KEYWORDS[token] or token == kind_keyword then
+    if KIND_KEYWORDS[token] then
       kind_idx = i
       break
     end
@@ -107,42 +83,13 @@ local function replace_declaration_line(line, expected)
     return nil
   end
 
-  local changed = false
-
-  -- Build new token list: modifiers + kind + name + rest.
-  local new_tokens = {}
-  for _, mod in ipairs(expected_mods) do
-    new_tokens[#new_tokens + 1] = mod
-  end
-
-  new_tokens[#new_tokens + 1] = kind_keyword
-  if kind_keyword ~= tokens[kind_idx] then
-    changed = true
-  end
-
   local new_name = expected.symbol .. trailing
-  new_tokens[#new_tokens + 1] = new_name
-  if new_name ~= tokens[name_idx] then
-    changed = true
-  end
-
-  for i = name_idx + 1, #tokens do
-    new_tokens[#new_tokens + 1] = tokens[i]
-  end
-
-  -- Detect removed modifiers.
-  for i = 1, kind_idx - 1 do
-    if MODIFIERS[tokens[i]] and not vim.tbl_contains(expected_mods, tokens[i]) then
-      changed = true
-      break
-    end
-  end
-
-  if not changed then
+  if new_name == tokens[name_idx] then
     return nil
   end
 
-  return indent .. table.concat(new_tokens, " ")
+  tokens[name_idx] = new_name
+  return indent .. table.concat(tokens, " ")
 end
 
 ---@param lines string[]

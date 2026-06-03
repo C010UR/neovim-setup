@@ -12,13 +12,6 @@ local function normalize_dir(dir)
   return dir
 end
 
-local function read_file(path)
-  if vim.fn.filereadable(path) ~= 1 then
-    return nil
-  end
-  return table.concat(vim.fn.readfile(path), "\n")
-end
-
 function M.invalidate_cache()
   cache = {}
 end
@@ -36,7 +29,10 @@ local function parse_composer_psr4(project_root)
     return cache[project_root]
   end
 
-  local content = read_file(composer_path)
+  local content
+  if vim.fn.filereadable(composer_path) == 1 then
+    content = table.concat(vim.fn.readfile(composer_path), "\n")
+  end
   if not content then
     cache[project_root] = {}
     return cache[project_root]

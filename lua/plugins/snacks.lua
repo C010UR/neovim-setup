@@ -364,7 +364,12 @@ return {
                 action = ":lua require('config.pick').open('files', { cwd = vim.fn.stdpath('config') })",
               },
               { icon = " ", key = "p", desc = "Open Projects", action = ":lua Snacks.picker.projects()" },
-              { icon = " ", key = "s", desc = "Restore Session", section = "session" },
+              {
+                icon = " ",
+                key = "s",
+                desc = "Restore Session",
+                action = ":lua require('persistence').load({ last = true })",
+              },
               { icon = "󰒲 ", key = "l", desc = "Open Plugins", action = ":Pack" },
               { icon = " ", key = "q", desc = "Quit Neovim", action = ":qa" },
             },
