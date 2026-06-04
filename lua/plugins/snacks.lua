@@ -281,6 +281,7 @@ return {
         scroll = { enabled = true },
         statuscolumn = { enabled = false },
         words = { enabled = true },
+        image = { enabled = true },
         explorer = {
           enabled = true,
           replace_netrw = false,
@@ -428,6 +429,13 @@ return {
           Snacks.notifier.hide()
         end,
         desc = "Dismiss All Notifications",
+      },
+      {
+        "<leader>ih",
+        function()
+          Snacks.image.hover()
+        end,
+        desc = "Hover Image",
       },
       {
         "<leader>fb",

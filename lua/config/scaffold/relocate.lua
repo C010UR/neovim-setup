@@ -171,8 +171,18 @@ local function commit_renames(pairs, renames)
   notify.relocate_sync(pairs, synced, "move", registry.resolve_by_path)
   if lsp_applied then
     notify.lsp_applied()
-  else
-    notify.stale_refs(synced, false)
+  elseif synced == 0 then
+    local any_targets = false
+    for _, pair in ipairs(pairs) do
+      local provider = registry.resolve_by_path(pair.to)
+      if provider and provider.file_move then
+        any_targets = true
+        break
+      end
+    end
+    if any_targets then
+      notify.stale_refs(synced, false)
+    end
   end
 
   return ok_any
@@ -370,7 +380,10 @@ function M.rename_file(opts)
       if lsp_applied then
         notify.lsp_applied()
       elseif not synced then
-        notify.stale_refs(0, false, "File moved; declarations were not updated locally.")
+        local has_provider = provider and provider.file_move ~= nil
+        if has_provider then
+          notify.stale_refs(0, false, "File moved; declarations were not updated locally.")
+        end
       end
     end
     if opts.on_rename then

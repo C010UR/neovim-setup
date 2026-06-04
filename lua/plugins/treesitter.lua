@@ -16,7 +16,6 @@ return {
         "bash",
         "c",
         "diff",
-        "html",
         "javascript",
         "jsdoc",
         "json",
@@ -96,11 +95,7 @@ return {
       end
     end,
   },
-  {
-    "windwp/nvim-ts-autotag",
-    main = "nvim-ts-autotag",
-    opts = {},
-  },
+
   {
     "nvim-treesitter/nvim-treesitter-context",
     opts = {
