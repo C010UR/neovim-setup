@@ -1,6 +1,7 @@
 local buffers = require("config.buffers")
 local format = require("config.format")
 local root = require("config.root")
+local uri = require("config.uri")
 
 local map = vim.keymap.set
 
@@ -81,10 +82,13 @@ map("n", "<leader>bb", "<cmd>e!<cr>", { desc = "Reload Buffer from Disk" })
 map("n", "<leader>bd", function()
   buffers.close()
 end, { desc = "Close Buffer" })
+
 map("n", "<leader>bo", function()
   Snacks.bufdelete.other()
 end, { desc = "Close Other Buffers" })
+
 map("n", "<leader>bD", "<cmd>:bd<cr>", { desc = "Close Buffer and Window" })
+
 map("n", "<leader>bc", function()
   local path = Utils.relativePath()
   if path == nil then
@@ -94,6 +98,7 @@ map("n", "<leader>bc", function()
   vim.fn.setreg("+", path)
   vim.notify('Copied "' .. path .. '" to the clipboard')
 end, { desc = "Copy Buffer Path" })
+
 map("n", "<leader>bC", function()
   local path = Utils.relativePath()
   if path == nil then
@@ -104,6 +109,7 @@ map("n", "<leader>bC", function()
   vim.fn.setreg("+", path)
   vim.notify('Copied "' .. path .. '" to the clipboard')
 end, { desc = "Copy Buffer Path with Line Number" })
+
 map("n", "<leader>bn", function()
   local clipboard = vim.fn.getreg("+"):gsub("^%s*(.-)%s*$", "%1")
   if clipboard == "" then
@@ -137,7 +143,6 @@ map("n", "<leader>bn", function()
   end
 end, { desc = "Open File from Clipboard Path" })
 
--- Quality-of-life editing helpers.
 map({ "i", "n", "s" }, "<esc>", function()
   vim.cmd("noh")
   stop_snippet()
@@ -266,6 +271,25 @@ map({ "n", "x" }, "<leader>gY", function()
     notify = false,
   })
 end, { desc = "Copy Git Browse URL" })
+
+-- Open URL under cursor or selection.
+map("n", "gx", function()
+  local url = uri.get_url_under_cursor()
+  if url then
+    uri.open(url)
+  else
+    vim.notify("No URL found under cursor", vim.log.levels.WARN)
+  end
+end, { desc = "Open URL under cursor" })
+
+map("x", "gx", function()
+  local url = uri.get_visual_selection()
+  if url and url ~= "" then
+    uri.open(url)
+  else
+    vim.notify("No URL selected", vim.log.levels.WARN)
+  end
+end, { desc = "Open selected URL" })
 
 -- Inspection and terminal helpers.
 map("n", "<leader>qq", "<cmd>qa<cr>", { desc = "Quit All Windows" })
