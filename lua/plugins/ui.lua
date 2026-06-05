@@ -10,13 +10,13 @@ return {
       { "<leader>bP", "<Cmd>BufferLineGroupClose ungrouped<CR>", desc = "Close Non-Pinned Buffers" },
       { "<leader>br", "<Cmd>BufferLineCloseRight<CR>", desc = "Close Buffers to the Right" },
       { "<leader>bl", "<Cmd>BufferLineCloseLeft<CR>", desc = "Close Buffers to the Left" },
-      { "<S-h>", "<cmd>BufferLineCyclePrev<cr>", desc = "Previous Buffer" },
+      { "<S-h>", "<cmd>BufferLineCyclePrev<cr>", desc = "Prev Buffer" },
       { "<S-l>", "<cmd>BufferLineCycleNext<cr>", desc = "Next Buffer" },
-      { "[b", "<cmd>BufferLineCyclePrev<cr>", desc = "Previous Buffer" },
+      { "[b", "<cmd>BufferLineCyclePrev<cr>", desc = "Prev Buffer" },
       { "]b", "<cmd>BufferLineCycleNext<cr>", desc = "Next Buffer" },
       { "[B", "<cmd>BufferLineMovePrev<cr>", desc = "Move Buffer Left" },
       { "]B", "<cmd>BufferLineMoveNext<cr>", desc = "Move Buffer Right" },
-      { "<leader>bj", "<cmd>BufferLinePick<cr>", desc = "Pick Buffer from Tabline" },
+      { "<leader>bj", "<cmd>BufferLinePick<cr>", desc = "Pick Buffer" },
     },
     opts = {
       options = {

@@ -86,9 +86,22 @@ vim.api.nvim_create_autocmd("FileType", {
       if not picker then
         return
       end
+      local buf = ev.buf
+      local wk = require("which-key")
+
       vim.keymap.set("n", "<leader>cf", function()
         format_explorer_selection(picker)
-      end, { buffer = ev.buf, nowait = true, desc = "Format Selected Entries" })
+      end, { buffer = buf, nowait = true, desc = "Format Selected" })
+
+      vim.keymap.set("n", "?", function()
+        wk.show({ global = false })
+      end, { buffer = buf, nowait = true, desc = "Explorer Keymaps" })
+
+      wk.add({
+        { "<leader>cf", desc = "Format Selected", buffer = buf },
+        { "<tab>", desc = "Select Entry", buffer = buf },
+        { "?", desc = "Explorer Keymaps", buffer = buf },
+      }, { notify = false })
     end)
   end,
 })
@@ -197,17 +210,17 @@ return {
       function()
         Snacks.explorer({ cwd = root.get() })
       end,
-      desc = "Open Explorer (Root Dir)",
+      desc = "Explorer (Root Dir)",
     },
     {
       "<leader>fE",
       function()
         Snacks.explorer()
       end,
-      desc = "Open Explorer (CWD)",
+      desc = "Explorer (CWD)",
     },
-    { "<leader>e", "<leader>fe", desc = "Open Explorer (Root Dir)", remap = true },
-    { "<leader>E", "<leader>fE", desc = "Open Explorer (CWD)", remap = true },
+    { "<leader>e", "<leader>fe", desc = "Explorer (Root Dir)", remap = true },
+    { "<leader>E", "<leader>fE", desc = "Explorer (CWD)", remap = true },
     {
       "<leader>/",
       mode = "x",

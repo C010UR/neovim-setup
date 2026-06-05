@@ -802,7 +802,7 @@ function M.setup()
     complete = function()
       return { "check", "update", "update-all" }
     end,
-    desc = "Open vim.pack plugin manager UI",
+    desc = "Plugin Manager (pack)",
   })
 
   api.nvim_create_user_command("PackUpdate", function(opts)

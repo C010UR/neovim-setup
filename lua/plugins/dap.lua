@@ -133,7 +133,7 @@ return {
         function()
           require("dap").session()
         end,
-        desc = "Show Debug Session",
+        desc = "Debug Session",
       },
       {
         "<leader>dt",
@@ -147,7 +147,7 @@ return {
         function()
           require("dap.ui.widgets").hover()
         end,
-        desc = "Open Debug Widgets",
+        desc = "Debug Widgets",
       },
     },
     config = function()

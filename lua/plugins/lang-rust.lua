@@ -49,10 +49,10 @@ return {
         on_attach = function(_, bufnr)
           vim.keymap.set("n", "<leader>cR", function()
             vim.cmd.RustLsp("codeAction")
-          end, { desc = "Open Rust Code Actions", buffer = bufnr })
+          end, { desc = "Rust Code Actions", buffer = bufnr })
           vim.keymap.set("n", "<leader>dr", function()
             vim.cmd.RustLsp("debuggables")
-          end, { desc = "Open Rust Debuggables", buffer = bufnr })
+          end, { desc = "Rust Debuggables", buffer = bufnr })
         end,
         default_settings = {
           ["rust-analyzer"] = {

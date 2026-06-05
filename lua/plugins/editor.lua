@@ -25,7 +25,7 @@ return {
     opts = {},
     keys = {
       {
-        "s",
+        "\\",
         mode = { "n", "x", "o" },
         function()
           require("flash").jump()
@@ -33,7 +33,7 @@ return {
         desc = "Flash Jump",
       },
       {
-        "S",
+        "|",
         mode = { "n", "o", "x" },
         function()
           require("flash").treesitter()
@@ -75,70 +75,6 @@ return {
     },
   },
   {
-    "folke/which-key.nvim",
-    opts_extend = { "spec" },
-    opts = {
-      preset = "helix",
-      spec = {
-        {
-          mode = { "n", "x" },
-          { "<leader><tab>", group = "tabs" },
-          { "<leader>c", group = "code" },
-          { "<leader>d", group = "debug" },
-          { "<leader>dp", group = "profiler" },
-          { "<leader>f", group = "file/find" },
-          { "<leader>g", group = "git" },
-          { "<leader>gh", group = "hunks" },
-          { "<leader>q", group = "quit/session" },
-          { "<leader>s", group = "search" },
-          { "<leader>u", group = "ui" },
-          { "<leader>x", group = "diagnostics/quickfix" },
-          { "<leader>9", group = "ai/99" },
-          { "[", group = "prev" },
-          { "]", group = "next" },
-          { "g", group = "goto" },
-          { "gs", group = "surround" },
-          { "z", group = "fold" },
-          {
-            "<leader>b",
-            group = "buffer",
-            expand = function()
-              return require("which-key.extras").expand.buf()
-            end,
-          },
-          {
-            "<leader>w",
-            group = "windows",
-            proxy = "<c-w>",
-            expand = function()
-              return require("which-key.extras").expand.win()
-            end,
-          },
-          { "gx", desc = "Open with system app" },
-        },
-      },
-    },
-    keys = {
-      {
-        "<leader>?",
-        function()
-          require("which-key").show({ global = false })
-        end,
-        desc = "Show Buffer Keymaps",
-      },
-      {
-        "<c-w><space>",
-        function()
-          require("which-key").show({ keys = "<c-w>", loop = true })
-        end,
-        desc = "Show Window Keymaps",
-      },
-    },
-    config = function(_, opts)
-      require("which-key").setup(opts)
-    end,
-  },
-  {
     "folke/snacks.nvim",
     optional = true,
     keys = {
@@ -147,42 +83,42 @@ return {
         function()
           Snacks.picker.diagnostics()
         end,
-        desc = "Open Diagnostics",
+        desc = "Find Diagnostics",
       },
       {
         "<leader>xX",
         function()
           Snacks.picker.diagnostics_buffer()
         end,
-        desc = "Open Buffer Diagnostics",
+        desc = "Find Buffer Diagnostics",
       },
       {
         "<leader>cs",
         function()
           Snacks.picker.lsp_symbols({ filter = require("config.lsp").kind_filter })
         end,
-        desc = "Open Document Symbols",
+        desc = "Document Symbols",
       },
       {
         "<leader>cS",
         function()
           Snacks.picker.lsp_references()
         end,
-        desc = "Open References",
+        desc = "References",
       },
       {
         "<leader>xL",
         function()
           Snacks.picker.loclist()
         end,
-        desc = "Open Location List",
+        desc = "Location List",
       },
       {
         "<leader>xQ",
         function()
           Snacks.picker.qflist()
         end,
-        desc = "Open Quickfix List",
+        desc = "Quickfix List",
       },
       {
         "[q",
@@ -192,7 +128,7 @@ return {
             vim.notify(err, vim.log.levels.ERROR)
           end
         end,
-        desc = "Previous Quickfix Item",
+        desc = "Prev Quickfix Item",
       },
       {
         "]q",
@@ -222,21 +158,21 @@ return {
         function()
           require("todo-comments").jump_prev()
         end,
-        desc = "Previous Todo Comment",
+        desc = "Prev Todo Comment",
       },
       {
         "<leader>st",
         function()
           Snacks.picker.todo_comments()
         end,
-        desc = "Open TODO Comments",
+        desc = "Find TODO Comments",
       },
       {
         "<leader>sT",
         function()
           Snacks.picker.todo_comments({ keywords = { "TODO", "FIX", "FIXME" } })
         end,
-        desc = "Open TODO / FIX / FIXME",
+        desc = "Find TODO / FIX / FIXME",
       },
     },
   },

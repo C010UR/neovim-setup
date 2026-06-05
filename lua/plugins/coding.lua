@@ -120,7 +120,7 @@ return {
               function()
                 Snacks.picker.lsp_config()
               end,
-              desc = "Open LSP Information",
+              desc = "LSP Info",
             },
             {
               "gd",
@@ -136,7 +136,7 @@ return {
                 Snacks.picker.lsp_references()
               end,
               nowait = true,
-              desc = "Open References",
+              desc = "References",
             },
             {
               "gI",
@@ -163,26 +163,26 @@ return {
             {
               "K",
               vim.lsp.buf.hover,
-              desc = "Show Hover Documentation",
+              desc = "Hover",
               has = "hover",
             },
             {
               "gK",
               vim.lsp.buf.signature_help,
-              desc = "Show Signature Help",
+              desc = "Signature Help",
               has = "signatureHelp",
             },
             {
               "<c-k>",
               vim.lsp.buf.signature_help,
               mode = "i",
-              desc = "Show Signature Help",
+              desc = "Signature Help",
               has = "signatureHelp",
             },
             {
               "<leader>ca",
               vim.lsp.buf.code_action,
-              desc = "Open Code Actions",
+              desc = "Code Actions",
               mode = { "n", "x" },
               has = "codeAction",
             },
@@ -227,7 +227,7 @@ return {
                 Snacks.words.jump(-vim.v.count1)
               end,
               has = "documentHighlight",
-              desc = "Previous Highlighted Reference",
+              desc = "Prev Highlighted Reference",
               enabled = function()
                 return Snacks.words.is_enabled()
               end,
@@ -249,7 +249,7 @@ return {
                 Snacks.words.jump(-vim.v.count1, true)
               end,
               has = "documentHighlight",
-              desc = "Previous Highlighted Reference",
+              desc = "Prev Highlighted Reference",
               enabled = function()
                 return Snacks.words.is_enabled()
               end,
@@ -271,7 +271,7 @@ return {
               function()
                 Snacks.picker.lsp_symbols({ filter = lsp.kind_filter })
               end,
-              desc = "Open Document Symbols",
+              desc = "Document Symbols",
               has = "documentSymbol",
             },
             {
@@ -279,7 +279,7 @@ return {
               function()
                 Snacks.picker.lsp_workspace_symbols({ filter = lsp.kind_filter })
               end,
-              desc = "Open Workspace Symbols",
+              desc = "Workspace Symbols",
               has = "workspace/symbol",
             },
             {
@@ -287,7 +287,7 @@ return {
               function()
                 Snacks.picker.lsp_incoming_calls()
               end,
-              desc = "Open Incoming Calls",
+              desc = "Incoming Calls",
               has = "callHierarchy/incomingCalls",
             },
             {
@@ -295,7 +295,7 @@ return {
               function()
                 Snacks.picker.lsp_outgoing_calls()
               end,
-              desc = "Open Outgoing Calls",
+              desc = "Outgoing Calls",
               has = "callHierarchy/outgoingCalls",
             },
           },

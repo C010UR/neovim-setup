@@ -8,21 +8,21 @@ return {
           require("99").visual()
         end,
         mode = "v",
-        desc = "Work on Selection with 99",
+        desc = "99: Work on Selection",
       },
       {
         "<leader>9x",
         function()
           require("99").stop_all_requests()
         end,
-        desc = "Stop All 99 Requests",
+        desc = "99: Stop Requests",
       },
       {
         "<leader>9s",
         function()
           require("99").search()
         end,
-        desc = "Search with 99",
+        desc = "99: Search",
       },
     },
     config = function()

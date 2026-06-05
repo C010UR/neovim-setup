@@ -237,7 +237,7 @@ return {
   },
   {
     "mason-org/mason.nvim",
-    keys = { { "<leader>cm", "<cmd>Mason<cr>", desc = "Open Mason" } },
+    keys = { { "<leader>cm", "<cmd>Mason<cr>", desc = "Mason" } },
     opts_extend = { "ensure_installed" },
     opts = {
       ensure_installed = {

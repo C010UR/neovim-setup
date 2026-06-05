@@ -360,23 +360,23 @@ return {
               {
                 icon = " ",
                 key = "r",
-                desc = "Open Recent Files",
+                desc = "Find Recent Files",
                 action = ":lua require('config.pick').open('oldfiles')",
               },
               {
                 icon = " ",
                 key = "c",
-                desc = "Open Config",
+                desc = "Config Files",
                 action = ":lua require('config.pick').open('files', { cwd = vim.fn.stdpath('config') })",
               },
-              { icon = " ", key = "p", desc = "Open Projects", action = ":lua Snacks.picker.projects()" },
+              { icon = " ", key = "p", desc = "Projects", action = ":lua Snacks.picker.projects()" },
               {
                 icon = " ",
                 key = "s",
                 desc = "Restore Session",
                 action = ":lua require('persistence').load({ last = true })",
               },
-              { icon = "󰒲 ", key = "l", desc = "Open Plugins", action = ":Pack" },
+              { icon = "󰒲 ", key = "l", desc = "Plugins", action = ":Pack" },
               { icon = " ", key = "q", desc = "Quit Neovim", action = ":qa" },
             },
           },
@@ -403,14 +403,14 @@ return {
         function()
           Snacks.profiler.scratch()
         end,
-        desc = "Open Profiler Scratch Buffer",
+        desc = "Profiler Scratch",
       },
       {
         "<leader>,",
         function()
           Snacks.picker.buffers()
         end,
-        desc = "Open Buffers",
+        desc = "Find Buffers",
       },
       { "<leader>/", pick("live_grep"), desc = "Live Grep (Root Dir)" },
       {
@@ -418,7 +418,7 @@ return {
         function()
           Snacks.picker.command_history()
         end,
-        desc = "Open Command History",
+        desc = "Command History",
       },
       { "<leader><space>", pick("files"), desc = "Find Files (Root Dir)" },
       {
@@ -426,7 +426,7 @@ return {
         function()
           Snacks.picker.notifications()
         end,
-        desc = "Open Notification History",
+        desc = "Notification History",
       },
       {
         "<leader>un",
@@ -440,14 +440,14 @@ return {
         function()
           Snacks.picker.buffers()
         end,
-        desc = "Open Buffers",
+        desc = "Find Buffers",
       },
       {
         "<leader>fB",
         function()
           Snacks.picker.buffers({ hidden = true, nofile = true })
         end,
-        desc = "Open All Buffers",
+        desc = "Find All Buffers",
       },
       { "<leader>fc", pick.config_files(), desc = "Find Config Files" },
       { "<leader>ff", pick("files"), desc = "Find Files (Root Dir)" },
@@ -459,48 +459,48 @@ return {
         end,
         desc = "Find Git Files",
       },
-      { "<leader>fr", pick("oldfiles"), desc = "Open Recent Files" },
+      { "<leader>fr", pick("oldfiles"), desc = "Find Recent Files" },
       {
         "<leader>fR",
         function()
           Snacks.picker.recent({ filter = { cwd = true } })
         end,
-        desc = "Open Recent Files (CWD)",
+        desc = "Find Recent Files (CWD)",
       },
       {
         "<leader>fp",
         function()
           Snacks.picker.projects()
         end,
-        desc = "Open Projects",
+        desc = "Find Projects",
       },
       {
         "<leader>gd",
         function()
           Snacks.picker.git_diff()
         end,
-        desc = "Open Git Diff Hunks",
+        desc = "Find Git Diff Hunks",
       },
       {
         "<leader>gD",
         function()
           Snacks.picker.git_diff({ base = "origin", group = true })
         end,
-        desc = "Open Git Diff vs Origin",
+        desc = "Find Git Diff vs Origin",
       },
       {
         "<leader>gs",
         function()
           Snacks.picker.git_status()
         end,
-        desc = "Open Git Status",
+        desc = "Find Git Status",
       },
       {
         "<leader>gS",
         function()
           Snacks.picker.git_stash()
         end,
-        desc = "Open Git Stash",
+        desc = "Find Git Stash",
       },
       {
         "<leader>sb",
@@ -523,7 +523,7 @@ return {
         function()
           require("plugins.pack-ui").open()
         end,
-        desc = "Open Plugin Manager",
+        desc = "Plugin Manager",
       },
       { "<leader>sw", pick("grep_word"), desc = "Grep Selection or Word (Root Dir)", mode = { "n", "x" } },
       { "<leader>sW", pick("grep_word", { root = false }), desc = "Grep Selection or Word (CWD)", mode = { "n", "x" } },
@@ -532,105 +532,105 @@ return {
         function()
           Snacks.picker.registers()
         end,
-        desc = "Open Registers",
+        desc = "Registers",
       },
       {
         "<leader>s/",
         function()
           Snacks.picker.search_history()
         end,
-        desc = "Open Search History",
+        desc = "Search History",
       },
       {
         "<leader>sa",
         function()
           Snacks.picker.autocmds()
         end,
-        desc = "Open Autocmds",
+        desc = "Autocmds",
       },
       {
         "<leader>sc",
         function()
           Snacks.picker.command_history()
         end,
-        desc = "Open Command History",
+        desc = "Command History",
       },
       {
         "<leader>sC",
         function()
           Snacks.picker.commands()
         end,
-        desc = "Open Commands",
+        desc = "Commands",
       },
       {
         "<leader>sd",
         function()
           Snacks.picker.diagnostics()
         end,
-        desc = "Open Diagnostics",
+        desc = "Find Diagnostics",
       },
       {
         "<leader>sD",
         function()
           Snacks.picker.diagnostics_buffer()
         end,
-        desc = "Open Buffer Diagnostics",
+        desc = "Find Buffer Diagnostics",
       },
       {
         "<leader>sh",
         function()
           Snacks.picker.help()
         end,
-        desc = "Open Help Pages",
+        desc = "Help Pages",
       },
       {
         "<leader>sH",
         function()
           Snacks.picker.highlights()
         end,
-        desc = "Open Highlights",
+        desc = "Highlights",
       },
       {
         "<leader>si",
         function()
           Snacks.picker.icons()
         end,
-        desc = "Open Icons",
+        desc = "Icons",
       },
       {
         "<leader>sj",
         function()
           Snacks.picker.jumps()
         end,
-        desc = "Open Jumps",
+        desc = "Jumps",
       },
       {
         "<leader>sk",
         function()
           Snacks.picker.keymaps()
         end,
-        desc = "Open Keymaps",
+        desc = "Keymaps",
       },
       {
         "<leader>sl",
         function()
           Snacks.picker.loclist()
         end,
-        desc = "Open Location List",
+        desc = "Location List",
       },
       {
         "<leader>sM",
         function()
           Snacks.picker.man()
         end,
-        desc = "Open Man Pages",
+        desc = "Man Pages",
       },
       {
         "<leader>sm",
         function()
           Snacks.picker.marks()
         end,
-        desc = "Open Marks",
+        desc = "Marks",
       },
       {
         "<leader>sR",
@@ -644,14 +644,14 @@ return {
         function()
           Snacks.picker.qflist()
         end,
-        desc = "Open Quickfix List",
+        desc = "Quickfix List",
       },
       {
         "<leader>su",
         function()
           require("config.pack").open_undotree()
         end,
-        desc = "Open Undo Tree",
+        desc = "Undo Tree",
       },
       {
         "<leader>uC",

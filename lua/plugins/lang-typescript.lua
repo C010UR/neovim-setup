@@ -113,7 +113,7 @@ return {
                   open = true,
                 })
               end,
-              desc = "Show File References",
+              desc = "File References",
             },
             { "<leader>co", lsp.action["source.organizeImports"], desc = "Organize Imports" },
             { "<leader>cM", lsp.action["source.addMissingImports.ts"], desc = "Add Missing Imports" },
