@@ -177,6 +177,7 @@ return {
           on_close = function(picker)
             picker.preview.win:close()
           end,
+          focus = "list",
           layout = {
             preset = "sidebar",
             preview = false,
