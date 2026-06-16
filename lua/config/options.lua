@@ -32,7 +32,7 @@ opt.grepformat = "%f:%l:%c:%m"
 opt.grepprg = "rg --vimgrep"
 
 -- Completion and command-line UI.
-opt.completeopt = "menu,menuone,noselect,popup"
+opt.completeopt = "menu,menuone,noselect,popup,fuzzy"
 opt.pumblend = 10
 opt.pumborder = "single"
 opt.pumheight = 10

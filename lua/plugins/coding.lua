@@ -77,6 +77,19 @@ return {
     opts = {
       snippet_engine = "nvim",
     },
+    config = function(_, opts)
+      require("neogen").setup(opts)
+
+      -- Neogen escapes $ as $$ (VSCode/LuaSnip style), but vim.snippet expects \$
+      local snippet = require("neogen.snippet")
+      local expand = snippet.engines.nvim
+      snippet.engines.nvim = function(snip, pos)
+        snip = vim.tbl_map(function(line)
+          return line:gsub("%$%$", "\\$")
+        end, snip)
+        expand(snip, pos)
+      end
+    end,
   },
   {
     "neovim/nvim-lspconfig",
