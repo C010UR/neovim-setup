@@ -70,6 +70,35 @@ function M.realpath(path)
   return normalize(resolved)
 end
 
+function M.statusline_path(buf)
+  buf = buf or 0
+  local path = M.bufpath(buf)
+  if not path then
+    local name = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(buf), ":t")
+    if name == "" then
+      return nil
+    end
+    return name
+  end
+
+  local cwd = M.cwd()
+  if cwd == "" then
+    return path
+  end
+
+  local compare_path, compare_cwd = path, cwd
+  if is_win() then
+    compare_path = compare_path:lower()
+    compare_cwd = compare_cwd:lower()
+  end
+
+  if compare_path:find(compare_cwd, 1, true) == 1 then
+    return "~/" .. path:sub(#cwd + 2)
+  end
+
+  return path
+end
+
 function M.detectors.lsp(buf)
   local bufpath = M.bufpath(buf)
   if not bufpath then
