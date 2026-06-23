@@ -87,4 +87,50 @@ return {
       })
     end,
   },
+  {
+    "jmbuhr/otter.nvim",
+    dependencies = { "nvim-treesitter/nvim-treesitter" },
+    ft = { "markdown", "markdown.mdx" },
+    opts = {
+      lsp = {
+        diagnostic_update_events = { "BufWritePost" },
+      },
+      buffers = {
+        write_to_disk = false,
+      },
+    },
+    config = function(_, opts)
+      require("otter").setup(opts)
+
+      vim.api.nvim_create_autocmd("FileType", {
+        group = vim.api.nvim_create_augroup("config_otter", { clear = true }),
+        pattern = { "markdown", "markdown.mdx" },
+        callback = function()
+          vim.schedule(function()
+            require("otter").activate()
+          end)
+        end,
+      })
+    end,
+  },
+  {
+    "Necrom4/calcium.nvim",
+    ft = { "markdown", "markdown.mdx" },
+    cmd = { "Calcium" },
+    opts = {
+      notifications = false,
+      default_mode = "append",
+    },
+    keys = {
+      {
+        "<leader>c=",
+        function()
+          require("calcium").calculate({ mode = "append" })
+        end,
+        desc = "Calculate Expression",
+        mode = { "n", "x" },
+        ft = { "markdown", "markdown.mdx" },
+      },
+    },
+  },
 }
