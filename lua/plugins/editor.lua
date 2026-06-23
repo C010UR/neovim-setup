@@ -163,13 +163,6 @@ return {
       {
         "<leader>st",
         function()
-          Snacks.picker.todo_comments()
-        end,
-        desc = "Find TODO Comments",
-      },
-      {
-        "<leader>sT",
-        function()
           Snacks.picker.todo_comments({ keywords = { "TODO", "FIX", "FIXME" } })
         end,
         desc = "Find TODO / FIX / FIXME",

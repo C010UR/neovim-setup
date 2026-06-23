@@ -280,22 +280,6 @@ return {
               end,
             },
             {
-              "<leader>ss",
-              function()
-                Snacks.picker.lsp_symbols({ filter = lsp.kind_filter })
-              end,
-              desc = "Document Symbols",
-              has = "documentSymbol",
-            },
-            {
-              "<leader>sS",
-              function()
-                Snacks.picker.lsp_workspace_symbols({ filter = lsp.kind_filter })
-              end,
-              desc = "Workspace Symbols",
-              has = "workspace/symbol",
-            },
-            {
               "gai",
               function()
                 Snacks.picker.lsp_incoming_calls()
@@ -315,5 +299,22 @@ return {
         },
       },
     },
+  },
+  {
+    "bassamsdata/namu.nvim",
+    opts = {
+      global = {},
+      namu_symbols = { -- Specific Module options
+        options = {},
+      },
+    },
+    vim.keymap.set("n", "<leader>ss", ":Namu symbols<cr>", {
+      desc = "Jump to LSP symbol",
+      silent = true,
+    }),
+    vim.keymap.set("n", "<leader>sw", ":Namu workspace<cr>", {
+      desc = "LSP Symbols - Workspace",
+      silent = true,
+    }),
   },
 }

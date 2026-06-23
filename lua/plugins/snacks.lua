@@ -519,15 +519,6 @@ return {
       { "<leader>sg", pick("live_grep"), desc = "Live Grep (Root Dir)" },
       { "<leader>sG", pick("live_grep", { root = false }), desc = "Live Grep (CWD)" },
       {
-        "<leader>sp",
-        function()
-          require("plugins.pack-ui").open()
-        end,
-        desc = "Plugin Manager",
-      },
-      { "<leader>sw", pick("grep_word"), desc = "Grep Selection or Word (Root Dir)", mode = { "n", "x" } },
-      { "<leader>sW", pick("grep_word", { root = false }), desc = "Grep Selection or Word (CWD)", mode = { "n", "x" } },
-      {
         '<leader>s"',
         function()
           Snacks.picker.registers()
@@ -584,13 +575,6 @@ return {
         desc = "Help Pages",
       },
       {
-        "<leader>sH",
-        function()
-          Snacks.picker.highlights()
-        end,
-        desc = "Highlights",
-      },
-      {
         "<leader>si",
         function()
           Snacks.picker.icons()
@@ -598,46 +582,11 @@ return {
         desc = "Icons",
       },
       {
-        "<leader>sj",
-        function()
-          Snacks.picker.jumps()
-        end,
-        desc = "Jumps",
-      },
-      {
-        "<leader>sk",
-        function()
-          Snacks.picker.keymaps()
-        end,
-        desc = "Keymaps",
-      },
-      {
-        "<leader>sl",
-        function()
-          Snacks.picker.loclist()
-        end,
-        desc = "Location List",
-      },
-      {
         "<leader>sM",
         function()
           Snacks.picker.man()
         end,
         desc = "Man Pages",
-      },
-      {
-        "<leader>sm",
-        function()
-          Snacks.picker.marks()
-        end,
-        desc = "Marks",
-      },
-      {
-        "<leader>sR",
-        function()
-          Snacks.picker.resume()
-        end,
-        desc = "Resume Last Picker",
       },
       {
         "<leader>sq",
