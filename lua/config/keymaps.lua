@@ -174,6 +174,17 @@ map("i", "<C-Space>", function()
 end, { desc = "Trigger Completion" })
 map("x", "<", "<gv", { desc = "Indent Left and Reselect" })
 map("x", ">", ">gv", { desc = "Indent Right and Reselect" })
+
+-- Paste over a selection without clobbering the unnamed register (and clipboard)
+-- with the text being replaced.
+local function paste_over_selection()
+  local contents = vim.fn.getreg('"')
+  local regtype = vim.fn.getregtype('"')
+  vim.cmd('normal! "_dP')
+  vim.fn.setreg('"', contents, regtype)
+end
+map("x", "p", paste_over_selection, { desc = "Paste Over Selection (Keep Register)" })
+map("x", "P", paste_over_selection, { desc = "Paste Before Selection (Keep Register)" })
 map("n", "gco", "o<esc>Vcx<esc><cmd>normal gcc<cr>fxa<bs>", { desc = "Add Comment Below" })
 map("n", "gcO", "O<esc>Vcx<esc><cmd>normal gcc<cr>fxa<bs>", { desc = "Add Comment Above" })
 

@@ -302,8 +302,8 @@ return {
       },
       {
         "<leader><space>",
-        finder.wrap("grep"),
-        desc = "Grep (Project)",
+        finder.wrap("files"),
+        desc = "Find Files (Root Dir)",
       },
       {
         "<leader>:",
@@ -312,7 +312,7 @@ return {
         end,
         desc = "Command History",
       },
-      { "<leader>/", finder.wrap("files"), desc = "Find Files (Root Dir)" },
+      { "<leader>/", finder.wrap("grep"), desc = "Grep (Project)" },
       {
         "<leader>n",
         function()

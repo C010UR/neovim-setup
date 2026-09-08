@@ -7,8 +7,8 @@
 --- - Global find & replace lives in grug-far.nvim (see plugins/editor.lua).
 ---
 --- Entry points:
----   <leader><space>  Grep (project)
----   <leader>/        Files
+---   <leader><space>  Files
+---   <leader>/        Grep (project)
 ---   <leader>s        Symbols (workspace, namu.nvim / LSP)
 ---   <leader>R        Replace in files (grug-far, project-scoped)
 ---   <leader>a        Commands & actions

@@ -16,7 +16,7 @@ M.sync_path = sync.sync_path
 M.symbol_at_cursor = php_rename.symbol_at_cursor
 M.kind_from_stem = sync.kind_from_stem
 
-M.lsp_client_priority = { "phpactor" }
+M.lsp_client_priority = { "phpantom_lsp" }
 
 ---@param ctx ScaffoldContext
 ---@return ScaffoldResult
