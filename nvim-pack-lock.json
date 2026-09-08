@@ -28,6 +28,10 @@
       "rev": "b8281be336498035f9288d6542b2881a7140a9ec",
       "src": "https://github.com/Saecki/crates.nvim"
     },
+    "darcula-dark.nvim": {
+      "rev": "e4a407f37a2a6d7d01c66cc54a569edccad81592",
+      "src": "https://github.com/xiantang/darcula-dark.nvim"
+    },
     "fff.nvim": {
       "rev": "d84c0a10cd5ea23285cb5575fa90179f51710f99",
       "src": "https://github.com/dmtrKovalenko/fff.nvim"
@@ -51,6 +55,10 @@
     "guess-indent.nvim": {
       "rev": "84a4987ff36798c2fc1169cbaff67960aed9776f",
       "src": "https://github.com/NMAC427/guess-indent.nvim"
+    },
+    "jb.nvim": {
+      "rev": "ad55d976d44c498ae8dfb0dfec5712516a9cadf9",
+      "src": "https://github.com/nickkadutskyi/jb.nvim"
     },
     "lazydev.nvim": {
       "rev": "ff2cbcba459b637ec3fd165a2be59b7bbaeedf0d",
