@@ -139,7 +139,7 @@ return {
     dependencies = { "folke/snacks.nvim" },
     keys = {
       {
-        "<leader>fy",
+        "<leader>cy",
         function()
           require("yaml_nvim").snacks()
         end,

@@ -1,7 +1,24 @@
-local pick = require("config.pick")
+local finder = require("config.finder")
 local root = require("config.root")
 
 local dashboard_splash = "lights"
+local fallback_splash = "fire"
+
+local function resolve_splash()
+  local ok, splash = pcall(require("milli").load, { splash = dashboard_splash })
+  if ok and splash and splash.frames then
+    return splash, dashboard_splash
+  end
+  vim.notify(
+    ("milli.nvim: splash %q not found, falling back to %q (try :MilliInstall %s)"):format(
+      dashboard_splash,
+      fallback_splash,
+      dashboard_splash
+    ),
+    vim.log.levels.WARN
+  )
+  return require("milli").load({ splash = fallback_splash }), fallback_splash
+end
 
 local function startup_directory_arg()
   if vim.fn.argc(-1) ~= 1 then
@@ -66,7 +83,8 @@ end
 local milli_ns = vim.api.nvim_create_namespace("config_milli_dashboard")
 
 local function setup_milli_dashboard()
-  local milli_opts = { splash = dashboard_splash, loop = true }
+  local _, active_splash = resolve_splash()
+  local milli_opts = { splash = active_splash, loop = true }
 
   -- Accent color (tokyonight purple)
   local function set_hl()
@@ -257,7 +275,7 @@ return {
     },
     priority = 1000,
     opts = function()
-      local splash = require("milli").load({ splash = dashboard_splash })
+      local splash = resolve_splash()
 
       return {
         bigfile = { enabled = true },
@@ -295,11 +313,16 @@ return {
           enabled = true,
           hidden = true,
           ignored = true,
+          -- Finder scope: fff-backed files/grep + everywhere, uniform with
+          -- the built-in sources (see lua/config/finder/init.lua).
+          sources = finder.sources(),
           win = {
             input = {
               keys = {
                 ["<a-c>"] = { "toggle_cwd", mode = { "n", "i" }, desc = "Toggle Picker Root / CWD" },
                 ["<a-s>"] = { "flash", mode = { "n", "i" }, desc = "Flash Picker Results" },
+                ["<c-q>"] = { "results_open", mode = { "n", "i" }, desc = "Results to Quickfix Buffer" },
+                ["<a-t>"] = { "results_open", mode = { "n", "i" }, desc = "Results to Quickfix Buffer" },
                 ["s"] = { "flash", desc = "Flash Picker Results" },
               },
             },
@@ -311,6 +334,49 @@ return {
               local current = picker_instance:cwd()
               picker_instance:set_cwd(current == project_root and cwd or project_root)
               picker_instance:find()
+            end,
+            -- <c-q> / <a-t>: send results to the quickfix buffer. Also tear
+            -- down the dashboard (it is a *floating* window — left alone it
+            -- stays on top and every quickfix jump looks like a new split),
+            -- then attach the first result to the main window when it is
+            -- transient (dashboard background / empty buffer).
+            results_open = function(picker_instance)
+              require("snacks.picker.actions").qflist(picker_instance)
+
+              vim.schedule(function()
+                for _, w in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+                  local cfg = vim.api.nvim_win_get_config(w)
+                  if cfg.relative ~= "" then
+                    local ft = vim.bo[vim.api.nvim_win_get_buf(w)].filetype
+                    if ft == "snacks_dashboard" or ft == "snacks_win_backdrop" then
+                      pcall(vim.api.nvim_win_close, w, true)
+                    end
+                  end
+                end
+
+                local main_win
+                for _, w in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+                  if vim.api.nvim_win_get_config(w).relative == "" then
+                    local b = vim.api.nvim_win_get_buf(w)
+                    if vim.bo[b].buftype ~= "quickfix" then
+                      main_win = w
+                      break
+                    end
+                  end
+                end
+
+                if main_win then
+                  local b = vim.api.nvim_win_get_buf(main_win)
+                  local transient = vim.bo[b].buftype ~= ""
+                    or vim.bo[b].filetype == "snacks_dashboard"
+                    or (vim.api.nvim_buf_get_name(b) == "" and not vim.bo[b].modified)
+                  if transient then
+                    vim.api.nvim_win_call(main_win, function()
+                      pcall(vim.cmd, "cfirst")
+                    end)
+                  end
+                end
+              end)
             end,
             flash = function(picker_instance)
               if not package.loaded["flash"] then
@@ -349,13 +415,13 @@ return {
           preset = {
             header = table.concat(splash.frames[1], "\n"),
             keys = {
-              { icon = " ", key = "f", desc = "Find Files", action = ":lua require('config.pick').open('files')" },
+              { icon = " ", key = "f", desc = "Find Files", action = ":lua require('config.finder').open('files')" },
               { icon = " ", key = "n", desc = "Create New File", action = ":ene | startinsert" },
               {
                 icon = " ",
                 key = "g",
-                desc = "Find Text",
-                action = ":lua require('config.pick').open('live_grep')",
+                desc = "Grep",
+                action = ":lua require('config.finder').open('grep')",
               },
               {
                 icon = " ",
@@ -406,13 +472,10 @@ return {
         desc = "Profiler Scratch",
       },
       {
-        "<leader>,",
-        function()
-          Snacks.picker.buffers()
-        end,
-        desc = "Find Buffers",
+        "<leader><space>",
+        finder.wrap("grep"),
+        desc = "Grep (Project)",
       },
-      { "<leader>/", pick("live_grep"), desc = "Live Grep (Root Dir)" },
       {
         "<leader>:",
         function()
@@ -420,7 +483,7 @@ return {
         end,
         desc = "Command History",
       },
-      { "<leader><space>", pick("files"), desc = "Find Files (Root Dir)" },
+      { "<leader>/", finder.wrap("files"), desc = "Find Files (Root Dir)" },
       {
         "<leader>n",
         function()
@@ -436,43 +499,11 @@ return {
         desc = "Dismiss All Notifications",
       },
       {
-        "<leader>fb",
+        "<leader>a",
         function()
-          Snacks.picker.buffers()
+          Snacks.picker.commands()
         end,
-        desc = "Find Buffers",
-      },
-      {
-        "<leader>fB",
-        function()
-          Snacks.picker.buffers({ hidden = true, nofile = true })
-        end,
-        desc = "Find All Buffers",
-      },
-      { "<leader>fc", pick.config_files(), desc = "Find Config Files" },
-      { "<leader>ff", pick("files"), desc = "Find Files (Root Dir)" },
-      { "<leader>fF", pick("files", { root = false }), desc = "Find Files (CWD)" },
-      {
-        "<leader>fg",
-        function()
-          Snacks.picker.git_files()
-        end,
-        desc = "Find Git Files",
-      },
-      { "<leader>fr", pick("oldfiles"), desc = "Find Recent Files" },
-      {
-        "<leader>fR",
-        function()
-          Snacks.picker.recent({ filter = { cwd = true } })
-        end,
-        desc = "Find Recent Files (CWD)",
-      },
-      {
-        "<leader>fp",
-        function()
-          Snacks.picker.projects()
-        end,
-        desc = "Find Projects",
+        desc = "Commands & Actions",
       },
       {
         "<leader>gd",
@@ -503,100 +534,7 @@ return {
         desc = "Find Git Stash",
       },
       {
-        "<leader>sb",
-        function()
-          Snacks.picker.lines()
-        end,
-        desc = "Search Buffer Lines",
-      },
-      {
-        "<leader>sB",
-        function()
-          Snacks.picker.grep_buffers()
-        end,
-        desc = "Search Open Buffers",
-      },
-      { "<leader>sg", pick("live_grep"), desc = "Live Grep (Root Dir)" },
-      { "<leader>sG", pick("live_grep", { root = false }), desc = "Live Grep (CWD)" },
-      {
-        '<leader>s"',
-        function()
-          Snacks.picker.registers()
-        end,
-        desc = "Registers",
-      },
-      {
-        "<leader>s/",
-        function()
-          Snacks.picker.search_history()
-        end,
-        desc = "Search History",
-      },
-      {
-        "<leader>sa",
-        function()
-          Snacks.picker.autocmds()
-        end,
-        desc = "Autocmds",
-      },
-      {
-        "<leader>sc",
-        function()
-          Snacks.picker.command_history()
-        end,
-        desc = "Command History",
-      },
-      {
-        "<leader>sC",
-        function()
-          Snacks.picker.commands()
-        end,
-        desc = "Commands",
-      },
-      {
-        "<leader>sd",
-        function()
-          Snacks.picker.diagnostics()
-        end,
-        desc = "Find Diagnostics",
-      },
-      {
-        "<leader>sD",
-        function()
-          Snacks.picker.diagnostics_buffer()
-        end,
-        desc = "Find Buffer Diagnostics",
-      },
-      {
-        "<leader>sh",
-        function()
-          Snacks.picker.help()
-        end,
-        desc = "Help Pages",
-      },
-      {
-        "<leader>si",
-        function()
-          Snacks.picker.icons()
-        end,
-        desc = "Icons",
-      },
-      {
-        "<leader>sM",
-        function()
-          Snacks.picker.man()
-        end,
-        desc = "Man Pages",
-      },
-      {
-        "<leader>sq",
-        function()
-          Snacks.picker.qflist()
-        end,
-        desc = "Quickfix List",
-      },
-      {
-        "<leader>su",
+        "<leader>U",
         function()
           require("config.pack").open_undotree()
         end,

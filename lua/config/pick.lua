@@ -1,36 +1,25 @@
+--- Compatibility routing for pickers. New code should use
+--- `require("config.finder")` directly; this keeps the dashboard and
+--- scaffold integrations working through a single API.
+
 local root = require("config.root")
+local finder = require("config.finder")
 
 local M = {}
 local commands = {
   files = "files",
   live_grep = "grep",
-  oldfiles = "recent",
+  grep = "grep",
+  oldfiles = "oldfiles",
 }
 
 function M.open(command, opts)
   command = commands[command ~= "auto" and command or "files"] or command or "files"
   opts = vim.deepcopy(opts or {})
 
-  -- Use fff.nvim for file and live grep searches
+  -- Finder scope handles the core search entry points (uniform UI + scoping).
   if command == "files" or command == "grep" then
-    local cwd = opts.cwd
-    if not cwd then
-      if opts.root ~= false then
-        -- Prefer the directory Neovim was started with, then project markers,
-        -- then fall back to the current working directory.
-        cwd = root.get({ buf = opts.buf, normalize = true, spec = { "startup", { ".git", "lua" }, "cwd" } })
-      else
-        cwd = vim.fs.normalize(vim.uv.cwd() or ".")
-      end
-    end
-    local fff = require("fff")
-    fff.change_indexing_directory(cwd)
-    if command == "files" then
-      fff.find_files({ cwd = cwd })
-    else
-      fff.live_grep({ cwd = cwd })
-    end
-    return
+    return finder.open(command, opts)
   end
 
   -- Fallback to Snacks.picker for everything else (oldfiles, git, buffers, etc.)

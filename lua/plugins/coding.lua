@@ -308,12 +308,8 @@ return {
         options = {},
       },
     },
-    vim.keymap.set("n", "<leader>ss", ":Namu symbols<cr>", {
-      desc = "Jump to LSP symbol",
-      silent = true,
-    }),
-    vim.keymap.set("n", "<leader>sw", ":Namu workspace<cr>", {
-      desc = "LSP Symbols - Workspace",
+    vim.keymap.set("n", "<leader>s", ":Namu workspace<cr>", {
+      desc = "Symbols (Workspace)",
       silent = true,
     }),
   },

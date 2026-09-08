@@ -4,19 +4,12 @@ return {
     opts = { headerMaxWidth = 80 },
     keys = {
       {
-        "<leader>sr",
+        "<leader>R",
         function()
-          local grug = require("grug-far")
-          local ext = vim.bo.buftype == "" and vim.fn.expand("%:e")
-          grug.open({
-            transient = true,
-            prefills = {
-              filesFilter = ext and ext ~= "" and ("*." .. ext) or nil,
-            },
-          })
+          require("config.finder").replace()
         end,
         mode = { "n", "x" },
-        desc = "Search and Replace",
+        desc = "Replace in Files (Project)",
       },
     },
   },
@@ -100,27 +93,6 @@ return {
         desc = "Document Symbols",
       },
       {
-        "<leader>cS",
-        function()
-          Snacks.picker.lsp_references()
-        end,
-        desc = "References",
-      },
-      {
-        "<leader>xL",
-        function()
-          Snacks.picker.loclist()
-        end,
-        desc = "Location List",
-      },
-      {
-        "<leader>xQ",
-        function()
-          Snacks.picker.qflist()
-        end,
-        desc = "Quickfix List",
-      },
-      {
         "[q",
         function()
           local ok, err = pcall(vim.cmd.cprev)
@@ -161,11 +133,11 @@ return {
         desc = "Prev Todo Comment",
       },
       {
-        "<leader>st",
+        "<leader>xT",
         function()
           Snacks.picker.todo_comments({ keywords = { "TODO", "FIX", "FIXME" } })
         end,
-        desc = "Find TODO / FIX / FIXME",
+        desc = "TODO / FIXME List",
       },
     },
   },

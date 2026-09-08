@@ -5,8 +5,11 @@ vim.g.maplocalleader = "\\"
 -- Global toggles and project-root behavior shared by other modules.
 vim.g.autoformat = false
 vim.g.snacks_animate = false
-vim.g.root_spec = { "lsp", { ".git", "lua" }, "cwd" }
-vim.g.root_lsp_ignore = { "copilot" }
+-- Root detection (see lua/config/root.lua): a nested list means equal
+-- priority — the nearest ancestor directory containing ANY of these wins.
+vim.g.root_markers = {
+  { ".git", "package.json", "composer.json", "Cargo.toml", "go.mod", "pyproject.toml", "stylua.toml", ".luarc.json", "lua" },
+}
 
 vim.g.config_scaffold_lsp_file_rename = true
 vim.g.config_scaffold_lsp_rename_timeout_ms = 10000

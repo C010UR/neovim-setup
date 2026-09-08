@@ -176,21 +176,31 @@ map("x", "<", "<gv", { desc = "Indent Left and Reselect" })
 map("x", ">", ">gv", { desc = "Indent Right and Reselect" })
 map("n", "gco", "o<esc>Vcx<esc><cmd>normal gcc<cr>fxa<bs>", { desc = "Add Comment Below" })
 map("n", "gcO", "O<esc>Vcx<esc><cmd>normal gcc<cr>fxa<bs>", { desc = "Add Comment Above" })
-map("n", "<leader>fn", "<cmd>enew<cr>", { desc = "New Empty Buffer" })
 
 -- Quickfix, location list, formatting, and diagnostics.
+-- The results sidebar is Trouble when available (plugins/trouble.lua);
+-- these keymaps fall back to the native windows otherwise.
+local function trouble_toggle(mode)
+  local ok, trouble = pcall(require, "trouble")
+  if ok then
+    trouble.toggle({ mode = mode, focus = false })
+    return
+  end
+  local cmd = mode == "loclist"
+      and (vim.fn.getloclist(0, { winid = 0 }).winid ~= 0 and vim.cmd.lclose or vim.cmd.lopen)
+    or (vim.fn.getqflist({ winid = 0 }).winid ~= 0 and vim.cmd.cclose or vim.cmd.copen)
+  local ok_cmd, err = pcall(cmd)
+  if not ok_cmd and err then
+    vim.notify(err, vim.log.levels.ERROR)
+  end
+end
+
 map("n", "<leader>xl", function()
-  local ok, err = pcall(vim.fn.getloclist(0, { winid = 0 }).winid ~= 0 and vim.cmd.lclose or vim.cmd.lopen)
-  if not ok and err then
-    vim.notify(err, vim.log.levels.ERROR)
-  end
-end, { desc = "Toggle Location List" })
+  trouble_toggle("loclist")
+end, { desc = "Toggle Results Sidebar (Location)" })
 map("n", "<leader>xq", function()
-  local ok, err = pcall(vim.fn.getqflist({ winid = 0 }).winid ~= 0 and vim.cmd.cclose or vim.cmd.copen)
-  if not ok and err then
-    vim.notify(err, vim.log.levels.ERROR)
-  end
-end, { desc = "Toggle Quickfix List" })
+  trouble_toggle("quickfix")
+end, { desc = "Toggle Results Sidebar (Quickfix)" })
 map("n", "[q", vim.cmd.cprev, { desc = "Prev Quickfix Item" })
 map("n", "]q", vim.cmd.cnext, { desc = "Next Quickfix Item" })
 map({ "n", "x" }, "<leader>cf", function()
@@ -300,12 +310,12 @@ map("n", "<leader>uI", function()
   vim.treesitter.inspect_tree()
   vim.api.nvim_input("I")
 end, { desc = "Inspect Treesitter Tree" })
-map("n", "<leader>fT", function()
-  Snacks.terminal()
-end, { desc = "Terminal (CWD)" })
-map("n", "<leader>ft", function()
+map("n", "<leader>t", function()
   Snacks.terminal(nil, { cwd = root.get() })
 end, { desc = "Terminal (Root Dir)" })
+map("n", "<leader>T", function()
+  Snacks.terminal()
+end, { desc = "Terminal (CWD)" })
 map({ "n", "t" }, "<c-/>", function()
   Snacks.terminal.focus(nil, { cwd = root.get() })
 end, { desc = "Focus Terminal (Root Dir)" })
