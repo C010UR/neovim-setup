@@ -68,10 +68,6 @@
       "rev": "221ce6b2d999187044529f49da6554a92f740a96",
       "src": "https://github.com/nvim-lualine/lualine.nvim"
     },
-    "markdown-preview.nvim": {
-      "rev": "a923f5fc5ba36a3b17e289dc35dc17f66d0548ee",
-      "src": "https://github.com/iamcco/markdown-preview.nvim"
-    },
     "mason-lspconfig.nvim": {
       "rev": "40276c4df7e6bdce6801d6c035c6227f9115a855",
       "src": "https://github.com/mason-org/mason-lspconfig.nvim"
@@ -205,6 +201,10 @@
     "tokyonight.nvim": {
       "rev": "cdc07ac78467a233fd62c493de29a17e0cf2b2b6",
       "src": "https://github.com/folke/tokyonight.nvim"
+    },
+    "touchup.nvim": {
+      "rev": "efc7df43515aeb29c84ef088f0197bde83e9ce12",
+      "src": "https://github.com/noisesfromspace/touchup.nvim"
     },
     "treesitter-parser-registry": {
       "rev": "6eb15358bb9fc88f0d3401d8538d56652e9bdf3c",

@@ -897,6 +897,7 @@ function M.setup()
 
   require("config.format").setup()
   require("config.tmp").setup()
+  require("config.finder").setup()
   require("config.autocmds")
   require("config.keymaps")
 end

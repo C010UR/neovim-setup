@@ -220,20 +220,5 @@ return {
       end,
       desc = "Explorer (CWD)",
     },
-    {
-      "<leader>/",
-      mode = "x",
-      desc = "Grep Selection",
-      function()
-        local start_pos = vim.api.nvim_buf_get_mark(0, "<")
-        local end_pos = vim.api.nvim_buf_get_mark(0, ">")
-        local lines = vim.api.nvim_buf_get_text(0, start_pos[1] - 1, start_pos[2], end_pos[1] - 1, end_pos[2] + 1, {})
-        local text = table.concat(lines, " "):gsub("%s+", " "):gsub("^%s*(.-)%s*$", "%1")
-        if text ~= "" then
-          local cwd = root.get({ normalize = true })
-          require("config.finder").open("grep", { search = text, cwd = cwd })
-        end
-      end,
-    },
   },
 }

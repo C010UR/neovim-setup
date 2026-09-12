@@ -7,8 +7,10 @@ return {
     require("fff").setup(opts)
 
     local function setup_fff_highlights()
-      local nf = vim.api.nvim_get_hl(0, { name = "NormalFloat", link = false })
-      local float_bg = nf.bg
+      -- Match the snacks theming in plugins/theme.lua: follow the editor
+      -- background (Normal) instead of NormalFloat's lighter "tool window" bg.
+      local normal = vim.api.nvim_get_hl(0, { name = "Normal", link = false })
+      local float_bg = normal.bg
 
       local function with_float_bg(name, source, extras)
         local hl = vim.api.nvim_get_hl(0, { name = source, link = false })
@@ -97,6 +99,11 @@ return {
   opts = {
     max_results = 100,
     max_threads = 16,
+    -- <a-t> mirrors fff's <C-q>: close the picker, fill the quickfix list and
+    -- open the quickfix window. Applies to files and grep.
+    keymaps = {
+      send_to_quickfix = { "<C-q>", "<A-t>" },
+    },
     layout = {
       height = 0.8,
       width = 0.8,
@@ -110,6 +117,7 @@ return {
       line_numbers = true,
     },
     hl = {
+      normal = "Normal",
       title = "FffTitle",
       cursor = "FffCursor",
       selected_active = "FffSelectedActive",
@@ -117,7 +125,7 @@ return {
       file_info_section = "FffFileInfoSection",
       file_info_separator = "FloatBorder",
       file_info_label = "FffComment",
-      winhl = "Normal:NormalFloat,NormalNC:NormalFloat,FloatBorder:FloatBorder,FloatTitle:FffTitle,SignColumn:NormalFloat",
+      winhl = "Normal:Normal,NormalNC:Normal,FloatBorder:FloatBorder,FloatTitle:FffTitle,SignColumn:Normal",
       git_sign_staged = "FffGitSignStaged",
       git_sign_modified = "FffGitSignModified",
       git_sign_deleted = "FffGitSignDeleted",

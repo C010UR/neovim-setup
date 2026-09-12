@@ -61,31 +61,11 @@ return {
     },
   },
   {
-    "iamcco/markdown-preview.nvim",
-    hooks = {
-      post = {
-        install = function()
-          vim.fn["mkdp#util#install"]()
-        end,
-        update = function()
-          vim.fn["mkdp#util#install"]()
-        end,
-      },
+    "noisesfromspace/touchup.nvim",
+    ft = { "markdown", "markdown.mdx" },
+    opts = {
+      filetypes = { "markdown", "markdown.mdx" },
     },
-    keys = {
-      {
-        "<leader>cp",
-        ft = "markdown",
-        "<cmd>MarkdownPreviewToggle<cr>",
-        desc = "Toggle Markdown Preview",
-      },
-    },
-    config = function()
-      vim.api.nvim_exec_autocmds("FileType", {
-        buffer = vim.api.nvim_get_current_buf(),
-        modeline = false,
-      })
-    end,
   },
   {
     "jmbuhr/otter.nvim",

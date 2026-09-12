@@ -142,9 +142,6 @@ return {
           enabled = true,
           hidden = true,
           ignored = true,
-          -- Finder scope: fff-backed files/grep + everywhere, uniform with
-          -- the built-in sources (see lua/config/finder/init.lua).
-          sources = finder.sources(),
           win = {
             input = {
               keys = {
@@ -313,6 +310,14 @@ return {
         desc = "Command History",
       },
       { "<leader>/", finder.wrap("grep"), desc = "Grep (Project)" },
+      {
+        "<leader>/",
+        function()
+          finder.grep_visual()
+        end,
+        mode = "x",
+        desc = "Grep Visual Selection (Project)",
+      },
       {
         "<leader>n",
         function()
