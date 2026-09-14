@@ -14,6 +14,7 @@ return {
         { "<leader>dp", group = "profiler", icon = { icon = "󰙨", color = "orange" } },
         { "<leader>g", group = "git", icon = { icon = "󰊢", color = "orange" } },
         { "<leader>gh", group = "hunks", icon = { icon = "󰊢", color = "yellow" } },
+        { "<leader>k", group = "keymaps", icon = { icon = "󰌌", color = "blue" } },
         { "<leader>q", group = "session", icon = { icon = "󰿅", color = "red" } },
         { "<leader>u", group = "ui", icon = { icon = "󰙵", color = "purple" } },
         { "<leader>x", group = "results", icon = { icon = "󱖫", color = "red" } },

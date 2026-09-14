@@ -900,6 +900,7 @@ function M.setup()
   require("config.finder").setup()
   require("config.autocmds")
   require("config.keymaps")
+  require("config.cheatsheet").setup()
 end
 
 return M

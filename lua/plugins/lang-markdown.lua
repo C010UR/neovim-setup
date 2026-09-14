@@ -2,11 +2,6 @@ vim.filetype.add({
   extension = { mdx = "markdown.mdx" },
 })
 
-local markdown_standalone = {
-  filetypes = { "markdown", "markdown.mdx" },
-  extensions = { "md", "mdx", "markdown" },
-}
-
 return {
   {
     "stevearc/conform.nvim",
@@ -46,7 +41,7 @@ return {
     optional = true,
     opts = {
       linters_by_ft = {
-        markdown = { "markdownlint-cli2" },
+        markdown = {},
       },
     },
   },
@@ -55,7 +50,7 @@ return {
     opts = {
       servers = {
         marksman = {
-          standalone = markdown_standalone,
+          enabled = false,
         },
       },
     },
@@ -66,32 +61,6 @@ return {
     opts = {
       filetypes = { "markdown", "markdown.mdx" },
     },
-  },
-  {
-    "jmbuhr/otter.nvim",
-    dependencies = { "nvim-treesitter/nvim-treesitter" },
-    ft = { "markdown", "markdown.mdx" },
-    opts = {
-      lsp = {
-        diagnostic_update_events = { "BufWritePost" },
-      },
-      buffers = {
-        write_to_disk = false,
-      },
-    },
-    config = function(_, opts)
-      require("otter").setup(opts)
-
-      vim.api.nvim_create_autocmd("FileType", {
-        group = vim.api.nvim_create_augroup("config_otter", { clear = true }),
-        pattern = { "markdown", "markdown.mdx" },
-        callback = function()
-          vim.schedule(function()
-            require("otter").activate()
-          end)
-        end,
-      })
-    end,
   },
   {
     "Necrom4/calcium.nvim",

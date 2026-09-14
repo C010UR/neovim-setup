@@ -116,6 +116,15 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
+-- Markdown is writing-first: never show LSP/lint diagnostics, quickfixes, or issues.
+vim.api.nvim_create_autocmd("FileType", {
+  group = augroup("no_markdown_diagnostics"),
+  pattern = { "markdown", "markdown.mdx" },
+  callback = function(event)
+    vim.diagnostic.enable(false, { bufnr = event.buf })
+  end,
+})
+
 -- Create missing parent directories before saving a file.
 -- Remote-style paths such as scp://... are skipped because they are not local filesystem paths.
 vim.api.nvim_create_autocmd("BufWritePre", {
